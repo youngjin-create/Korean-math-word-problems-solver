@@ -1,0 +1,1063 @@
+
+어느 동물원에 기린은 <$a:숫자>마리, 코끼리는 <$b:숫자>마리 있습니다. 기린은 코끼리보다 몇 마리 더 많습니까?
+:objective:abs($a-$b)
+목장에 양이 <$a:숫자>마리, 염소가 <$b:숫자>마리 있습니다. 목장에 있는 양와 염소는 모두 몇 마리입니까?
+:objective:$a+$b
+어느 동물원에 곰은 <$a:숫자>마리 있고 호랑이는 곰보다 <$b:숫자>마리 더 많다면 호랑이는 몇 마리 있습니까?
+:objective:$a+$b
+
+<$c:사람>이는 전체 쪽수가 <$a:숫자>쪽인 동화책을 모두 읽으려고 합니다. 하루에 <$b:숫자>쪽씩 읽으면 며칠 안에 모두 읽을 수 있습니까?'
+전체 쪽수가 <$a:숫자>쪽인 동화책을 모두 읽으려고 합니다. 하루에 <$b:숫자>쪽씩 읽으면 며칠 안에 모두 읽을 수 있습니까?'
+:objective:$a//$b+($a%$b>0)
+
+<$a:숫자>원을 <$b:숫자>원짜리 지폐로 바꾸면 몇 장입니까?
+:objective:int($a/$b)
+
+<$a:사람>이네 반 학급 문고에는 동화책이 <$b:숫자>권, 위인전이 <$c:숫자>권 있습니다. 학급 문고에 있는 동화책과 위인전은 모두 몇 권입니까?
+:objective:$b+$c
+반 학생 <$a:숫자>명이 현장 학습을 가기 위해 버스를 타려고 합니다.
+:num_people=$a
+버스 요금이 <$a:숫자>원이라면 모두 얼마를 내야 합니까?
+:objective:num_people*$a
+
+<$a:사람>와 <$b:사람>의 나이 차는 <$c:숫자>살이고 두 분의 나이를 곱하면 <$d:숫자>입니다.
+:condition:(values[$a]-values[$b])==$c
+:condition:(values[$a]*values[$b])==$d
+<$a:사람>와 <$b:사람>의 나이의 합을 구하시오.
+:objective:values[$a]+values[$b]
+
+오리가 <$a:숫자>마리 있다.
+:values["오리"]=$a
+닭은 <$a:숫자>마리가 있다.
+:values["닭"]=$a
+토끼는 <$a:숫자>마리가 있을 때
+:values["토끼"]=$a
+동물은 모두 몇 마리 입니까?
+:objective:values["동물"]
+
+버스에 <$a:숫자>명이 타고 있었는데 정류장에서 <$b:숫자>명이 내렸습니다.
+:num_people=$a
+:num_people=num_people-$b
+버스에 남은 사람은 몇 명입니까?
+:objective:num_people
+관광객을 태운 기차가 목적지를 향해 가고 있습니다.
+:values:출발
+:num_people=values["출발"]
+중간에 있는 역에서 <$a:숫자>명이 내리고 <$b:숫자>명이 더 탔습니다.
+:num_people=num_people-$a+$b
+목적지에서 <$a:숫자>명이 내렸다면,
+:condition:num_people==$a
+기차에 처음 타고 있었던 사람은 몇 명입니까?
+:objective:values["출발"]
+
+수학여행에 신청한 남자 어린이는 <$a:숫자>명,
+:values["남자어린이"]=$a
+여자 어린이는 <$b:숫자>명입니다.
+:values["여자어린이"]=$b
+수학여행에 신청한 어린이는 모두 몇 명입니까?
+:objective:values["남자어린이"]+values["여자어린이"]
+
+운동장에 여학생 <$a:숫자>명, 남학생 <$b:숫자>명이 있습니다. 운동장에 있는 학생은 모두 몇 명입니까?
+:objective:$a+$b
+
+어느 학교의 학생은 <$b:숫자>명입니다.
+:num_people=$b
+어느 학교의 <$a:숫자>학년 학생은 <$b:숫자>명입니다.
+:values[$a]=$b
+:num_people=$b
+한 반의 학생 수를 <$a:숫자>명으로 한다면 모두 몇 반이 되겠습니까?
+:objective:num_people//$a + (num_people%$a>0)
+
+<$c:사람>이는 사과 <$a:숫자>개를 한 상자에 <$b:숫자>개씩 담았습니다. 사과를 담은 상자는 모두 몇 개입니까?
+사과 <$a:숫자>개를 한 상자에 <$b:숫자>개씩 담았습니다. 사과를 담은 상자는 모두 몇 개입니까?
+:objective:$a//$b+($a%$b>0)
+
+쿠키를 <$a:사람>이는 <$b:숫자>개 먹었고,
+:values[$a]=$b
+<$a:사람>는 <$b:사람>이보다 <$c:숫자>개 더 많이 먹었습니다.
+:condition:values[$a]==values[$b]+$c
+<$a:사람>는 <$b:사람>이보다 <$c:숫자>개 더 적게 먹었습니다.
+:condition:values[$a]==values[$b]-$c
+<$a:사람>가 먹은 쿠키는 몇 개입니까?
+:objective:values[$a]
+<$a:사람>이와 <$b:사람>가 먹은 쿠키는 모두 몇 개입니까?
+:objective:values[$a]+values[$b]
+
+과수원에서 복숭아를 <$a:사람>이는 <$b:숫자>개, <$c:사람>이는 <$d:숫자>개, <$e:사람>이는 <$f:숫자>개, <$g:사람>는 <$h:숫자>개 땄습니다.
+:values[$a]=$b
+:values[$c]=$d
+:values[$e]=$f
+:values[$g]=$h
+과수원에서 복숭아를 <$a:사람>이는 <$b:숫자>개, <$c:사람>이는 <$d:숫자>개, <$e:사람>는 <$f:숫자>개 땄습니다.
+:values[$a]=$b
+:values[$c]=$d
+:values[$e]=$f
+과수원에서 복숭아를 <$a:사람>이는 <$b:숫자>개, <$c:사람>는 <$d:숫자>개 땄습니다.
+:values[$a]=$b
+:values[$c]=$d
+복숭아를 가장 많이 딴 사람은 누구입니까?
+:objective:max(people, key=lambda x: values[x] if x in values else 0)
+복숭아를 가장 적게 딴 사람은 누구입니까?
+:objective:min(people, key=lambda x: values[x] if x in values else 100000000)
+
+<$a:사람>이는 <$b:숫자>원짜리 동전을 <$c:숫자>개 모았고,
+<$a:사람>이는 저금통에 <$b:숫자>원짜리 동전 <$c:숫자>개가 있고,
+<$a:사람>이는 저금통에 <$b:숫자>원짜리 동전이 <$c:숫자>개가 있습니다.
+:values[$a]=$b*$c
+<$a:사람>이가 가지고 있는 돈은 얼마입니까?
+:objective:values[$a]
+누가 더 많이 모았습니까?
+누가 더 많은 돈을 가지고 있습니까?
+:objective:max(people, key=lambda x: values[x] if x in values else 0)
+누가 더 조금 모았습니까?
+누가 더 적게 모았습니까?
+누가 더 적은 돈을 가지고 있습니까?
+:objective:min(people, key=lambda x: values[x] if x in values else 100000000)
+<$a:사람>이와 <$b:사람>이가 가지고 있는 돈의 합은 얼마입니까?
+:objective:values[$a]+values[$b]
+
+자석을 <$a:사람>이는 <$b:숫자>개, <$c:사람>이는 <$d:숫자>개 가지고 있습니다.
+:values[$a]=$b
+:values[$c]=$d
+<$a:사람>이는 <$b:사람>이보다 자석을 몇 개 더 많이 가지고 있습니까?
+:objective:values[$a]-values[$b]
+<$a:사람>이는 색연필을 <$b:숫자>자루 가지고 있습니다. 
+:values[$a]=$b
+오늘 선생님께 <$a:숫자>자루를 상으로 받았다면 <$b:사람>이가 가진 색연필은 모두 몇 자루입니까?
+:values[$b]=values[$b]+$a
+:objective:values[$b]
+<$a:사람>이가 가진 색연필은 모두 몇 자루입니까?
+:objective:values[$a]
+<$a:사람>는 사탕을 <$b:숫자>개 가지고 있었는데 <$c:숫자>개를 먹고 <$d:숫자>개를 동생에게 주었습니다.
+:values[$a]=$b-$c-$d
+<$a:사람>에게 남은 사탕은 몇 개입니까?
+:objective:values[$a]
+
+<$a:사람>이는 위인전을 <$b:숫자>권, 동화책을 <$c:숫자>권, 만화책을 <$d:숫자>권 읽었습니다.
+:values[$a]=$b+$c+$d
+<$a:사람>이가 읽은 책은 모두 몇 권입니까?
+:objective:values[$a]
+
+만두를 <$a:사람>이는 <$b:숫자>개 빚었고,
+:values[$a]=$b
+<$a:사람>는 <$b:사람>이보다 <$c:숫자>개 더 빚었습니다.
+:values[$a]=values[$b]+$c
+<$a:사람>가 빚은 만두는 모두 몇 개입니까?
+:objective:values[$a]
+
+<$a:사람>는 <$b:숫자>일 동안 <$c:숫자>쪽의 책을 읽었고, <$d:사람>는 <$e:숫자>일 동안 <$f:숫자>쪽의 책을 읽었습니다. 하루 동안 누가 더 읽었습니까?
+:values[$a]=$c/$b
+:values[$d]=$f/$e
+:objective:max(people, key=lambda x: values[x] if x in values else 0)
+
+
+바구니에 사과가 <$a:숫자>개 있습니다.
+:num_objects=$a
+이 중에서 <$a:사람>이가 <$b:숫자>개, <$c:사람>가 <$d:숫자>개를 꺼내 먹었습니다.
+:values[$a]=$b
+:values[$c]=$d
+:num_objects=num_objects-$b-$d
+바구니에 남아 있는 사과는 모두 몇 개입니까?
+:objective:num_objects
+
+
+상자 안에 <$a:숫자>개의 공이 있습니다.
+:num_objects=$a
+<$a:사람>이가
+:
+<$b:숫자>개의 공을 상자 안에 더 넣었습니다.
+:num_objects=num_objects+$b
+<$b:숫자>개의 공을 상자에서 꺼냈습니다.
+:num_objects=num_objects-$b
+상자 안에 있는 공은 모두 몇 개입니까?
+:objective:num_objects
+
+농장에서 닭이 달걀을 어제 <$a:숫자>개를 낳았고 오늘 <$b:숫자>개를 낳았습니다.
+:num_objects=$a+$b
+달걀은 모두 몇 개입니까?
+:objective:num_objects
+
+공깃돌 <$a:숫자>개를 <$b:숫자>명의 학생에게 똑같이 나누어 주려고 합니다.
+:num_objects=$a
+:num_people=$b
+:each=$a//$b
+한 학생에게 몇 개까지 나누어 줄 수 있습니까?
+:objective:each
+
+<$a:숫자>개에 <$b:숫자>원 하는 사과가 있습니다.
+:each=$b/$a
+사과 <$a:숫자>개를 사려면 얼마의 돈이 필요합니까?
+:objective:$a*each
+
+
+
+
+누름 못이 <$a:숫자>상자에 <$b:숫자>개씩 들어 있습니다.
+:each=$b/$a
+누름 못이 <$a:숫자>상자이면 몇 개입니까?
+:objective:$a*each
+상자에 밤이 <$a:숫자>개씩 들어 있습니다.
+:each=$a
+밤이 <$a:숫자>상자이면 모두 몇 개입니까?
+:objective:$a*each
+<$a:숫자>개의 상자에는 감이 <$b:숫자>개씩 들어있습니다.
+:each=$b/$a
+한 상자에는 감이 <$b:숫자>개씩 들어있습니다.
+:each=$b
+<$a:숫자>개의 상자 안에 있는 감은 모두 몇 개일까요?
+:objective:$a*each
+<$a:지시자들> <$b:숫자>개의 상자가 있다.
+:it=[$a]
+
+
+
+
+
+환전하는 날의 환율은 우리나라 돈 <$a:숫자>원이 중국 돈 <$b:숫자>위안일 때
+:rate=$a/$b
+우리나라 돈 <$a:숫자>원으로 환전할 수 있는 중국 돈은 몇 위안인지 구하시오.
+:objective:$a/rate
+
+
+<$a:사람>이는 종이학 <$b:숫자>마리를 접는 데 <$c:숫자>분이 걸립니다.
+:values[$a]=$c/$b*60
+<$a:사람>이는 종이학 <$b:숫자>마리를 접는 데 <$c:숫자>초가 걸립니다.
+:values[$a]=$c/$b
+<$a:사람>이가 종이학 <$b:숫자>마리를 접는 데 걸리는 시간은 몇 초입니까?
+:objective:values[$a]*$b
+<$a:지시자>는 <$b:숫자>분이고
+:values[$a]=$b*60
+<$a:지시자>는 <$b:숫자>초이고
+:values[$a]=$b
+<$a:지시자>는 <$b:숫자>분 <$c:숫자>초입니다.
+:values[$a]=$b*60+$c
+
+더 긴 시간을 찾아 기호를 쓰시오.
+:objective:max(values, key=lambda x: values[x] if x in values else 0)
+
+
+<$a:사람>이의 하루 식사 시간은 <$b:숫자>시간 중에서 <$c:숫자>만큼입니다.
+:values[$a]=$b*$c
+누구의 식사 시간이 더 깁니까?
+:objective:max(people, key=lambda x: values[x] if x in values else 0)
+누구의 식사 시간이 더 짧습니까?
+:objective:min(people, key=lambda x: values[x] if x in values else 100000000)
+
+<$a:사람>은 하루에 달리기를 <$b:숫자>m를 합니다.
+:values[$a]=$b
+<$a:사람>이가 <$b:숫자>일 동안 달리는 거리는 몇 m입니까?
+:objective:values[$a]*$b
+<$a:사람>이가 <$b:숫자>일 동안 달리는 거리는 몇 km입니까?
+:objective:values[$a]*$b/1000
+<$a:사람>이가 <$b:숫자>주일 동안 달리는 거리는 몇 m입니까?
+:objective:values[$a]*7*$b
+<$a:사람>이가 <$b:숫자>주일 동안 달리는 거리는 몇 km입니까?
+:objective:values[$a]*7*$b/1000
+
+<$a:사람>이는 <$b:숫자>km 를 달렸고,
+:values[$a]=$b*1000
+<$a:사람>이는 <$b:사람>이보다 <$c:숫자>m 더 적게 달렸습니다.
+:values[$a]=values[$b]-$c
+<$a:사람>이는 <$b:사람>이보다 <$c:숫자>m 더 많이 달렸습니다.
+:values[$a]=values[$b]+$c
+<$a:사람>이는 몇 km를 달렸습니까?
+:objective:values[$a]/1000
+<$a:사람>이는 몇 m를 달렸습니까?
+:objective:values[$a]
+
+
+책장의 높이는 <$a:숫자>m입니다.
+:it=[$a]
+
+<$a:사람>이의 키는 <$b:숫자>m <$c:숫자>cm입니다.
+:values[$a]=$b+$c/100
+<$a:사람>이의 키는 <$b:숫자>m입니다.
+:values[$a]=$b
+<$a:사람>이의 키는 <$b:숫자>cm입니다.
+:values[$a]=$b/100
+<$a:사람>이는 <$b:사람>이보다 <$c:숫자>m 크고
+:values[$a]=values[$b]+$c
+<$a:사람>이는 <$b:사람>이보다 <$c:숫자>cm 크고
+:values[$a]=values[$b]+$c/100
+<$a:사람>이는 <$b:사람>이보다 <$c:숫자>m 작고
+:values[$a]=values[$b]-$c
+<$a:사람>이는 <$b:사람>이보다 <$c:숫자>cm 작고
+:values[$a]=values[$b]-$c/100
+<$a:사람>이는 <$b:사람>이보다 <$c:숫자>m 크다고 합니다.
+:values[$a]=values[$b]+$c
+<$a:사람>이는 <$b:사람>이보다 <$c:숫자>cm 크다고 합니다.
+:values[$a]=values[$b]+$c/100
+<$a:사람>이는 <$b:사람>이보다 <$c:숫자>m 작다고 합니다.
+:values[$a]=values[$b]-$c
+<$a:사람>이는 <$b:사람>이보다 <$c:숫자>cm 작다고 합니다.
+:values[$a]=values[$b]-$c/100
+
+
+<$a:사람>이의 키는 몇 m인지 소수로 나타내시오.
+<$a:사람>이의 키는 몇 m인지 쓰시오.
+<$a:사람>이의 키는 몇 m입니까?
+:objective:values[$a]
+<$a:사람>이의 키는 몇 cm인지 쓰시오.
+<$a:사람>이의 키는 몇 cm입니까?
+:objective:values[$a]*100
+
+<$a:숫자>cm 는 몇 m인지 소수로 나타내시오.
+:objective:$a/100
+<$a:숫자>m는 몇 cm인지 구하시오.
+:objective:$a*100
+책장의 높이는 몇 m인지 구하시오.
+책장의 높이는 몇 m입니까?
+:objective:it[0]
+책장의 높이는 몇 cm인지 구하시오.
+책장의 높이는 몇 cm입니까?
+:objective:it[0]*100
+
+길이가 <$a:숫자>cm인 끈과 <$b:숫자>cm인 끈이 있습니다.
+:it=[$a/100, $b/100]
+두 끈의 길이의 합은 몇 cm입니까?
+:objective:sum(it)*100
+
+
+
+<$a:사람>는 쌀을 씻는 데 <$b:숫자>l 의 물을 사용하고,
+:values[$a]=$b
+<$a:사람>는 쌀을 씻는 데 <$b:숫자>ml 의 물을 사용하고,
+:values[$a]=$b/1000
+<$a:사람>는 <$b:숫자>l 의 물을 사용했다고 합니다.
+:values[$a]=$b
+<$a:사람>는 <$b:숫자>ml 의 물을 사용했다고 합니다.
+:values[$a]=$b/1000
+물을 더 많이 사용한 사람은 누구입니까?
+:objective:max(people, key=lambda x: values[x] if x in values else 0)
+물을 더 적게 사용한 사람은 누구입니까?
+:objective:min(people, key=lambda x: values[x] if x in values else 100000000)
+<$a:사람>는 몇 ml 의 물을 사용했습니까?
+:objective:values[$a]*1000
+<$a:사람>는 몇 l 의 물을 사용했습니까?
+:objective:values[$a]
+
+물통에 물이 <$a:숫자>l <$b:숫자>ml 들어 있습니다.
+:amount=$a+$b/1000
+이 물통에 <$a:숫자>ml 의 물을 더 부으면 물의 양은 모두 몇 ml가 되겠습니까?
+:amount+=$a/1000
+:objective:amount*1000
+주전자의 들이는 <$a:숫자>l <$b:숫자>ml이고,
+:it.append($a+$b/1000)
+어항의 들이는 <$a:숫자>l <$b:숫자>ml일 때,
+:it.append($a+$b/1000)
+주전자와 어항의 들이의 합은 몇 ml 입니까?
+:objective:sum(it)*1000
+
+
+똑같은 컵에 물을 가득 채워 <$a:지시자> 그릇에는 <$b:숫자>번,
+:values:컵
+:values[$a]=$b*values["컵"]
+<$c:지시자> 그릇에는 <$d:숫자>번을 부었더니 물이 가득 찼습니다.
+:values:컵
+:values[$c]=$d*values["컵"]
+똑같은 컵에 물을 가득 채워 <$a:지시자> 그릇에는 <$b:숫자>번, <$c:지시자> 그릇에는 <$d:숫자>번을 부었더니 물이 가득 찼습니다.
+:values:컵
+:values[$a]=$b*values["컵"]
+:values[$c]=$d*values["컵"]
+물을 더 적게 담을 수 있는 그릇의 기호를 쓰시오.
+:objective:min(indicators, key=lambda x: values[x] if x in values else 0)
+물을 더 많이 담을 수 있는 그릇의 기호를 쓰시오.
+:objective:max(indicators, key=lambda x: values[x] if x in values else 0)
+
+
+
+
+
+
+<$a:숫자>이 <$b:숫자>개인 수는 얼마입니까?
+:objective:$a*$b
+<$a:숫자>이 <$b:숫자>개, <$c:숫자>이 <$d:숫자>개인 수는 얼마입니까?
+:objective:$a*$b+$c*$d
+<$a:숫자>이 <$b:숫자>개, <$c:숫자>이 <$d:숫자>개, <$e:숫자>이 <$f:숫자>개인 수는 얼마입니까?
+:objective:$a*$b+$c*$d+$e*$f
+<$a:숫자>이 <$b:숫자>개, <$c:숫자>이 <$d:숫자>개, <$e:숫자>이 <$f:숫자>개, <$g:숫자>이 <$h:숫자>개인 수는 얼마입니까?
+:objective:$a*$b+$c*$d+$e*$f+$g*$h
+<$a:숫자>이 <$b:숫자>개, <$c:숫자>이 <$d:숫자>개, <$e:숫자>이 <$f:숫자>개, <$g:숫자>이 <$h:숫자>개, <$i:숫자>이 <$j:숫자>개인 수는 얼마입니까?
+:objective:$a*$b+$c*$d+$e*$f+$g*$h+$i*$j
+
+
+
+
+<$a:숫자>이하인 자연수들의 합을 구해보시오.
+:objective:sum(range($a+1))
+<$a:숫자>보다 작은 자연수들의 합을 구해보시오.
+:objective:sum(range($a))
+
+
+
+<$a:숫자>와 <$b:숫자>의 합은 얼마입니까?
+:objective:$a+$b
+<$a:숫자>와 <$b:숫자>의 곱은 얼마입니까?
+:objective:$a*$b
+<$a:숫자>와 <$b:숫자>의 차는 얼마입니까?
+:objective:abs($a-$b)
+
+<$a:숫자>보다 <$b:숫자>큰 수는 얼마입니까?
+:objective:$a+$b
+<$a:숫자>보다 <$b:숫자>작은 수는 얼마입니까?
+:objective:$a-$b
+
+<$a:수열>의 합은 얼마입니까?
+:objective:sum($a)
+<$a:숫자>부터 <$b:숫자>까지의 홀수의 합을 구하시오.
+:objective:sum([x for x in range($a,$b) if x%2==1])
+<$a:숫자>부터 <$b:숫자>까지의 짝수의 합을 구하시오.
+:objective:sum([x for x in range($a,$b) if x%2==0])
+<$a:숫자>부터 <$b:숫자>까지의 짝수의 합은 얼마입니까?
+:objective:sum([x for x in range($a,$b) if x%2==0])
+
+
+<$a:수열>과 같이 반복되는 수열이 있습니다.
+:it=lambda x: $a[x%len($a)]
+<$a:숫자>개의 수 <$b:수열>가 있습니다.
+:it=$b
+
+<$b:숫자>번째 숫자는 무엇입니까?
+왼쪽에서 <$b:숫자>번째 숫자는 무엇입니까?
+:objective:it[$b-1] if type(it)==list else it($b-1)
+
+이 중에서 <$a:숫자>보다 크고 <$b:숫자>보다 작은 수
+:it=[x for x in it if x>$a and x<$b]
+
+이 중에서 가장 큰 수는 무엇입니까?
+:then:solutions|=set(it)
+:objective:max(solutions)
+이 중에서 가장 작은 수는 무엇입니까?
+:then:solutions|=set(it)
+:objective:min(solutions)
+
+그 중에서 가장 큰 수와 가장 작은 수의 합은 얼마입니까?
+:then:solutions|=set(it)
+:objective:max(solutions)+min(solutions)
+가장 작은 수와 가장 큰 수의 차를 구하시오.
+그 중에서 가장 큰 수와 가장 작은 수의 차는 얼마입니까?
+차가 가장 크게 되는 두 수를 찾아 그 차를 구하시오.
+:then:solutions|=set(it)
+:objective:max(solutions)-min(solutions)
+그 중에서 가장 큰 수와 가장 작은 수의 곱은 얼마입니까?
+:then:solutions|=set(it)
+:objective:max(solutions)*min(solutions)
+이 중에서 <$a:숫자>보다 큰 수는 모두 몇 개입니까?
+:it=[x for x in it if x>$a]
+:then:solutions|=set(it)
+:objective:len(solutions)
+이 중에서 <$a:미지수>보다 큰 수는 모두 몇 개입니까?
+:it=[x for x in it if x>values[$a]]
+:then:solutions|=set(it)
+:objective:len(solutions)
+이 중에서 <$a:숫자>보다 작은 수는 모두 몇 개입니까?
+:it=[x for x in it if x<$a]
+:then:solutions|=set(it)
+:objective:len(solutions)
+
+<$a:등식>, <$b:등식>, <$b:등식>일 때
+:
+<$a:등식>이고 <$b:등식>입니다.
+<$a:등식>이고 <$b:등식>일 때
+<$a:등식>, <$b:등식>일 때
+:
+
+한 자리 수 <$a:미지수>가 있을 때,
+:it=[values[$a]]
+:condition:1<=values[$a] and values[$a]<=9
+두 자리 수 <$a:미지수>가 있을 때,
+:it=[values[$a]]
+:condition:10<=values[$a] and values[$a]<=99
+세 자리 수 <$a:미지수>가 있을 때,
+:it=[values[$a]]
+:condition:100<=values[$a] and values[$a]<=999
+네 자리 수 <$a:미지수>가 있을 때,
+:it=[values[$a]]
+:condition:1000<=values[$a] and values[$a]<=9999
+
+서로 다른 두 자연수 <$a:미지수>, <$b:미지수>가 있습니다.
+:condition:values[$a]!=values[$b]
+
+<$a:미지수>의 값이 <$b:숫자>일 때,
+:condition:values[$a]==$b
+
+<$a:미지수>를 구하시오.
+:objective:values[$a]
+<$a:미지수>를 <$b:숫자>로 나누면 몫은 <$c:미지수>이고 나머지는 <$d:미지수>가 됩니다.
+:values[$c]=values[$a]//$b
+:values[$d]=values[$a]%$b
+:quotient=values[$c]
+:remainder=values[$d]
+<$a:미지수>, <$b:미지수>, <$c:미지수>는 자연수입니다.
+:condition:values[$a]>0
+:condition:values[$b]>0
+:condition:values[$c]>0
+이 식에서 몫과 나머지가 같습니다.
+:condition:quotient==remainder
+이 식에서 몫이 <$a:숫자>이고 나머지가 <$b:숫자>일 때,
+:condition:quotient==$a
+:condition:remainder==$b
+나누어지는 수 <$a:미지수> 중 가장 큰 수를 구하시오.
+:then:solutions.add(values[$a])
+:objective:max(solutions)
+
+<$a:미지수>와 <$b:미지수>를 합하면 얼마입니까?
+<$a:미지수>와 <$b:미지수>를 더하면 얼마입니까?
+<$a:미지수>와 <$b:미지수>의 합을 구하시오.
+:objective:values[$a]+values[$b]
+<$a:미지수>에서 <$b:미지수>를 빼면 얼마입니까?
+<$a:미지수>에서 <$b:미지수>를 뺀 값을 구하시오.
+:objective:values[$a]-values[$b]
+<$a:미지수>와 <$b:미지수>의 차를 구하시오.
+:objective:abs(values[$a]-values[$b])
+<$a:미지수>와 <$b:미지수>를 곱하면 얼마입니까?
+<$a:미지수>와 <$b:미지수>의 곱을 구하시오.
+:objective:values[$a]*values[$b]
+<$a:미지수>를 <$b:미지수>로 나눈 몫을 구하시오.
+:objective:values[$a]//values[$b]
+<$a:미지수>를 <$b:미지수>로 나눈 나머지를 구하시오.
+:objective:values[$a]%values[$b]
+
+<$a:미지수>은 <$b:숫자>보다 <$c:숫자>만큼 큰 수입니다.
+:condition:values[$a]==$b+$c
+<$a:미지수>은 <$b:숫자>보다 <$c:숫자>만큼 작은 수입니다.
+:condition:values[$a]==$b-$c
+
+<$a:숫자>은 <$b:미지수>보다 <$c:숫자>만큼 큰 수입니다.
+:condition:$a==values[$b]+$c
+<$a:숫자>은 <$b:미지수>보다 <$c:숫자>만큼 작은 수입니다.
+:condition:$a==values[$b]-$c
+
+<$a:숫자>은 <$b:숫자>보다 <$c:미지수>만큼 큰 수입니다.
+:condition:$a==$b+values[$c]
+<$a:숫자>은 <$b:숫자>보다 <$c:미지수>만큼 작은 수입니다.
+:condition:$a==$b-values[$c]
+
+<$a:미지수>와 <$b:숫자>의 합을 구하시오.
+<$a:미지수>보다 <$b:숫자>만큼 큰 수를 구하시오.
+:objective:values[$a]+$b
+<$a:미지수>보다 <$b:숫자>만큼 작은 수를 구하시오.
+:objective:values[$a]-$b
+<$a:미지수>와 <$b:숫자>의 차를 구하시오.
+:objective:abs(values[$a]-$b)
+<$a:미지수>와 <$b:숫자>의 곱을 구하시오.
+<$a:미지수>와 <$b:숫자>를 곱한 값은 얼마입니까?
+:objective:values[$a]*$b
+
+<$a:숫자>부터 <$b:숫자>까지의 수 <$c:미지수> 중에서 가장 작은 수를 구해 보시오.
+:condition:$a<=values[$c] and values[$c]<$b
+:then:solutions.add(values[$c])
+:objective:min(solutions)
+
+
+가장 작은 <$a:미지수>의 값을 구하시오.
+:then:solutions.add(values[$a])
+:objective:min(solutions)
+가장 큰 <$a:미지수>의 값을 구하시오.
+:then:solutions.add(values[$a])
+:objective:max(solutions)
+<$a:미지수> 중에서 가장 큰 값과 작은 값의 차를 구하시오.
+:then:solutions.add(values[$a])
+:objective:max(solutions)-min(solutions)
+모두 만족하는 세 자리 수 <$a:미지수>는 모두 몇 개입니까?
+:condition:100<=values[$a] and values[$a]<=999
+:then:solutions.add(values[$a])
+:objective:len(solutions)
+
+어떤 수는 자연수입니다.
+:values:어떤 수
+:condition:values["어떤 수"]>0
+어떤 수는 <$a:숫자>보다 큽니다.
+:values:어떤 수
+:condition:values["어떤 수"]>$a
+어떤 수는 <$a:숫자>보다 작습니다.
+:values:어떤 수
+:condition:values["어떤 수"]<$a
+<$a:숫자>와 어떤 수를 모았더니 <$b:숫자>이 되었습니다.
+:values:어떤 수
+:condition:$a+values["어떤 수"]==$b
+<$a:숫자>보다 어떤 수만큼 큰 수는 <$b:숫자>입니다.
+:values:어떤 수
+:condition:$a+values["어떤 수"]==$b
+어떤 수에서 <$a:숫자>을 뺐더니 <$b:숫자>가 되었습니다.
+:values:어떤 수
+:condition:values["어떤 수"]-$a==$b
+<$a:숫자>에서 어떤 수를 뺐더니 <$b:숫자>가 되었습니다.
+:values:어떤 수
+:condition:$a-values["어떤 수"]==$b
+어떤 수에서 <$a:숫자>을 뺀 값은 <$b:숫자>보다 작습니다.
+:values:어떤 수
+:condition:values["어떤 수"]-$a<$b
+어떤 수에서 <$a:숫자>을 더하면 <$b:숫자>가 됩니다.
+:values:어떤 수
+:condition:values["어떤 수"]+$a==$b
+어떤 수에서 <$a:숫자>을 빼면 <$b:숫자>가 됩니다.
+:values:어떤 수
+:condition:values["어떤 수"]-$a==$b
+어떤 수를 <$a:숫자>로 나누면 몫이 <$b:숫자>이고 나머지가 <$c:숫자>입니다.
+:values:어떤 수
+:condition:values["어떤 수"]//$a==$b
+:condition:values["어떤 수"]%$a==$c
+어떤 수에 <$a:숫자>을 곱하였더니 <$b:숫자>가 되었습니다.
+:values:어떤 수
+:condition:values["어떤 수"]*$a==$b
+<$a:숫자>을 어떤 수로 나누면 나머지가 <$b:숫자>입니다. 
+:values:어떤 수
+:condition:values["어떤 수"]>0
+:condition:$a%values["어떤 수"]%$a==$b
+
+어떤 수의 <$a:숫자>배는 <$b:숫자>입니다.
+:values:어떤 수
+:condition:values["어떤 수"]*$a==$b
+
+어떤 수의 <$a:숫자>배는 얼마입니까?
+:values:어떤 수
+:objective:values["어떤 수"]*$a
+
+어떤 수보다 <$a:숫자>작은 수는 얼마입니까?
+어떤 수에서 <$a:숫자>를 뺀 수는 얼마입니까?
+어떤 수에서 <$a:숫자>를 빼면 얼마가 되는지 구하시오.
+:values:어떤 수
+:objective:values["어떤 수"]-$a
+<$a:숫자>에서 어떤 수를 빼면 얼마입니까?
+:values:어떤 수
+:objective:$a-values["어떤 수"]
+
+어떤 수보다 <$a:숫자>큰 수는 얼마입니까?
+:values:어떤 수
+:objective:values["어떤 수"]+$a
+<$a:숫자>에서 어떤 수를 더하면 얼마입니까?
+:values:어떤 수
+:objective:$a+values["어떤 수"]
+
+어떤 수를 구하시오.
+어떤 수는 얼마입니까?
+:values:어떤 수
+:objective:values["어떤 수"]
+어떤 수 중에서 가장 큰 수를 구하시오.
+:values:어떤 수
+:then:solutions.add(values["어떤 수"])
+:objective:max(solutions)
+어떤 수는 모두 몇 개입니까?
+:values:어떤 수
+:then:solutions.add(values["어떤 수"])
+:objective:len(solutions)
+어떤 수들의 합을 구하시오.
+:values:어떤 수
+:then:solutions.add(values["어떤 수"])
+:objective:sum(solutions)
+
+어떤 수에서 <$a:숫자>을 뺀 값은 <$b:숫자>와 <$c:숫자>의 곱에 <$d:숫자>를 더한 값과 같습니다.
+:values:어떤 수
+:condition:values["어떤 수"]-$a==$b*$c+$d
+
+어떤 수로 <$b:숫자>과 <$c:숫자>를 나누면 나누어떨어진 다고 합니다. 
+:values:어떤 수
+:it=[values["어떤 수"]]
+:condition:values["어떤 수"]>0 and $b%values["어떤 수"]==0 and $c%values["어떤 수"]==0
+<$a:숫자>이 아닌 어떤 수로 <$b:숫자>과 <$c:숫자>를 나누면 나누어떨어진 다고 합니다. 
+:values:어떤 수
+:it=[values["어떤 수"]]
+:condition:values["어떤 수"]>0 and values["어떤 수"]!=$a and $b%values["어떤 수"]==0 and $c%values["어떤 수"]==0
+
+<$a:숫자>에 어떤 수를 더해야 할 것을 잘못하여 어떤 수를 곱했더니 <$c:숫자>이 되었습니다.
+:values:어떤 수
+:correct=$a+values["어떤 수"]
+:condition:$a*values["어떤 수"]==$c
+<$a:숫자>에서 어떤 수를 빼야 할 것을 잘못하여 어떤 수를 더했더니 <$c:숫자>이 되었습니다.
+:values:어떤 수
+:correct=$a-values["어떤 수"]
+:condition:$a+values["어떤 수"]==$c
+<$a:숫자>에 어떤 수를 곱해야 할 것을 잘못하여 어떤 수를 더했더니 <$c:숫자>이 되었습니다.
+:values:어떤 수
+:correct=$a*values["어떤 수"]
+:condition:$a+values["어떤 수"]==$c
+<$a:숫자>에 어떤 수를 곱해야 할 것을 잘못하여 <$b:숫자>에 어떤 수를 곱했더니 <$c:숫자>이 되었습니다.
+:values:어떤 수
+:correct=$a*values["어떤 수"]
+:condition:$b*values["어떤 수"]==$c
+어떤 수에서 <$a:숫자>을 빼야 하는데 잘못하여 <$b:숫자>을 뺀 결과가 <$c:숫자>이 나왔습니다.
+:values:어떤 수
+:correct=values["어떤 수"]-$a
+:condition:values["어떤 수"]-$b==$c
+어떤 수에 <$a:숫자>을 곱해야 할 것을 잘못하여 <$b:숫자>로 나누었더니 몫이 <$c:숫자>이고 나머지가 <$d:숫자>이 되었습니다. 
+:values:어떤 수
+:correct=values["어떤 수"]*$a
+:condition:values["어떤 수"]//$b==$c
+:condition:values["어떤 수"]%$b==$d
+바르게 계산하면 얼마인지 구하시오.
+:objective:correct
+어떤 수를 <$a:숫자>배 해야 할 것을 잘못하여 <$b:숫자>배 하였더니 <$c:숫자>가 되었습니다.
+:values:어떤 수
+:correct=values["어떤 수"]*$a
+:condition:values["어떤 수"]*$b==$c
+
+
+<$a:사람>이는 <$b:숫자>와 <$c:숫자>를 모았습니다.
+<$a:사람>는 <$b:숫자>과 <$c:숫자>을 모았습니다.
+:values[$a]=$b+$c
+누가 모은 수가 더 큽니까?
+:objective:max(people, key=lambda x: values[x] if x in values else 0)
+
+달리기 시합에서 <$a:사람>이는 <$b:숫자>등을 했고
+:values[$a]=$b
+<$c:사람>는 <$d:숫자>등을 했습니다.
+:values[$c]=$d
+<$a:사람>이는 <$b:사람>보다 잘했지만 <$c:사람>이보다는 못했습니다.
+<$a:사람>이는 <$c:사람>보다 못했지만 <$b:사람>이보다는 잘했습니다.
+:condition:values[$a]<values[$b]
+:condition:values[$a]>values[$c]
+<$a:사람>이는 <$b:사람>보다 잘했습니다.
+:condition:values[$a]<values[$b]
+<$a:사람>이는 <$b:사람>보다 못했습니다.
+:condition:values[$a]>values[$b]
+<$a:사람>이의 등수는 몇 등입니까?
+:objective:values[$a]
+
+<$a:숫자>명의 학생들이 한 줄로 줄을 섰습니다.
+:num_people=$a
+키가 작은 사람부터 순서대로 <$a:숫자>명이 한 줄로 서 있습니다. 
+:num_people=$a
+<$a:사람>의 앞에 <$b:숫자>명의 학생들이 서 있습니다.
+:values[$a]=$b+1
+<$a:사람>이가 앞에서부터 <$b:숫자>번째에 서 있습니다.
+<$a:사람>이는 왼쪽에서부터 <$b:숫자>번째에 있습니다.
+:values[$a]=$b
+<$a:사람>이는 <$b:사람>이보다 왼쪽에 있고,
+<$a:사람>이는 <$b:사람>이보다 앞에 있고,
+<$a:사람>이는 <$b:사람>이보다 앞에 있습니다.
+:condition:values[$a]<values[$b]
+<$a:사람>이는 <$b:사람>이보다 오른쪽에 있고,
+<$a:사람>이는 <$b:사람>이보다 뒤에 있고,
+<$a:사람>이는 <$b:사람>이보다 뒤에 있습니다.
+:condition:values[$a]>values[$b]
+
+<$a:사람>이는 앞에서부터 몇 번째에 서 있습니까?
+<$a:사람>이는 왼쪽에서부터 몇 번째에 서 있습니까?
+<$a:사람>이는 몇 번째에 서 있습니까?
+:objective:values[$a]
+<$a:사람>이는 뒤에서부터 몇 번째에 서 있습니까?
+<$a:사람>이는 오른쪽에서부터 몇 번째에 서 있습니까?
+키가 큰 사람부터 순서대로 다시 줄을 서면 <$a:사람>이는 앞에서부터 몇 번째에 서게 됩니까?
+:objective:num_people-values[$a]+1
+<$a:사람>의 왼쪽에 서 있는 학생은 몇 명입니까?
+<$a:사람>의 앞에 서 있는 학생은 몇 명입니까?
+:objective:values[$a]-1
+<$a:사람>의 오른쪽에 서 있는 학생은 몇 명입니까?
+<$a:사람>의 뒤에 서 있는 학생은 몇 명입니까?
+:objective:num_people-values[$a]
+
+<$a:숫자>은 왼쪽에서부터 몇 번째에 있습니까?
+:objective:it.index($a)+1 if type(it)==list else list([it(x) for x in range(100)]).index($a)+1
+
+<$a:숫자>은 오른쪽에서부터 몇 번째에 있습니까?
+:objective:len(it)-it.index($a)
+
+<$a:지시자들> <$b:숫자>개의 상자가 있습니다.
+:it=[$a]
+<$a:지시자> 상자는 <$b:지시자> 상자보다 큽니다.
+:condition:values[$a]>values[$b]
+<$a:지시자> 상자는 <$b:지시자> 상자보다 작습니다.
+:condition:values[$a]<values[$b]
+크기가 가장 작은 상자는 무엇입니까?
+:objective:min(values, key=lambda x: values[x] if x in values else 100000000)
+크기가 가장 큰 상자는 무엇입니까?
+:objective:max(values, key=lambda x: values[x] if x in values else 0)
+
+점수가 가장 높은 사람은 누구입니까?
+:objective:max(people, key=lambda x: values[x] if x in values else 0)
+점수가 가장 낮은 사람은 누구입니까?
+:objective:min(people, key=lambda x: values[x] if x in values else 100000000)
+
+
+
+<$a:숫자>와 <$b:숫자>가 있습니다.
+두 수 <$a:숫자>와 <$b:숫자>가 있을 때,
+<$a:숫자>와 <$b:숫자>가 있을 때,
+:it=[$a, $b]
+큰 수를 작은 수로 나눈 몫을 구하시오.
+:objective:max(it)//min(it)
+큰 수를 작은 수로 나눈 나머지을 구하시오.
+:objective:max(it)%min(it)
+
+
+규칙적인 <$a:수열>이 있다.
+:it=reg
+규칙적인 <$a:수열>이 있을 때,
+:it=reg
+<$a:수열>과 같은 규칙에서
+:it=reg
+<$a:수열>과 같은 규칙적인 수열에서
+:it=reg
+<$a:수열>과 같이 수가 규칙적으로 배열되어 있을 때,
+:it=reg
+규칙에 따라 수를 <$a:수열>와 같이 배열하였습니다.
+:it=reg
+<$a:수열>과 같은 규칙으로 수를 배열하고 있습니다.
+:it=reg
+
+<$a:숫자>번째 놓일 수를 <$b:미지수>라고 할 때,
+:values[$b]=it[$a-1] if type(it)==list else it($a-1)
+<$a:숫자>번째 놓일 수와 <$b:숫자>번째 놓일 수를 각각 <$c:미지수>와 <$d:미지수>라 할 때,
+:values[$c]=it[$a-1] if type(it)==list else it($a-1)
+:values[$d]=it[$b-1] if type(it)==list else it($b-1)
+<$a:숫자>번째 <$b:숫자>번째 <$c:숫자>번째 놓일 수를 각각 <$d:미지수>와 <$e:미지수>와 <$f:미지수>라 할 때,
+:values[$d]=it[$a-1] if type(it)==list else it($a-1)
+:values[$e]=it[$b-1] if type(it)==list else it($b-1)
+:values[$f]=it[$c-1] if type(it)==list else it($c-1)
+
+<$a:숫자>개의 수 <$b:수열>를 작은 수부터 순서대로 늘어놓을 때,
+:it=sorted($b)
+<$a:숫자>개의 수 <$b:수열>를 큰 수부터 순서대로 늘어놓을 때,
+:it=sorted($b, reverse=True)
+<$a:숫자>번째 놓일 수를 구하시오.
+<$a:숫자>번째에 놓이는 수를 구하시오.
+:objective:it[$a-1] if type(it)==list else it($a-1)
+오른쪽에서 <$a:숫자>번째에 놓이는 수를 구하시오.
+:objective:it[len(it)-$a] if type(it)==list else it(len(it)-$a)
+
+<$a:숫자>개의 수 <$b:수열>에서
+:it=$b
+
+홀수를 더한 값은 얼마인지 구하시오.
+:objective:sum([x for x in it if x%2==1])
+짝수를 더한 값은 얼마인지 구하시오.
+:objective:sum([x for x in it if x%2==0])
+홀수를 모두 찾아 합을 구하시오.
+:objective:sum([x for x in it if x%2==1])
+짝수를 모두 찾아 합을 구하시오.
+:objective:sum([x for x in it if x%2==0])
+
+<$a:수식>의 값은 얼마입니까?
+:objective:$a
+<$a:수식>을 계산하시오.
+:objective:$a
+<$a:수식>를 구하시오.
+:objective:$a
+
+두 자리 수의 덧셈식 <$a:등식>에서
+:
+<$a:등식>일 때,
+:
+
+<$a:숫자>이상 <$b:숫자>이하인 수
+<$a:숫자>이상 <$b:숫자>이하인 수가 있습니다.
+:values:num
+:condition:values["num"]>=$a and values["num"]<=$b
+:it=[values["num"]]
+<$a:숫자>보다 크고 <$b:숫자>보다 작은 수
+<$a:숫자>보다 크고 <$b:숫자>보다 작은 수가 있습니다.
+:values:num
+:condition:values["num"]>$a and values["num"]<$b
+:it=[values["num"]]
+<$a:숫자>초과 <$b:숫자>미만인 자연수
+<$a:숫자>초과 <$b:숫자>미만인 자연수가 있습니다.
+:values:num
+:condition:values["num"]>$a and values["num"]<$b
+:it=[values["num"]]
+이 중에서 <$a:숫자>으로 나누어 떨어지는 수는 모두 몇 개입니까?
+중에서 <$a:숫자>으로 나누어 떨어지는 수는 모두 몇 개입니까?
+:then:solutions|=set([x for x in it if x%$a==0])
+:objective:len(solutions)
+모두 몇 개입니까?
+:then:solutions|=set(it)
+:objective:len(solutions)
+
+만들 수 있는 수는 모두 몇 개입니까?
+:then:solutions|=set(it)
+:objective:len(solutions)
+
+<$a:숫자>개의 숫자 <$b:수열>를 한 번씩만 사용하여 네 자리 수를 만들려고 합니다.
+:values:네 자리 수
+:condition:values["네 자리 수"]>=1000 and values["네 자리 수"]<=9999
+:condition:{ values["네 자리 수"]//1000, (values["네 자리 수"]%1000)//100, (values["네 자리 수"]%100)//10, values["네 자리 수"]%10 }==set($b)
+:it=[values["네 자리 수"]]
+
+만들 수 있는 네 자리 수는 모두 몇 개입니까?
+:condition:values["네 자리 수"]>=1000 and values["네 자리 수"]<=9999
+:then:solutions.add(values["네 자리 수"])
+:objective:len(solutions)
+
+<$a:숫자>장의 숫자 카드 <$b:수열>을 한 번씩 사용하여 만들 수 있는 다섯 자리 수 중
+:values:다섯 자리 수
+:condition:values["다섯 자리 수"]>=10000 and values["다섯 자리 수"]<=99999
+:condition:{ values["다섯 자리 수"]//10000, (values["다섯 자리 수"]%10000)//1000, (values["다섯 자리 수"]%1000)//100, (values["다섯 자리 수"]%100)//10, values["다섯 자리 수"]%10 }==set($b)
+:it=[values["다섯 자리 수"]]
+
+만의 자리 숫자가 <$a:숫자>인 가장 큰 수를 구하시오.
+:then:solutions|=set([x for x in it if (x%100000)//10000==$a])
+:objective:max(solutions)
+천의 자리 숫자가 <$a:숫자>인 가장 큰 수를 구하시오.
+:then:solutions|=set([x for x in it if (x%10000)//1000==$a])
+:objective:max(solutions)
+백의 자리 숫자가 <$a:숫자>인 가장 큰 수를 구하시오.
+:then:solutions|=set([x for x in it if (x%1000)//100==$a])
+:objective:max(solutions)
+십의 자리 숫자가 <$a:숫자>인 가장 큰 수를 구하시오.
+:then:solutions|=set([x for x in it if (x%100)//10==$a])
+:objective:max(solutions)
+일의 자리 숫자가 <$a:숫자>인 가장 큰 수를 구하시오.
+:then:solutions|=set([x for x in it if x%10==$a])
+:objective:max(solutions)
+<$a:숫자>의 자리 숫자가 <$b:숫자>인 가장 큰 수를 구하시오.
+:then:solutions|=set([x for x in it if (x%(10*$a))//$a==$b])
+:objective:max(solutions)
+
+<$b:숫자>개의 숫자 <$a:수열>을 한 번씩만 써서
+숫자 카드 <$a:수열>을 한 번씩만 써서
+:values:number
+:it=[values["number"]]
+:condition:set(str(values["number"]))==set([str(x) for x in $a])
+
+가장 큰 세 자리 수를 만들어 보시오.
+:then:solutions|=set([x for x in it if x>=100 and x<=999])
+:objective:max(solutions)
+가장 작은 세 자리 수를 만들어 보시오.
+:then:solutions|=set([x for x in it if x>=100 and x<=999])
+:objective:min(solutions)
+가장 큰 네 자리 수를 만들어 보시오.
+:then:solutions|=set([x for x in it if x>=1000 and x<=9999])
+:objective:max(solutions)
+가장 작은 네 자리 수를 만들어 보시오.
+:then:solutions|=set([x for x in it if x>=1000 and x<=9999])
+:objective:min(solutions)
+가장 큰 다섯 자리 수를 만들어 보시오.
+:then:solutions|=set([x for x in it if x>=10000 and x<=99999])
+:objective:max(solutions)
+가장 작은 다섯 자리 수를 만들어 보시오.
+:then:solutions|=set([x for x in it if x>=10000 and x<=99999])
+:objective:min(solutions)
+
+사과, 복숭아, 배, 참외, 키위 중에서 <$a:숫자>가지의 과일을 골라서 사는 경우는 모두 몇 가지입니까?
+:init:import math
+:num_objects=5
+:condition:$a<100
+:objective:math.factorial(num_objects)/math.factorial(num_objects-$a)/math.factorial($a)
+사과, 복숭아, 배, 참외 중에서 <$a:숫자>가지의 과일을 골라서 사는 경우는 모두 몇 가지입니까?
+:init:import math
+:num_objects=4
+:condition:$a<100
+:objective:math.factorial(num_objects)/math.factorial(num_objects-$a)/math.factorial($a)
+
+<$a:숫자>개의 사탕을 <$b:사람>, <$c:사람>, <$d:사람> <$e:숫자>명에게 순서대로 <$f:숫자>개씩 나누어 줍니다.
+:seq=[$b]*$f+[$c]*$f+[$d]*$f
+:it=lambda x: seq[x%len(seq)]
+<$a:숫자>번째 사탕을 받는 사람은 누구입니까?
+:objective:it[$a-1] if type(it)==list else it($a-1)
+
+
+어떤 소수의 소수점을 왼쪽으로 한 자리 옮기면 원래보다 <$a:숫자>만큼 작아집니다.
+:values:어떤 소수
+:condition:values["어떤 소수"]/100/10==values["어떤 소수"]/100-$a
+어떤 소수의 소수점을 왼쪽으로 두 자리 옮기면 원래보다 <$a:숫자>만큼 작아집니다.
+:values:어떤 소수
+:condition:values["어떤 소수"]/100/100==values["어떤 소수"]/100-$a
+어떤 소수의 소수점을 오른쪽으로 한 자리 옮기면 원래보다 <$a:숫자>만큼 커집니다.
+:values:어떤 소수
+:condition:values["어떤 소수"]/100*10==values["어떤 소수"]/100+$a
+어떤 소수의 소수점을 오른쪽으로 두 자리 옮기면 원래보다 <$a:숫자>만큼 커집니다.
+:values:어떤 소수
+:condition:values["어떤 소수"]/100*100==values["어떤 소수"]/100+$a
+원래의 소수를 구하시오.
+:objective:values["어떤 소수"]/100
+
+<$a:숫자>에서 소수 첫째 자리 숫자는 몇입니까?
+:objective:($a*10%10)//1
+<$a:숫자>에서 소수 둘째 자리 숫자는 몇입니까?
+:objective:($a*100%10)//1
+<$a:숫자>에서 소수 셋째 자리 숫자는 몇입니까?
+:objective:($a*1000%10)//1
+<$a:숫자>에서 소수 넷째 자리 숫자는 몇입니까?
+:objective:($a*1000%10)//1
+
+일의 자리 숫자가 <$a:숫자>, 소수 첫째 자리 숫자가 <$b:숫자>, 소수 둘째 자리 숫자가 <$c:숫자>인 소수 두 자리
+:it=[$a+$b/10+$c/100]
+수의 <$a:숫자>배는 얼마입니까?
+:objective:it[0]*$a
+
+백의 자리가 <$a:숫자>, 십의 자리가 <$b:숫자>, 일의 자리가 <$c:숫자>인 세 자리 수보다 <$d:숫자>큰 수를 구하시오.
+:objective:$a*100+$b*10+$c+$d
+
+<$a:숫자>개의 수 <$b:수열>로 나누어 떨어질 수 있는 세 자리 수
+:values:세 자리 수
+:condition:values["세 자리 수"]>=100 and values["세 자리 수"]<=999
+:condition:sum([values["세 자리 수"]%$b[i]==0 for i in range(len($b))])==len($b)
+:it=[values["세 자리 수"]]
+
+<$a:숫자>개의 수 <$b:수열>로 나누어 떨어질 수 있는 두 자리 수
+:values:두 자리 수
+:condition:values["두 자리 수"]>=10 and values["두 자리 수"]<=99
+:condition:sum([values["두 자리 수"]%$b[i]==0 for i in range(len($b))])==len($b)
+:it=[values["두 자리 수"]]
+
+
+
+<$a:사람>, <$b:사람>, <$c:사람>이의 수학 점수는 각각 <$d:숫자>점, <$e:숫자>점, <$f:숫자>점입니다.
+:values[$a]=$d
+:values[$b]=$e
+:values[$c]=$f
+:it=[$d, $e, $f]
+이 셋을 제외한 학급의 수학 점수 평균은 <$a:숫자>점입니다.
+:mean_others=$a
+<$a:사람>이네 학급 인원수가 <$b:숫자>명일 때, 학급 수학 평균 점수는 몇 점입니까?
+:objective:(sum(it)+mean_others*($b-len(it)))/$b
+
+<$a:숫자>부터 <$b:숫자>까지의 자연수의 평균은 얼마입니까?
+:objective:sum(range($a,$b+1))/len(range($a,$b+1))
+어느 양계장에서 하루에 평균 <$a:숫자>개의 달걀을 생산한다고 합니다.
+:per_day=$a
+<$a:숫자>일 동안에는 모두 몇 개의 달걀을 생산하겠습니까?
+:objective:per_day*$a
+
+<$a:사람>이와 <$b:사람>이의 평균 몸무게는 <$c:숫자>kg 이고, <$d:사람>이의 몸무게는 <$e:숫자>kg 입니다. 세 사람의 평균 몸무게는 몇 kg 입니까?
+:objective:($c+$c+$e)/3
+
+<$a:사람>이 책가방의 무게는 <$b:숫자>g 이고,
+:values[$a]=$b
+<$a:사람>이 책가방의 무게는 <$b:숫자>kg 이고,
+:values[$a]=$b*1000
+<$a:사람>이 책가방의 무게는 <$b:숫자>kg <$c:숫자>g 입니다.
+:values[$a]=$b*1000+$c
+누구의 책가방이 더 무겁습니까?
+:objective:max(people, key=lambda x: values[x] if x in values else 0)
+누구의 책가방이 더 가볍습니까?
+:objective:min(people, key=lambda x: values[x] if x in values else 0)
+
+
+
+서로 다른 세 수가 있습니다. 서로 다른 두 수끼리의 평균이 각각 <$a:수열> 일 때, 세 수의 평균을 구하시오.
+:objective:sum($a)/len($a)
+
+
+<$a:숫자>의 약수는 모두 몇 개인가요?
+:values:num
+:condition:values["num"]>0 and $a%values["num"]==0
+:then:solutions.add(values["num"])
+:objective:len(solutions)
+
+<$a:숫자>와 <$b:숫자>의 공약수들의 합을 구하시오.
+:values:num
+:condition:values["num"]>0 and $a%values["num"]==0 and $b%values["num"]==0
+:then:solutions.add(values["num"])
+:objective:sum(solutions)
+
+
+어떤 두 수의 최대공약수가 <$a:숫자>입니다. 이 두 수의 모든 공약수의 합을 구하시오.
+:values:num
+:condition:values["num"]>0 and $a%values["num"]==0
+:then:solutions.add(values["num"])
+:objective:sum(solutions)
+
+<$a:숫자>의 약수 중에서
+:values:num
+:it=[values["num"]]
+:condition:values["num"]>0 and $a%values["num"]==0
+
+철사를 <$a:숫자>도막으로 자르려고 합니다. 철사를 한 번 자르는 데 <$b:숫자>초가 걸린다면, 쉬지 않고 <$c:숫자>도막으로 자르는 데 모두 몇 초가 걸리겠습니까?
+:condition:$a==$c
+:objective:$b*($c-1)
+
+똑같은 구슬 <$a:숫자>개가 들어 있는 상자의 무게를 재어 보니 <$b:숫자>g이었습니다.
+:60+12*x=444
+
+상자만의 무게가 <$a:숫자>g이라면 구슬 한 개의 무게는 몇 g입니까?
