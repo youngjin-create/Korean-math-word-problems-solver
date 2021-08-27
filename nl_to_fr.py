@@ -1,69 +1,104 @@
 
-# from gensim import models
-
-print('loading model...')
-# ko_model = models.fasttext.load_facebook_model('../../../word2vec/gensim_fasttext/cc.ko.300.bin')
-# ko_model = models.fasttext.load_facebook_model('fasttext/cc.ko.300.bin')
-# ko_model = models.fasttext.load_facebook_model('fasttext/ko_Kyobong.200.bin')
-print('done.')
-
-similarity_cache = dict()
-def word_similiarty(w1, w2):
-    global similarity_cache
-    key = w1 + ' ' + w2
-    if not(key in similarity_cache):
-        similarity_cache[key] = ko_model.wv.similarity(w1, w2)
-    return similarity_cache[key]
-
-def clear_cache():
-    global similarity_cache
-    similarity_cache = dict()
-
-# 문장 비교, 비슷할 수록 낮은 값 리턴
-def semantic_similarity(s1, s2):
-    # return ko_model.wv.wmdistance(s1, s2)
-    w1, w2 = s1.split(' '), s2.split(' ')
-    table = [[None for i in range(len(w2))] for j in range(len(w1))]
-    def score(l1, l2):
-        if l1 < 0 and l2 < 0:
-            return 0
-        if l1 < 0 or l2 < 0:
-            return float('inf')
-        if table[l1][l2] == None:
-            # table[l1][l2] = min(score(l1, l2-1), score(l1-1, l2), score(l1-1, l2-1)) + (1-ko_model.wv.similarity(w1[l1], w2[l2]))
-            table[l1][l2] = min(score(l1, l2-1), score(l1-1, l2), score(l1-1, l2-1)) + (1-word_similiarty(w1[l1], w2[l2]))
-        return table[l1][l2]
-    # print(score(len(w1)-1, len(w2)-1))
-    # print(table)
-    # print(w1)
-    # print(w2)
-    return score(len(w1)-1, len(w2)-1) # / (len(w1) + len(w2))
-
-random_var_name = 0
-def get_random_var_name():
-    global random_var_name
-    random_var_name = random_var_name + 1
-    return f'var{random_var_name:03d}'
+import re
+import wordsim
+from node import Node
 
 # %%
-# '<x:숫자>'와 같은 입력이 들어왔을 때 (x, 숫자)를 리턴
-def get_name_and_type(item):
-    # str_types = ['숫자', '수열', '지시자', '지시자들', '미지수', '미지수들', '사람', '사람들', '과목', '과목들']
-    pos = item.find(':')
-    first, second = (item[1:pos], item[pos+1:-1]) if pos != -1 else ('', item[1:-1])
-    return (first, second) if second.upper() == second.lower() else (second, first)
+def get_sentences(question):
+    end_of_phrases = '[^0-9a-zA-Z\(\)][\.\?][ ]'
+    phrases = []
+    pos = 0
+    for x in re.compile(end_of_phrases).finditer(question):
+        phrases.append(question[pos:x.span()[1]])
+        pos = x.span()[1]
+    if pos != len(question):
+        phrases.append(question[pos:])
+    return [x.strip() for x in phrases]
+
+def get_phrases(question):
+    # end_of_phrases = '.+면,|.+며,|.+고,|.+때,|.+다\. |.+오\.|.+\. |.+$'
+    # end_of_phrases = '.+?면,|.+?며,|.+?고,|.+?때,|.+?다\.|.+?오\.|.+?\. |.+?$'
+    end_of_phrases = '[^0-9a-zA-Z\(\)][\,\.\?][ ]'
+    phrases = []
+    pos = 0
+    for x in re.compile(end_of_phrases).finditer(question):
+        phrases.append(question[pos:x.span()[1]])
+        pos = x.span()[1]
+    if pos != len(question):
+        phrases.append(question[pos:])
+    return [x.strip() for x in phrases]
 
 # %%
-# mapping = { '$a': 'var22', '$b': 'var33' }
-def variable_substitute(statement, mapping):
-    # print(statement)
-    # print(mapping)
-    for m in mapping:
-        statement = statement.replace(m, str(mapping[m]))
-    return statement
+# 문장에서 가능한 파싱을 계속 yield해주는 함수
+# 일단 단순하게 몇 가지 경우로 구현
+def generate(question):
+    # 1. 문장 전체로 매칭
+    root = Node(question)
+    root.match_predefined()
+    _, matching_score = root.do_pattern_match()
+    yield root, matching_score
 
-# %%
-def generate(q):
-    statements = []
-    score = 0
-    yield statements, score
+    # 2. 일단 문장별로 나누고 문장을 쪼개서 매칭
+    matching_score = 0
+    root = Node(question)
+    for sentence in get_sentences(question):
+        best_nodes, best_score = [], float('inf')
+
+        # sentence 전체로 매칭
+        whole = Node(sentence)
+        whole.match_predefined()
+        pattern, score = whole.do_pattern_match()
+        # print(f'whole {sentence} {score}')
+        if pattern:
+            best_nodes, best_score = [whole], score
+
+        # sentence를 나누어서 매칭
+        words = sentence.split(' ')
+        for i in range(1, len(words)):
+            left = Node(' '.join(words[:i]))
+            left.match_predefined()
+            _, score_left = left.do_pattern_match()
+            right = Node(' '.join(words[i:]))
+            right.match_predefined()
+            _, score_right = right.do_pattern_match()
+            if score_left + score_right < best_score:
+                best_nodes, best_score = [left, right], score_left + score_right
+
+        # 최적의 매칭을 파싱 트리에 추가
+        for node in best_nodes:
+            root.children.append([None, 0, 0, node])
+        matching_score = matching_score + best_score
+
+    yield root, matching_score
+
+    # 3. 일단 phrase별로 나누고 그 안에서 다시 쪼개서 매칭
+    matching_score = 0
+    root = Node(question)
+    for phrase in get_phrases(question):
+        best_nodes, best_score = [], float('inf')
+
+        # phrase 전체로 매칭
+        whole = Node(phrase)
+        whole.match_predefined()
+        pattern, score = whole.do_pattern_match()
+        if pattern:
+            best_nodes, best_score = [whole], score
+
+        # phrase를 나누어서 매칭
+        words = phrase.split(' ')
+        for i in range(1, len(words)):
+            left = Node(' '.join(words[:i]))
+            left.match_predefined()
+            _, score_left = left.do_pattern_match()
+            right = Node(' '.join(words[i:]))
+            right.match_predefined()
+            _, score_right = right.do_pattern_match()
+            if score_left + score_right < best_score:
+                best_nodes, best_score = [left, right], score_left + score_right
+
+        # 최적의 매칭을 파싱 트리에 추가
+        for node in best_nodes:
+            root.children.append([None, 0, 0, node])
+        matching_score = matching_score + best_score
+
+    yield root, matching_score
