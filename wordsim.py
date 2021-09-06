@@ -39,3 +39,5 @@ def phrase_similarity(s1, s2):
     # print(w1)
     # print(w2)
     return score(len(w1)-1, len(w2)-1) # / (len(w1) + len(w2))
+
+# %%

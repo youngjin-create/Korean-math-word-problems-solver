@@ -6,8 +6,10 @@ import wordsim
 import utils
 
 random_var_name = 0
-def get_random_var_name():
+def get_random_var_name(init=False):
     global random_var_name
+    if init:
+        random_var_name = 0
     random_var_name = random_var_name + 1
     return f'var{random_var_name:03d}'
 
@@ -59,32 +61,6 @@ def find_regularities(list):
         print(e)
         return None
 
-def predefined_replaces(raw):
-    if '마리' in raw:
-        raw = raw.replace('한 마리', '1마리')
-        raw = raw.replace('두 마리', '2마리')
-        raw = raw.replace('세 마리', '3마리')
-        raw = raw.replace('네 마리', '4마리')
-        raw = raw.replace('다섯 마리', '5마리')
-        raw = raw.replace('여섯 마리', '6마리')
-        raw = raw.replace('일곱 마리', '7마리')
-        raw = raw.replace('여덟 마리', '8마리')
-        raw = raw.replace('아홉 마리', '9마리')
-        raw = raw.replace('열 마리', '10마리')
-
-    if '번째' in raw:
-        raw = raw.replace('첫 번째', '1번째')
-        raw = raw.replace('두 번째', '2번째')
-        raw = raw.replace('세 번째', '3번째')
-        raw = raw.replace('네 번째', '4번째')
-        raw = raw.replace('다섯 번째', '5번째')
-        raw = raw.replace('여섯 번째', '6번째')
-        raw = raw.replace('일곱 번째', '7번째')
-        raw = raw.replace('여덟 번째', '8번째')
-        raw = raw.replace('아홉 번째', '9번째')
-        raw = raw.replace('열 번째', '10번째')
-    return raw
-
 def replace_term(m):
     r = ''
     m = m.group()
@@ -99,7 +75,7 @@ def get_predefined_candidates_nodes(raw):
     def re_list(expr):
         return expr + '([, ]+(' + expr + '))+'
 
-    raw = predefined_replaces(raw)
+    # raw = predefined_replaces(raw)
 
     # re_number = '(([0-9]+(\.[0-9]+)?)|([0-9]+[/][0-9]+))'
     re_number = '[0-9]+(\.[0-9]+)?(\/[0-9]+(\.[0-9]+)?)?'
@@ -299,7 +275,9 @@ class Node:
             self.matched_pattern = pattern
             self.closest_distance = closest_distance
         return pattern, closest_distance
-    def resolve_statements(self, reduced_variable_name):
+    def resolve_statements(self, reduced_variable_name, is_root=False):
+        if is_root:
+            get_random_var_name(init=True)
         # requirements: self.children, self.statements, self.reduce
         sts = []
         var_mapping = {}
