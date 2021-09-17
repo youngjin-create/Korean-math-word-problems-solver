@@ -1,7 +1,8 @@
 
 import re
 import wordsim
-from node import Node
+import utils
+# from node import Node
 
 # %%
 def get_sentences(question):
@@ -33,10 +34,15 @@ def get_phrases(question):
 # 일단 단순하게 몇 가지 경우로 구현
 def generate(question):
     # 1. 문장 전체로 매칭
-    root = Node(question)
-    root.match_predefined()
-    _, matching_score = root.do_pattern_match()
-    yield root, matching_score
+    literals = utils.find_literals(question)
+
+    # yield 
+    # root = Node(question)
+    # root.match_predefined()
+    # _, matching_score = root.do_pattern_match()
+    # yield root, matching_score
+
+    return
 
     # 2. 일단 문장별로 나누고 문장을 쪼개서 매칭
     matching_score = 0
