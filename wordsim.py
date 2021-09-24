@@ -1,5 +1,6 @@
 
 # %%
+import re
 from gensim import models
 
 print('loading word embeddings...', end=' ')
@@ -19,6 +20,21 @@ def word_similiarty(w1, w2):
     if not(key in similarity_cache):
         similarity_cache[key] = ko_model.wv.similarity(w1, w2)
     return similarity_cache[key]
+
+def word_distance_template(w1, w2): # w1 = template word, w2 = question word
+    t = re.compile('(var[0-9]+)(.*)').findall(w1)
+    # t = re.compile('(var[0-9]+)(\w+)').findall(w1)
+    # var = re.compile('(var[0-9]+)(*)').findall(w1)
+    if t: # template 단어가 wildcard를 포함하고 있으면
+        ending = t[0][1]
+        if w2[-len(ending):] == ending or ending == '':
+            return 0, w2[:-len(ending)]
+        return 1-ko_model.wv.similarity(w1, w2), w2
+    else: # 단순 단어 비교
+        if w1 == w2:
+            return 0, None
+        return 1-ko_model.wv.similarity(w1, w2), None
+    return
 
 # 문장 비교, 비슷할 수록 낮은 값 리턴
 def phrase_similarity(s1, s2):
@@ -41,3 +57,4 @@ def phrase_similarity(s1, s2):
     return score(len(w1)-1, len(w2)-1) # / (len(w1) + len(w2))
 
 # %%
+word_distance_template('var4', '국어')

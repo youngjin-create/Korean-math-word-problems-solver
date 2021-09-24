@@ -65,6 +65,8 @@ def load_dataset_json():
         dataset_json = json.load(infile)
         # print(dataset_json)
 
+    re_number = '[0-9]+(\.[0-9]+)?(\/[0-9]+(\.[0-9]+)?)?'
+
     for q in dataset_json:
         print(' ')
         if 'question' not in q:
@@ -73,35 +75,43 @@ def load_dataset_json():
         if 'equation' in q:
             if type(q['equation']) is not list:
                 q['equation'] = [q['equation']]
-            for eq in q['equation']:
-                strlist.extend(re.findall(r'\b\w+\b', eq))
+            for str in q['equation']:
+                strlist.extend(re.findall(r'\b[^\d\W]+\b', str))
+                for match in re.compile(re_number).finditer(str):
+                    strlist.append(match.group())
         if 'code' in q:
             if type(q['code']) is not list:
                 q['code'] = [q['code']]
-            for code in q['code']:
-                strlist.extend(re.findall(r'\b\w+\b', code))
+            for str in q['code']:
+                strlist.extend(re.findall(r'\b[^\d\W]+\b', str))
+                for match in re.compile(re_number).finditer(str):
+                    strlist.append(match.group())
 
         strset = set(strlist)
         strset.discard('print')
         strset.discard('equ')
         strset.discard('argmin')
+        strset.discard('argmax')
         strset.discard('len')
         strset.discard('min')
         strset.discard('max')
         strset.discard('math')
         strlist = list(strset)
-        print(strlist)
+        # print(strlist)
+
+        q['template_values'] = strlist
 
         template = q['question']
         for idx, str in enumerate(strlist):
-            template = re.sub(r'^' + str, f'[{idx}]', template)
-            template = re.sub(r' ' + str, f' [{idx}]', template)
-
+            template = re.sub(r'^' + str, f'var{idx}', template)
+            template = re.sub(r' ' + str, f' var{idx}', template)
+        q['template'] = template
+   
         q['template_equation'] = []
         if 'equation' in q:
             for eq in q['equation']:
                 for idx, str in enumerate(strlist):
-                    eq = re.compile('\\b' + str + '\\b').sub(f'[{idx}]', eq)
+                    eq = re.compile('\\b' + str + '\\b').sub(f'var{idx}', eq)
                     # eq = re.sub(r'\b' + str + r'\b', f'<{idx}>', eq)
                 q['template_equation'].append(eq)
 
@@ -109,14 +119,14 @@ def load_dataset_json():
         if 'code' in q:
             for eq in q['code']:
                 for idx, str in enumerate(strlist):
-                    eq = re.compile('\\b' + str + '\\b').sub(f'[{idx}]', eq)
+                    eq = re.compile('\\b' + str + '\\b').sub(f'var{idx}', eq)
                     # eq = re.sub(r'\b' + str + r'\b', f'<{idx}>', eq)
                 q['template_code'].append(eq)
 
-        q['template'] = template
         print(q['template'])
         print(q['template_equation'])
         print(q['template_code'])
+        print(q['template_values'])
 
 # %%
 print('loading dataset...', end=' ')

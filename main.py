@@ -14,15 +14,15 @@ def solve_mwp(question):
 
     best_answer, best_derivation, best_score = None, [], float('inf')
     # 질문을 여러가지 방법으로 파싱해서 각각의 경우를 풀어본다.
-    for fr, score in nl_to_fr.generate(q):
-        fr.print()
-        print(f'parse_score = {score}')
-        answer, derivation = fr_solver.solve(fr, time_limit_sec=30)
+    for distance, equation, code in nl_to_fr.generate(q):
+        # fr.print()
+        print(f'matching_distance = {distance}')
+        # answer, derivation = fr_solver.solve(fr, time_limit_sec=30)
 
-        if answer != None and derivation:
-            # 정답이 나오는 경우가 여러가지가 있으면 가장 파싱이 잘 된 경우의 답을 정답으로 채택
-            if score < best_score:
-                best_answer, best_derivation, best_score = answer, derivation, score
+        # if answer != None and derivation:
+        #     # 정답이 나오는 경우가 여러가지가 있으면 가장 파싱이 잘 된 경우의 답을 정답으로 채택
+        #     if score < best_score:
+        #         best_answer, best_derivation, best_score = answer, derivation, score
 
     if best_answer != None:
         return best_answer, best_derivation
@@ -33,7 +33,9 @@ def solve_mwp(question):
 start_time = time.time()
 
 # with open('/home/agc2021/dataset/problemsheet.json') as infile: # 1차 대회
-with open('sample.json') as infile: # 샘플 문제
+# with open('sample.json') as infile: # 샘플 문제
+    # problemsheet = json.load(infile)
+with open('problemsheet.json') as infile: # 테스트 문제
     problemsheet = json.load(infile)
 
 answersheet = dict()
@@ -57,5 +59,3 @@ for q_number in problemsheet:
             json.dump(answersheet, outfile, ensure_ascii=False, indent=4)
 
 print('execution time = {0:.0f} seconds.'.format(time.time() - start_time))
-
-# %%
