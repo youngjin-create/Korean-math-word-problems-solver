@@ -5,29 +5,18 @@ import json
 import time
 
 import nl_preprocess
-import nl_to_fr
+import template
 import fr_solver
 
 # %%
 def solve_mwp(question):
     q = nl_preprocess.preprocess(question)
+    distance, sol = template.find_template(q)
+    # answer, derivation = fr_solver.solve(sol, time_limit_sec=30)
 
-    best_answer, best_derivation, best_score = None, [], float('inf')
-    # 질문을 여러가지 방법으로 파싱해서 각각의 경우를 풀어본다.
-    for distance, equation, code in nl_to_fr.generate(q):
-        # fr.print()
-        print(f'matching_distance = {distance}')
-        # answer, derivation = fr_solver.solve(fr, time_limit_sec=30)
-
-        # if answer != None and derivation:
-        #     # 정답이 나오는 경우가 여러가지가 있으면 가장 파싱이 잘 된 경우의 답을 정답으로 채택
-        #     if score < best_score:
-        #         best_answer, best_derivation, best_score = answer, derivation, score
-
-    if best_answer != None:
-        return best_answer, best_derivation
-    return '0', ['print(0)'] # if failed, guess answer
-
+    if answer != None:
+        return answer, derivation
+    return '0', ['print(0)'] # if failed, print 0
 
 # %%
 start_time = time.time()
