@@ -4,15 +4,16 @@
 import json
 import time
 
-import nl_preprocess
+import utils
 import template
-import fr_solver
+import math_solver
+# import fr_solver
 
 # %%
 def solve_mwp(question):
-    q = nl_preprocess.preprocess(question)
-    distance, sol = template.find_template(q)
-    # answer, derivation = fr_solver.solve(sol, time_limit_sec=30)
+    q = utils.preprocess(question)
+    distance, statements = template.find_template(q)
+    answer, derivation = math_solver.solve(statements, time_limit_sec=30)
 
     if answer != None:
         return answer, derivation
