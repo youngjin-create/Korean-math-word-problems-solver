@@ -1,29 +1,24 @@
+# %%
 import re
 
 def predefined_replaces(raw):
-    if '마리' in raw:
-        raw = raw.replace('한 마리', '1마리')
-        raw = raw.replace('두 마리', '2마리')
-        raw = raw.replace('세 마리', '3마리')
-        raw = raw.replace('네 마리', '4마리')
-        raw = raw.replace('다섯 마리', '5마리')
-        raw = raw.replace('여섯 마리', '6마리')
-        raw = raw.replace('일곱 마리', '7마리')
-        raw = raw.replace('여덟 마리', '8마리')
-        raw = raw.replace('아홉 마리', '9마리')
-        raw = raw.replace('열 마리', '10마리')
+    raw = re.sub(r'\b한 ', '1', raw)
+    raw = re.sub(r'\b두 ', '2', raw)
+    raw = re.sub(r'\b세 ', '3', raw)
+    raw = re.sub(r'\b네 ', '4', raw)
+    raw = re.sub(r'\b다섯 ', '5', raw)
+    raw = re.sub(r'\b여섯 ', '6', raw)
+    raw = re.sub(r'\b일곱 ', '7', raw)
+    raw = re.sub(r'\b여덟 ', '8', raw)
+    raw = re.sub(r'\b아홉 ', '9', raw)
+    raw = re.sub(r'\b열 ', '10', raw)
 
-    if '번째' in raw:
-        raw = raw.replace('첫 번째', '1번째')
-        raw = raw.replace('두 번째', '2번째')
-        raw = raw.replace('세 번째', '3번째')
-        raw = raw.replace('네 번째', '4번째')
-        raw = raw.replace('다섯 번째', '5번째')
-        raw = raw.replace('여섯 번째', '6번째')
-        raw = raw.replace('일곱 번째', '7번째')
-        raw = raw.replace('여덟 번째', '8번째')
-        raw = raw.replace('아홉 번째', '9번째')
-        raw = raw.replace('열 번째', '10번째')
+    raw = re.sub(r'\b첫 ', '1', raw)
+        
+    raw = re.sub(r'\b몇개', '몇 개', raw)
+
+    raw = re.sub(r'\b어떤 수', '어떤수', raw)
+
     return raw
 
 def preprocess(question):
@@ -34,23 +29,6 @@ def preprocess(question):
     question = predefined_replaces(question)
 
     return question
-
-# %%
-# '<x:숫자>'와 같은 입력이 들어왔을 때 (x, 숫자)를 리턴
-def get_name_and_type(item):
-    # str_types = ['숫자', '수열', '지시자', '지시자들', '미지수', '미지수들', '사람', '사람들', '과목', '과목들']
-    pos = item.find(':')
-    first, second = (item[1:pos], item[pos+1:-1]) if pos != -1 else ('', item[1:-1])
-    return (first, second) if second.upper() == second.lower() else (second, first)
-
-# %%
-# mapping = { '$a': 'var22', '$b': 'var33' }
-def variable_substitute(statement, mapping):
-    # print(statement)
-    # print(mapping)
-    for m in mapping:
-        statement = statement.replace(m, str(mapping[m]))
-    return statement
 
 # %%
 def find_candidates(raw):
