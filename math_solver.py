@@ -20,10 +20,18 @@ def time_limit(seconds):
 # %%
 
 # 주어진 statements(equation, code 등)에서 실행가능한 python 코드를 생성하고, 실행해서 얻어진 답을 반환한다.
+# statements: equation, code, objective
 def do_math(statements):
+    derivation = []
+    objective = 'x'
+
+    if 'equation' in statements:
+        pass
 
     derivation = statements['code']
-    objective = 'x'# statements['code']
+    # if 'objective' in statements:
+    if len(statements['objective']) > 0:
+        objective = statements['objective'][0]
 
     env = dict()
     try:

@@ -30,30 +30,25 @@ def build_template(q):
         return
 
     q['question_preprocessed'] = utils.preprocess(q['question'])
-    strlist = []
-    strset = set()
-    if 'equation' in q:
-        if type(q['equation']) is not list:
-            q['equation'] = [q['equation']]
-        for line in q['equation']:
-            strset |= find_literals(line, q['question_preprocessed'])
-    if 'code' in q:
-        if type(q['code']) is not list:
-            q['code'] = [q['code']]
-        for line in q['code']:
-            strset |= find_literals(line, q['question_preprocessed'])
 
-    strset.discard('print')
-    strset.discard('equ')
-    strset.discard('argmin')
-    strset.discard('argmax')
-    strset.discard('len')
-    strset.discard('min')
-    strset.discard('max')
-    strset.discard('math')
+    # 풀이 과정에서 literal을 추출하여 문제를 템플릿화
+    strset = set()
+    field_names = ['equation', 'code', 'objective']
+    for fn in field_names:
+        if fn in q:
+            if type(q[fn]) is not list:
+                q[fn] = [q[fn]]
+            for line in q[fn]:
+                strset |= find_literals(line, q['question_preprocessed'])
+
+    discard_keywords = ['x', 'print', 'argmin', 'argmax', 'len', 'min', 'max', 'math']
+    for k in discard_keywords:
+        strset.discard(k)
+
     strlist = list(strset)
     strlist.sort(key=len)
     strlist.reverse()
+    q['template_values'] = strlist
 
     re_number = '[0-9]+(\.[0-9]+)?(\/[0-9]+(\.[0-9]+)?)?'
     strtypes = [None] * len(strlist)
@@ -64,8 +59,7 @@ def build_template(q):
             strtypes[idx] = 'number'
         else:
             strtypes[idx] = 'string'
-
-    q['template_values'] = strlist
+    q['template_types'] = strtypes
 
     template = q['question_preprocessed']
     for idx, str in enumerate(strlist):
@@ -73,24 +67,21 @@ def build_template(q):
         template = re.sub(' ' + re.escape(str), f' var{idx}', template)
     q['template'] = template
 
-    q['template_equation'] = []
-    if 'equation' in q:
-        for eq in q['equation']:
-            for idx, str in enumerate(strlist):
-                eq = re.compile(r'\b' + re.escape(str) + r'\b').sub(f'var{idx}', eq)
-            q['template_equation'].append(eq)
+    for fn in field_names:
+        q['template_'+fn] = []
+        if fn in q:
+            for eq in q[fn]:
+                for idx, str in enumerate(strlist):
+                    eq = re.compile(r'\b' + re.escape(str) + r'\b').sub(f'var{idx}', eq)
+                q['template_'+fn].append(eq)
 
-    q['template_code'] = []
-    if 'code' in q:
-        for eq in q['code']:
-            for idx, str in enumerate(strlist):
-                eq = re.compile(r'\b' + re.escape(str) + r'\b').sub(f'var{idx}', eq)
-            q['template_code'].append(eq)
-
+    # 추가된 필드 출력
     print(q['template'])
     print(q['template_equation'])
     print(q['template_code'])
+    print(q['template_objective'])
     print(q['template_values'])
+    print(q['template_types'])
 
 def load_dataset_json():
     global dataset_json
@@ -101,7 +92,6 @@ def load_dataset_json():
 
     for q in dataset_json:
         build_template(q)
-        
 
 # %%
 print('loading dataset...', end=' ')

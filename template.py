@@ -108,22 +108,16 @@ def find_template(question):
             values[idx] = list(valueset)[0]
     print(values)
 
-    equation = []
-    if 'template_equation' in q:
-        for line in q['template_equation']:
-            for idx, v in enumerate(values):
-                line = re.compile(f'\\bvar{idx}\\b').sub(v, line)
-            equation.append(line)
-    code = []
-    if 'template_code' in q:
-        for line in q['template_code']:
-            for idx, v in enumerate(values):
-                line = re.compile(f'\\bvar{idx}\\b').sub(v, line)
-            code.append(line)
+    sub = dict()
+    field_names = ['equation', 'code', 'objective']
+    for fn in field_names:
+        sub[fn] = []
+        if 'template_'+fn in q:
+            for line in q['template_'+fn]:
+                for idx, v in enumerate(values):
+                    line = re.compile(f'\\bvar{idx}\\b').sub(v, line)
+                sub[fn].append(line)
 
-    print('equation substituted')
-    print(equation)
-    print('code substituted')
-    print(code)
+    print(sub)
 
-    return distance, dict(equation=equation, code=code)
+    return distance, sub#dict(equation=equation, code=code, objective=objective)
