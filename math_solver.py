@@ -123,4 +123,6 @@ def solve(statements, time_limit_sec):
             answer, derivation = do_math(statements)
     except TimeoutException as e:
         print("do_math() timed out!")
+    except Exception as e:
+        print("do_math() exception!")
     return answer, derivation
