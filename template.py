@@ -22,6 +22,8 @@ def word_similarity(w1, w2): # w1 = template word, w2 = question word
 def match_to_template(t, s, v): # template, question sentence, values
     skip_penalty = 0.6
 
+    print(t)
+
     # v = [''] * len(v)
     w1, w2 = t.split(' '), s.split(' ')
 
@@ -88,7 +90,8 @@ def match_to_template(t, s, v): # template, question sentence, values
 
 def find_closest(question):
     closest_distance, best_pattern, best_assignments = float('inf'), None, None
-    for p in dataset.dataset_json:
+    # for p in dataset.dataset_json:
+    for p in dataset.dataset_csv:
         distance, assignments = match_to_template(p['template'], question, p['template_values'])
         if distance < closest_distance:
             closest_distance, best_pattern, best_assignments = distance, p, assignments

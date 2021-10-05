@@ -18,6 +18,8 @@ def predefined_replaces(raw):
     raw = re.sub(r'\b몇개', '몇 개', raw)
 
     raw = re.sub(r'\b어떤 수', '어떤수', raw)
+    raw = re.sub(r'\b몇 개가 있습니까?', '몇 개입니까?', raw)
+    raw = re.sub(r'\b무슨 색깔입니까?', '무슨 색일까요?', raw)
 
     return raw
 
