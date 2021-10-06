@@ -1,8 +1,7 @@
 # %%
-# imports
-
 import json
 import time
+start_time = time.time()
 
 import utils
 import template
@@ -20,7 +19,6 @@ def solve_mwp(question):
     return '0', ['print(0)'] # if failed, print 0
 
 # %%
-start_time = time.time()
 
 # with open('/home/agc2021/dataset/problemsheet.json') as infile: # 1차 대회
 # with open('sample.json') as infile: # 샘플 문제
@@ -30,6 +28,8 @@ with open('problemsheet.json') as infile: # 테스트 문제
 
 answersheet = dict()
 for q_number in problemsheet:
+    print('elapsed time = {0:.0f} seconds.'.format(time.time() - start_time))
+
     q = problemsheet[q_number]['question']
     answer, derivation, code = 0, [], ''
     # try:

@@ -21,14 +21,14 @@ def word_similiarty(w1, w2):
         similarity_cache[key] = ko_model.wv.similarity(w1, w2)
     return similarity_cache[key]
 
+re_var_ending = re.compile(r'(@[0-9]+)(\D*)')
 def word_distance_template(w1, w2): # w1 = template word, w2 = question word
-    t = re.compile('(var[0-9]+)(.*)').findall(w1)
-    # t = re.compile('(var[0-9]+)(\w+)').findall(w1)
-    # var = re.compile('(var[0-9]+)(*)').findall(w1)
-    if t: # template 단어가 wildcard를 포함하고 있으면
-        ending = t[0][1]
-        if w2[-len(ending):] == ending or ending == '':
-            return 0, w2[:-len(ending)]
+    global re_var_ending
+    match = re_var_ending.fullmatch(w1)
+    if match: # template 단어가 wildcard를 포함하고 있으면
+        ending = match[2]
+        if w2[len(w2)-len(ending):] == ending:
+            return 0, w2[:len(w2)-len(ending)]
         return 1-ko_model.wv.similarity(w1, w2), w2
     else: # 단순 단어 비교
         if w1 == w2:
@@ -36,25 +36,25 @@ def word_distance_template(w1, w2): # w1 = template word, w2 = question word
         return 1-ko_model.wv.similarity(w1, w2), None
     return
 
-# 문장 비교, 비슷할 수록 낮은 값 리턴
-def phrase_similarity(s1, s2):
-    # return ko_model.wv.wmdistance(s1, s2)
-    w1, w2 = s1.split(' '), s2.split(' ')
-    table = [[None for i in range(len(w2))] for j in range(len(w1))]
-    def score(l1, l2):
-        if l1 < 0 and l2 < 0:
-            return 0
-        if l1 < 0 or l2 < 0:
-            return float('inf')
-        if table[l1][l2] == None:
-            # table[l1][l2] = min(score(l1, l2-1), score(l1-1, l2), score(l1-1, l2-1)) + (1-ko_model.wv.similarity(w1[l1], w2[l2]))
-            table[l1][l2] = min(score(l1, l2-1), score(l1-1, l2), score(l1-1, l2-1)) + (1-word_similiarty(w1[l1], w2[l2]))
-        return table[l1][l2]
-    # print(score(len(w1)-1, len(w2)-1))
-    # print(table)
-    # print(w1)
-    # print(w2)
-    return score(len(w1)-1, len(w2)-1) # / (len(w1) + len(w2))
+# # 문장 비교, 비슷할 수록 낮은 값 리턴
+# def phrase_similarity(s1, s2):
+#     # return ko_model.wv.wmdistance(s1, s2)
+#     w1, w2 = s1.split(' '), s2.split(' ')
+#     table = [[None for i in range(len(w2))] for j in range(len(w1))]
+#     def score(l1, l2):
+#         if l1 < 0 and l2 < 0:
+#             return 0
+#         if l1 < 0 or l2 < 0:
+#             return float('inf')
+#         if table[l1][l2] == None:
+#             # table[l1][l2] = min(score(l1, l2-1), score(l1-1, l2), score(l1-1, l2-1)) + (1-ko_model.wv.similarity(w1[l1], w2[l2]))
+#             table[l1][l2] = min(score(l1, l2-1), score(l1-1, l2), score(l1-1, l2-1)) + (1-word_similiarty(w1[l1], w2[l2]))
+#         return table[l1][l2]
+#     # print(score(len(w1)-1, len(w2)-1))
+#     # print(table)
+#     # print(w1)
+#     # print(w2)
+#     return score(len(w1)-1, len(w2)-1) # / (len(w1) + len(w2))
 
 # %%
-word_distance_template('var4', '국어')
+word_distance_template('@4', '국어')

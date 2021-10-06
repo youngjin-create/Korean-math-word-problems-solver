@@ -4,34 +4,39 @@ import wordsim
 import utils
 import dataset
 
-def word_similarity(w1, w2): # w1 = template word, w2 = question word
-    t = re.compile('(var[0-9]+)(\w+)').findall(w1)
-    # var = re.compile('(var[0-9]+)(*)').findall(w1)
-    if t: # template 단어가 wildcard를 포함하고 있으면
-        ending = t[0][1]
-        if w2[-len(ending):] == ending:
-            return 0, w2[:-len(ending)]
-        return 1, w2
-    else: # 단순 단어 비교
-        if w1 == w2:
-            return 0, None
-        return 1, None
-    return
+re_var_ending = re.compile(r'(@[0-9]+)(\D*)')
+# re_var = re.compile(r'@[0-9]+')
+
+# def word_similarity(w1, w2): # w1 = template word, w2 = question word
+#     global re_var_ending
+#     match = re_var_ending.fullmatch(w1)
+#     # var = re.compile('(var[0-9]+)(*)').findall(w1)
+#     if match: # template 단어가 wildcard를 포함하고 있으면
+#         ending = match[2]
+#         if w2[-len(ending):] == ending:
+#             return 0, w2[:-len(ending)]
+#         return 1, w2
+#     else: # 단순 단어 비교
+#         if w1 == w2:
+#             return 0, None
+#         return 1, None
+#     return
 
 # 문장 비교, 비슷할 수록 낮은 값 리턴
 def match_to_template(t, s, v): # template, question sentence, values
+    global re_var_ending
     skip_penalty = 0.6
 
-    print(t)
+    # print(t)
 
     # v = [''] * len(v)
     w1, w2 = t.split(' '), s.split(' ')
 
     varnum = [None] * len(w1)
     for i in range(0, len(w1)):
-        var = re.compile('var[0-9]+').findall(w1[i])
-        if var:
-            varnum[i] = int(var[0][3:])
+        match = re_var_ending.fullmatch(w1[i])
+        if match:
+            varnum[i] = int(match[1][1:])
         # print(var)
 
     score_table = [[float('inf') for i in range(len(w2))] for j in range(len(w1))]
@@ -90,7 +95,10 @@ def match_to_template(t, s, v): # template, question sentence, values
 
 def find_closest(question):
     closest_distance, best_pattern, best_assignments = float('inf'), None, None
-    # for p in dataset.dataset_json:
+    for p in dataset.dataset_json:
+        distance, assignments = match_to_template(p['template'], question, p['template_values'])
+        if distance < closest_distance:
+            closest_distance, best_pattern, best_assignments = distance, p, assignments
     for p in dataset.dataset_csv:
         distance, assignments = match_to_template(p['template'], question, p['template_values'])
         if distance < closest_distance:
@@ -115,11 +123,13 @@ def find_template(question):
     field_names = ['equation', 'code', 'objective']
     for fn in field_names:
         sub[fn] = []
-        if 'template_'+fn in q:
-            for line in q['template_'+fn]:
-                for idx, v in enumerate(values):
-                    line = re.compile(f'\\bvar{idx}\\b').sub(v, line)
-                sub[fn].append(line)
+        if 'template_'+fn not in q:
+            continue
+        for line in q['template_'+fn]:
+            for idx, v in enumerate(values):
+                line = re.sub(f'(@{idx})($|\D)', v + '\\g<2>', line)
+                # line = re.sub(f'\\b@{idx}\\b', v, line)
+            sub[fn].append(line)
 
     print(sub)
 

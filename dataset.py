@@ -18,7 +18,7 @@ def find_literals(line, question):
     strlist.extend(re.findall(r'\b[^\d\W]+\b', line))
 
     # 숫자
-    re_number = '[0-9]+(\.[0-9]+)?(\/[0-9]+(\.[0-9]+)?)?'
+    re_number = r'[0-9]+([.][0-9]+)?(/[0-9]+([.][0-9]+)?)?' #'[0-9]+(\.[0-9]+)?(\/[0-9]+(\.[0-9]+)?)?'
     for match in re.compile(re_number).finditer(line):
         strlist.append(match.group())
 
@@ -37,45 +37,50 @@ def build_template(q):
     strset = set()
     field_names = ['equation', 'code', 'objective']
     for fn in field_names:
-        if fn in q:
-            if type(q[fn]) is not list:
-                q[fn] = [q[fn]]
-            for line in q[fn]:
-                strset |= find_literals(line, q['question_preprocessed'])
+        if fn not in q:
+            continue
+        if type(q[fn]) is not list:
+            q[fn] = [q[fn]]
+        for line in q[fn]:
+            strset |= find_literals(line, q['question_preprocessed'])
 
     discard_keywords = ['vars', 'x', 'print', 'argmin', 'argmax', 'len', 'min', 'max', 'math', 'floor']
     for k in discard_keywords:
         strset.discard(k)
 
+    # 추출해낸 literal 중에서 question에 나오지 않는 것들은 상수항이므로 리스트에서 제외
     strlist = list(strset)
     strlist.sort(key=len)
     strlist.reverse()
+    strlist[:] = [x for x in strlist if len(re.findall(r'(^|\s)(' + re.escape(x) + r')($|\D)', q['question_preprocessed'])) > 0]
     q['template_values'] = strlist
 
-    re_number = '[0-9]+(\.[0-9]+)?(\/[0-9]+(\.[0-9]+)?)?'
+    re_number = r'[0-9]+([.][0-9]+)?(/[0-9]+([.][0-9]+)?)?'
     strtypes = [None] * len(strlist)
     for idx, str in enumerate(strlist):
         if '=' in str:
             strtypes[idx] = 'equation'
         elif re.fullmatch(re_number, str):
             strtypes[idx] = 'number'
+        elif re.fullmatch(r'[A-Z]', str):
+            strtypes[idx] = 'variable'
         else:
             strtypes[idx] = 'string'
     q['template_types'] = strtypes
 
     template = q['question_preprocessed']
     for idx, str in enumerate(strlist):
-        template = re.sub('^' + re.escape(str), f'var{idx}', template)
-        template = re.sub(' ' + re.escape(str), f' var{idx}', template)
+        template = re.sub(r'(^|\s)(' + re.escape(str) + r')($|\D)', f'\\g<1>@{idx}\\g<3>', template)
     q['template'] = template
 
     for fn in field_names:
         q['template_'+fn] = []
-        if fn in q:
-            for eq in q[fn]:
-                for idx, str in enumerate(strlist):
-                    eq = re.compile(r'\b' + re.escape(str) + r'\b').sub(f'var{idx}', eq)
-                q['template_'+fn].append(eq)
+        if fn not in q:
+            continue
+        for eq in q[fn]:
+            for idx, str in enumerate(strlist):
+                eq = re.compile(r'(^|[^@])(\b' + re.escape(str) + r'\b)').sub(f'\\g<1>@{idx}', eq)
+            q['template_'+fn].append(eq)
 
     # 추가된 필드 출력
     print(q['template'])
