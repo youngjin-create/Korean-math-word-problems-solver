@@ -5,13 +5,21 @@ start_time = time.time()
 
 import utils
 import template
+import rulebased
 import math_solver
 # import fr_solver
 
 # %%
 def solve_mwp(question):
+    # 문제 전처리
     q = utils.preprocess(question)
-    distance, statements = template.find_template(q)
+
+    # 여러가지 방법을 이용하여 자연어로 된 문제를 수학적 표현으로 변환
+    distance, statements = rulebased.match(q)
+    if distance == None:
+        distance, statements = template.find_template(q)
+
+    # 변환된 수학적 표현을 풀어서 python code 형태로 답을 구함
     answer, derivation = math_solver.solve(statements, time_limit_sec=30)
 
     if answer != None:
