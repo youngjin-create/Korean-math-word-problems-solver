@@ -50,6 +50,100 @@ def find_answer_using_sympy(substitued_equations):
 
     return eq_dict
 
+# 메소드
+def find_pos_right(field, a, b, range_max):
+  try:
+    if max(field, key=field.get) == a:
+      return (range_max - field[a]) / 2 + field[a]
+    else:
+      ranges = sorted(list(field.values()))
+      idx = ranges.index(field[a])
+      ret = []
+      for i in range(idx, len(ranges)):
+        if i+1 < len(ranges):
+          ret.append((ranges[i],ranges[i+1]))
+        if i+1 == len(ranges):
+          ret.append((ranges[i],range_max))
+      return ret
+  except:
+    return None
+
+def find_ordering(inequal, field, range_max, verbose=False):
+  for i in inequal:
+    (a, b) = i
+    if len(field) == 0:
+      field[a] = range_max / 2
+    if a in field and not isinstance(field[a], list):
+      if b not in field:
+        pos = find_pos_right(field, a, b, range_max)
+        if pos != None:
+          field[b] = pos
+      elif isinstance(field[b], list):
+        candidates = []
+        for r in field[b]:
+          if field[a] <= r[0]:
+            candidates.append(r)
+        if len(candidates) == 1:
+          field[b] = (candidates[0][1]-candidates[0][0]) / 2 + candidates[0][0]
+    elif a in field and isinstance(field[a], list) and b in field and not isinstance(field[b], list):
+      candidates = []
+      for r in field[a]:
+        if r[1] <= field[b]:
+          candidates.append(r)
+      if len(candidates) == 1:
+        field[a] = (candidates[0][1]-candidates[0][0]) / 2 + candidates[0][0]
+    # elif a not in field:
+    #   if b in field:
+    #     pos = find_pos_left(field, b, a)
+    #     if pos != None:
+    #       field[a] = pos
+    if verbose:
+      print(i)
+      print(field)
+
+# 부등식 답 구하기
+# equations : 호석<석진<지민<남준
+def find_answer_in_inequality(equations, order_symbol):
+    if order_symbol == '<':
+        ascending_ordered_list = equations.split(order_symbol)
+    elif order_symbol == '>':
+        ascending_ordered_list = equations.split(order_symbol)[::-1]
+
+    '''
+    # 입력 : 심볼 가나다순 정렬
+    inequal = [('호석', '석진'), ('호석', '지민'), ('호석', '남준'), ('석진', '지민'), ('석진', '남준'),
+               ('지민', '남준')]  # 왼쪽 < 오른쪽 (예: 가 < 나)
+    '''
+    inequal = []
+    for index, item in enumerate(ascending_ordered_list):
+        if index < (len(ascending_ordered_list)-1):
+            ascending_tuple = (ascending_ordered_list[index], ascending_ordered_list[index + 1])
+            inequal.append(ascending_tuple)
+
+    # 전역변수
+    symbols = sorted(list(set([x[0] for x in inequal] + [x[1] for x in inequal])))
+    range_max = float(2 ** len(symbols))
+    field = dict()
+
+    while True:
+        if len(field) == len(symbols):
+            count = 0
+            for k in field:
+                if isinstance(field[k], list):
+                    count = count + 1
+            if count == 0:
+                break
+        find_ordering(inequal, field, range_max, verbose=True)
+        print()
+
+    print("Result:")
+    print(field)
+    print("최소: " + min(field, key=field.get))
+    print("최대: " + max(field, key=field.get))
+
+    return field
+
+
 def solution_code_generate(equations, eq_dict, objective, code):
     answer_str = "vars = dict()\n"
     for key, value in eq_dict.items():
@@ -92,13 +186,23 @@ def do_math(statements):
         objective = statements['objective'][0]
         code = statements['code'][0]
 
-        # 수식을 좌변으로 모음
-        substitued_equations = equation_substitution(equations)
-        # sympy를 이용해서 정답을 찾음
-        eq_dict = find_answer_using_sympy(substitued_equations)
-        # 정답을 기반으로 solution 코드를 생성
-        answer_str = solution_code_generate(equations, eq_dict, objective, code)
-        print(answer_str)
+        # 부등식일 경우
+        if "<" in equations[0]:
+            field = find_answer_in_inequality(equations[0], '<')
+            eq_dict = field
+            answer_str = solution_code_generate(equations, eq_dict, objective, code)
+        elif ">" in equations[0]:
+            field = find_answer_in_inequality(equations[0], '>')
+            eq_dict = field
+            answer_str = solution_code_generate(equations, eq_dict, objective, code)
+        else:
+            # 수식을 좌변으로 모음
+            substitued_equations = equation_substitution(equations)
+            # sympy를 이용해서 정답을 찾음
+            eq_dict = find_answer_using_sympy(substitued_equations)
+            # 정답을 기반으로 solution 코드를 생성
+            answer_str = solution_code_generate(equations, eq_dict, objective, code)
+            print(answer_str)
 
     # if 'objective' in statements:
     if len(statements['objective']) > 0:
