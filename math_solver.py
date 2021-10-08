@@ -50,24 +50,31 @@ def find_answer_using_sympy(substitued_equations):
 
     return eq_dict
 
-def solution_code_generate(equations, eq_dict, objective):
+def solution_code_generate(equations, eq_dict, objective, code):
     answer_str = "vars = dict()\n"
     for key, value in eq_dict.items():
         answer_str+= "vars['" + str(key) + "']" + "=" + str(value) + "\n"
-    answer_str += "if "
-    for index, equation in enumerate(equations):
-        replaced_str = equation.replace("=","==")
 
-        vars = re.compile('[가-힣]+|[A-Za-z]').findall(replaced_str)
-        for var in vars:
-            replaced_str = replaced_str.replace(var, "vars['" + var + "']")
-        answer_str += replaced_str
+    # code가 없는 경우
+    if len(code) == 0:
+        answer_str += "if "
+        for index, equation in enumerate(equations):
+            replaced_str = equation.replace("=","==")
 
-        if index != (len(equations)-1):
-            answer_str += " and "
-    answer_str +=":\n    "
-    answer_str +="print("+ objective + ")"
-    # answer_str +="print("+ "vars['" + objective + "']" + ")"
+            vars = re.compile('[가-힣]+|[A-Za-z]').findall(replaced_str)
+            for var in vars:
+                replaced_str = replaced_str.replace(var, "vars['" + var + "']")
+            answer_str += replaced_str
+
+            if index != (len(equations)-1):
+                answer_str += " and "
+        answer_str += ":\n    "
+        answer_str += "print("+ objective + ")"
+    else:
+        # math와 itertools 라이브러리는 기본으로 추가
+        answer_str += "import math\n"
+        answer_str += "import itertools\n"
+        answer_str += code
 
     return answer_str
 
@@ -83,15 +90,16 @@ def do_math(statements):
     if len(statements['equation']) > 0 and len(statements['objective']) > 0:
         equations = statements['equation'][0].split('\r\n')
         objective = statements['objective'][0]
+        code = statements['code'][0]
+
         # 수식을 좌변으로 모음
         substitued_equations = equation_substitution(equations)
         # sympy를 이용해서 정답을 찾음
         eq_dict = find_answer_using_sympy(substitued_equations)
         # 정답을 기반으로 solution 코드를 생성
-        answer_str = solution_code_generate(equations, eq_dict, objective)
+        answer_str = solution_code_generate(equations, eq_dict, objective, code)
         print(answer_str)
 
-    derivation = statements['code']
     # if 'objective' in statements:
     if len(statements['objective']) > 0:
         objective = statements['objective'][0]
