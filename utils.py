@@ -32,6 +32,23 @@ def preprocess(question):
 
     return question
 
+# 템플릿 매칭에서 pruning에 사용될 값 계싼
+def pruning_vector(q):
+    vector = [False] * 6
+    vector[0] = re.search('[A-Z]', q) != None
+    vector[1] = re.search('바르게', q) != None
+    vector[2] = re.search('어떤 수|어떤수', q) != None
+    vector[3] = re.search('누구|누가', q) != None
+    vector[4] = re.search('도형|각형|면체|모서리|꼭지점', q) != None
+    vector[5] = re.search('몇 번째|몇번째', q) != None
+    return vector
+
+# purning 조건, 위에서 계산한 pruning vector가 완전히 일치하지 않으면 prune
+def is_pruning(v1, v2):
+    if v1 != v2:
+        return True
+    return False
+
 re_number = re.compile(r'[0-9]+([.][0-9]+)?(/[0-9]+([.][0-9]+)?)?')
 re_variable = re.compile(r'[A-Z]')
 
@@ -46,3 +63,11 @@ def literal_type(str):
         return 'variable'
     else:
         return 'string'
+
+def 받침판단기(word):    #아스키(ASCII) 코드 공식에 따라 입력된 단어의 마지막 글자 받침 유무를 판단해서 뒤에 붙는 조사를 리턴하는 함수
+    last = word[-1]     #입력된 word의 마지막 글자를 선택해서
+    criteria = (ord(last) - 44032) % 28     #아스키(ASCII) 코드 공식에 따라 계산 (계산법은 다음 포스팅을 참고하였습니다 : http://gpgstudy.com/forum/viewtopic.php?p=45059#p45059)
+    if criteria == 0:       #나머지가 0이면 받침이 없는 것
+        return '와 or 를'
+    else:                   #나머지가 0이 아니면 받침 있는 것
+        return '과 or 을'

@@ -33,6 +33,8 @@ def build_template(q):
 
     q['question_preprocessed'] = utils.preprocess(q['question'])
 
+    q['question_pruning'] = utils.pruning_vector(q['question_preprocessed'])
+
     # 풀이 과정에서 literal을 추출하여 문제를 템플릿화
     strset = set()
     field_names = ['equation', 'code', 'objective']

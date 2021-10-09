@@ -98,12 +98,17 @@ def match_to_template(question, template): # template, question sentence, values
     # return score(len(wt)-1, len(wq)-1) # / (len(wt) + len(wq))
 
 def find_closest(question):
+    pruning = utils.pruning_vector(question)
     closest_distance, best_pattern, best_assignments = float('inf'), None, None
     for p in dataset.dataset_json:
+        if utils.is_pruning(p['question_pruning'], pruning):
+            continue
         distance, assignments = match_to_template(question, p)
         if distance < closest_distance:
             closest_distance, best_pattern, best_assignments = distance, p, assignments
     for p in dataset.dataset_csv:
+        if utils.is_pruning(p['question_pruning'], pruning):
+            continue
         distance, assignments = match_to_template(question, p)
         if distance < closest_distance:
             closest_distance, best_pattern, best_assignments = distance, p, assignments
