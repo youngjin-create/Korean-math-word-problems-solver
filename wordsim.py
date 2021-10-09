@@ -21,20 +21,42 @@ def word_similiarty(w1, w2):
         similarity_cache[key] = ko_model.wv.similarity(w1, w2)
     return similarity_cache[key]
 
-re_var_ending = re.compile(r'(@[0-9]+)(\D*)')
-def word_distance_template(w1, w2): # w1 = template word, w2 = question word
-    global re_var_ending
-    match = re_var_ending.fullmatch(w1)
-    if match: # template 단어가 wildcard를 포함하고 있으면
-        ending = match[2]
-        if w2[len(w2)-len(ending):] == ending:
-            return 0, w2[:len(w2)-len(ending)]
-        return 1-ko_model.wv.similarity(w1, w2), w2
-    else: # 단순 단어 비교
-        if w1 == w2:
-            return 0, None
-        return 1-ko_model.wv.similarity(w1, w2), None
-    return
+# re_var_ending = re.compile(r'(@[0-9]+)(\D*)')
+# def word_distance_template(w1, w2): # w1 = template word, w2 = question word
+#     global re_var_ending
+#     match = re_var_ending.fullmatch(w1)
+#     if match: # template 단어가 wildcard를 포함하고 있으면
+#         ending = match[2]
+#         if w2[len(w2)-len(ending):] == ending:
+#             return 0, w2[:len(w2)-len(ending)]
+#         return 1-ko_model.wv.similarity(w1, w2), w2
+#     else: # 단순 단어 비교
+#         if w1 == w2:
+#             return 0, None
+#         return 1-ko_model.wv.similarity(w1, w2), None
+#     return
+
+# re_number = re.compile(r'([0-9]+([.][0-9]+)?(/[0-9]+([.][0-9]+)?)?)')
+# def word_distance_template_type(w1, type, w2): # w1 = template word, w2 = question word
+#     global re_var_ending
+#     global re_number
+#     match = re_var_ending.fullmatch(w1)
+#     if match: # template 단어가 wildcard를 포함하고 있으면
+#         ending = match[2]
+#         if w2[len(w2)-len(ending):] == ending:
+#             return 0, w2[:len(w2)-len(ending)]
+#         if type == 'number':
+#             num = re_number.findall(w2)
+#             if num == []:
+#                 return float('inf'), ''
+#             else:
+#                 return 0, num[0][0]
+#         return 1-ko_model.wv.similarity(w1, w2), w2
+#     else: # 단순 단어 비교
+#         if w1 == w2:
+#             return 0, None
+#         return 1-ko_model.wv.similarity(w1, w2), None
+#     return
 
 # # 문장 비교, 비슷할 수록 낮은 값 리턴
 # def phrase_similarity(s1, s2):
@@ -55,6 +77,3 @@ def word_distance_template(w1, w2): # w1 = template word, w2 = question word
 #     # print(w1)
 #     # print(w2)
 #     return score(len(w1)-1, len(w2)-1) # / (len(w1) + len(w2))
-
-# %%
-word_distance_template('@4', '국어')

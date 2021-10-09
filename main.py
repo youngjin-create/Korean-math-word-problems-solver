@@ -20,7 +20,7 @@ def solve_mwp(question):
         distance, statements = template.find_template(q)
 
     # 변환된 수학적 표현을 풀어서 python code 형태로 답을 구함
-    answer, derivation = math_solver.solve(statements, time_limit_sec=30)
+    answer, derivation = math_solver.solve(statements, time_limit_sec=99999)
 
     if answer != None:
         return answer, derivation
@@ -43,10 +43,12 @@ for q_number in problemsheet:
     # try:
     print(f'\033[92mQ{q_number}: {q}\033[0;0m')
     answer, derivation = solve_mwp(q)
-    # code = '\n'.join(derivation)
-    code = derivation
+    if type(derivation) == 'list':
+        code = '\n'.join(derivation)
+    else:
+        code = derivation
 
-    print(f'\033[33mderivation:\n{code}\033[0;0m')
+    print(f'\033[33mcode:\n{code}\033[0;0m')
     print(f'\033[33mA: {answer}\033[0;0m')
     # except Exception as e:
     #     print(e)

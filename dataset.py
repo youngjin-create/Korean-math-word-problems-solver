@@ -54,19 +54,7 @@ def build_template(q):
     strlist.reverse()
     strlist[:] = [x for x in strlist if len(re.findall(r'(^|\s)(' + re.escape(x) + r')($|\D)', q['question_preprocessed'])) > 0]
     q['template_values'] = strlist
-
-    re_number = r'[0-9]+([.][0-9]+)?(/[0-9]+([.][0-9]+)?)?'
-    strtypes = [None] * len(strlist)
-    for idx, str in enumerate(strlist):
-        if '=' in str:
-            strtypes[idx] = 'equation'
-        elif re.fullmatch(re_number, str):
-            strtypes[idx] = 'number'
-        elif re.fullmatch(r'[A-Z]', str):
-            strtypes[idx] = 'variable'
-        else:
-            strtypes[idx] = 'string'
-    q['template_types'] = strtypes
+    q['template_types'] = [utils.literal_type(x) for x in strlist]
 
     template = q['question_preprocessed']
     for idx, str in enumerate(strlist):
