@@ -43,7 +43,7 @@ for q_number in problemsheet:
     # try:
     print(f'\033[92mQ{q_number}: {q}\033[0;0m')
     answer, derivation = solve_mwp(q)
-    if type(derivation) == 'list':
+    if type(derivation) == list:
         code = '\n'.join(derivation)
     else:
         code = derivation
