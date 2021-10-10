@@ -35,6 +35,8 @@ def build_template(q):
 
     q['question_pruning'] = utils.pruning_vector(q['question_preprocessed'])
 
+    q['template_lists'], q['question_preprocessed'] = utils.extract_lists(q['question_preprocessed'])
+
     # 풀이 과정에서 literal을 추출하여 문제를 템플릿화
     strset = set()
     field_names = ['equation', 'code', 'objective']
@@ -72,13 +74,14 @@ def build_template(q):
                 eq = re.compile(r'(^|[^@])(\b' + re.escape(str) + r'\b)').sub(f'\\g<1>@{idx}', eq)
             q['template_'+fn].append(eq)
 
-    # 추가된 필드 출력
-    print(q['template'])
-    print(q['template_equation'])
-    print(q['template_code'])
-    print(q['template_objective'])
-    print(q['template_values'])
-    print(q['template_types'])
+    # # 추가된 필드 출력
+    # print(q['template'])
+    # print(q['template_lists'])
+    # print(q['template_equation'])
+    # print(q['template_code'])
+    # print(q['template_objective'])
+    # print(q['template_values'])
+    # print(q['template_types'])
 
 def load_dataset_json():
     global dataset_json

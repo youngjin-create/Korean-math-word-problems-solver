@@ -13,7 +13,7 @@ def match_word(w1, type, w2): # w1 = template word, w2 = question word
     match = re_var_ending.fullmatch(w1)
     if match: # template 단어가 wildcard를 포함하고 있으면
         ending = match[2]
-        if w2[len(w2)-len(ending):] == ending:
+        if utils.compare_ending(w2[len(w2)-len(ending):], ending):
             return 0, w2[:len(w2)-len(ending)]
         if type == 'number':
             num = re_number.findall(w2)
@@ -99,40 +99,45 @@ def match_to_template(question, template): # template, question sentence, values
 
 def find_closest(question):
     pruning = utils.pruning_vector(question)
+    # 문제에서 숫자열이나 문자열 패턴이 발견되면 추출해내고, 추출한 부분을 제외한 문장으로 매칭을 시도한다.
+    lists, question = utils.extract_lists(question)
     closest_distance, best_pattern, best_assignments = float('inf'), None, None
-    for p in dataset.dataset_json:
-        if utils.is_pruning(p['question_pruning'], pruning):
-            continue
-        distance, assignments = match_to_template(question, p)
-        if distance < closest_distance:
-            closest_distance, best_pattern, best_assignments = distance, p, assignments
+    # for p in dataset.dataset_json:
+    #     if utils.is_pruning(p['question_pruning'], pruning) or p['template_lists'] != lists.keys:
+    #         continue
+    #     distance, assignments = match_to_template(question, p)
+    #     if distance < closest_distance:
+    #         closest_distance, best_pattern, best_assignments = distance, p, assignments
     for p in dataset.dataset_csv:
-        if utils.is_pruning(p['question_pruning'], pruning):
+        if utils.is_pruning(p['question_pruning'], pruning) or p['template_lists'].keys() != lists.keys():
             continue
         distance, assignments = match_to_template(question, p)
         if distance < closest_distance:
             closest_distance, best_pattern, best_assignments = distance, p, assignments
         if distance < 5:
-            print(distance)
-            print(p['template'])
-            print(assignments)
+            template = p['template']
+            print(f'    matching distance = {distance}')
+            print(f'    matching template = {template}')
+            print(f'    matching assignments = {assignments}')
     # if pattern:
         # print(pattern)
-    return closest_distance, best_pattern, best_assignments
+    return closest_distance, best_pattern, best_assignments, lists
 
 def find_template(question):
-    distance, q, assignments = find_closest(question)
-    print(f'best matching distance = {distance}')
-    # print(distance)
-    print(q)
-    print(assignments)
+    distance, q, assignments, lists = find_closest(question)
+    print(f'best match distance = {distance}')
+    print(f'best match template = {q}')
+    print(f'best match template candidate assigments = {assignments}')
     values = q['template_values']
     for idx, valueset in enumerate(assignments):
         if len(valueset) > 0:
             values[idx] = list(valueset)[0]
-    print(values)
+    print(f'best match template final assigments = {values}')
+    print(f'extracted question lists = {lists}')
 
-    sub = dict()
+    # 매칭된 템플릿을 이용하여 statements(lists, equation, code, objective) 구성
+    # statements는 풀이과정과 답안을 구하기 위한 충분정보가 포함되어야 한다.
+    sub = dict(lists=lists)
     field_names = ['equation', 'code', 'objective']
     for fn in field_names:
         sub[fn] = []
@@ -146,7 +151,7 @@ def find_template(question):
 
     print(sub)
 
-    return distance, sub#dict(equation=equation, code=code, objective=objective)
+    return distance, sub
 
 # %%
 # match_to_template_simple('각 학생들이 게임에서 얻은 점수는 다음과 같습니다. @0 @1점, @2 @3점, @4 @5점, @6 @7점, @8 @9점, @10 @11점입니다. 25점에 가장 가까운 점수를 얻은 학생은 누구입니까?', '각 학생들이 게임에서 얻은 점수는 다음과 같습니다. 승연 2점, 호성 5점, 두혁 55점입니다. 25점에 가장 가까운 점수를 얻은 학생은 누구입니까?', ['']*2)
