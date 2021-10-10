@@ -2,6 +2,9 @@
 import re
 
 def predefined_replaces(raw):
+    raw = re.sub(r'×', '*', raw)
+    raw = re.sub(r'÷', '/', raw)
+
     raw = re.sub(r'\b한 ', '1', raw)
     raw = re.sub(r'\b두 ', '2', raw)
     raw = re.sub(r'\b세 ', '3', raw)
@@ -89,9 +92,9 @@ def compare_ending(e1, e2):
 
 regexp_num = r'((\d+([.]\d+)?)((/)(\d+([.]\d+)?))?)'
 re_numlist = re.compile(r'(' + regexp_num + r'(,[ ]*' + regexp_num + r')+)')
-re_numunitlist = re.compile(r'(' + regexp_num + r'(\D*)(,[ ]*' + regexp_num + r'(\9))+)')
+re_numunitlist = re.compile(r'(' + regexp_num + r'(\D*)([ ]*,[ ]*' + regexp_num + r'(\9))+)')
 regexp_wordspacenum = r'(\S+\s\d+([.]\d+)?(/\d+([.]\d+)?)?)'
-regexp_wordspacenum_list = r'(' + regexp_wordspacenum + r'(\D*)(,[ ]*' + regexp_wordspacenum + r'(\6))+)'
+regexp_wordspacenum_list = r'(' + regexp_wordspacenum + r'(\D*)([ ]*,[ ]*' + regexp_wordspacenum + r'(\6))+)'
 re_strings = re.compile(r'((\w+)(,[ ]?\w+)+)')
 
 def extract_lists(q):
@@ -110,6 +113,13 @@ def extract_lists(q):
         return dict(numbers=[float(x[1])/(1 if x[5] == '' else float(x[5])) for x in numbers]), q.replace(lists[0][0], '').strip()
     return dict(), q
 
+def extract_equations(q):
+    re_equation = '[0-9A-Z][0-9A-Z\.\+\-\*\/\(\)=<> ]*=[0-9A-Z\.\+\-\*\/\(\)=<> ]*[0-9A-Z]' # 등호(=)를 포함하는 식
+    equations = re.findall(re_equation, q)
+    for eq in equations:
+        q = q.replace(eq, '').strip(' ,')
+    return equations, q
+
 q = '4장의 수 카드 4.22개, 5/2명,6.1/2.2,8 한 번씩만 사용하여 (두 자리 수)×(두 자리 수)를 만들 때 곱이 가장 작은 경우를 계산하세요.'
 q = '정국이는 3개, 영진이는 2개 사탕을 가지고 있습니다.'
 q = '각 학생들이 게임에서 얻은 점수는 다음과 같습니다. 승연 98점, 호성 78점, 권영 89점, 두혁 91점입니다. 가장 높은 점수를 얻은 학생은 누구입니까?'
@@ -117,7 +127,10 @@ q = '우리학교 운동회에서 6학년, 5학년, 4학년, 1학년, 2학년, 3
 q = '방과후 교실 수업 신청자는 통기타 7명, 요리 19명, 풋살 13명, 농구 6명, 컴퓨터교실 13명입니다. 어느 수업이 가장 인기가 많습니까?'
 q = '정국, 시형, 태형, 유정, 윤기는 한 팀이 되어 이어달리기 경기를 하고 있습니다. 각 팀의 선수는 순서대로 2번씩 달릴 때, 8번째로 달리는 사람은 누구인가요?'
 q = '546/11, 167.22, 393.22/33.44, 283, 181의 5개의 수 중에서 두 수를 골라 차를 구했을 때 차가 두 번째로 크게 되는 식을 세우고 답을 구하세요.'
-q2, d = extract_lists(q)
+q = 'A75+2BC=993일 때, A-B의 값은 얼마입니까?'
+# q = 'A=16+8×(9-3)÷4, B=30-96÷(2×8)+5, 두 식 중 계산 결과가 더 작은 계산식의 기호를 쓰세요. '
+# q2, d = extract_lists(q)
+q2, d = extract_equations(preprocess(q))
 print(q2)
 print(d)
 

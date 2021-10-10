@@ -26,7 +26,7 @@ def find_literals(line, question):
     return strset
 
 def build_template(q):
-    print(' ')
+    # print(' ')
     if 'question' not in q:
         print('empty question error.')
         return
@@ -35,7 +35,14 @@ def build_template(q):
 
     q['question_pruning'] = utils.pruning_vector(q['question_preprocessed'])
 
-    q['template_lists'], q['question_preprocessed'] = utils.extract_lists(q['question_preprocessed'])
+    q['extracted_lists'], q['question_preprocessed'] = utils.extract_lists(q['question_preprocessed'])
+    q['extracted_equations'], q['question_preprocessed'] = utils.extract_equations(q['question_preprocessed'])
+
+    if len(q['extracted_lists']) > 0 or len(q['extracted_equations']) > 0:
+        print(q['question'])
+        print(q['question_preprocessed'])
+        print(q['extracted_lists'])
+        print(q['extracted_equations'])
 
     # 풀이 과정에서 literal을 추출하여 문제를 템플릿화
     strset = set()
