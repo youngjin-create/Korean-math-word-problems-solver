@@ -128,18 +128,26 @@ def find_closest(question):
         # print(pattern)
     return closest_distance, best_pattern, best_assignments, extracted_lists, extracted_equations
 
-def find_template(question):
-    distance, q, assignments, extracted_lists, extracted_equations = find_closest(question)
+def find_template(problem):
+    question = problem['question_preprocessed']
+    distance, matched, assignments, extracted_lists, extracted_equations = find_closest(question)
+
     print(f'best match distance = {distance}')
-    print(f'best match template = {q}')
+    print(f'best match template = {matched}')
     print(f'best match template candidate assigments = {assignments}')
-    values = q['template_values']
+    values = [x for x in matched['template_values']]
     for idx, valueset in enumerate(assignments):
         if len(valueset) > 0:
             values[idx] = list(valueset)[0]
     print(f'best match template final assigments = {values}')
     print(f'extracted question lists = {extracted_lists}')
     print(f'extracted question equations = {extracted_equations}')
+
+    problem['extracted_lists'] = extracted_lists
+    problem['extracted_equations'] = extracted_equations
+    problem['best_template_distance'] = distance
+    problem['best_template'] = matched
+    problem['best_template_assignment'] = values
 
     # 매칭된 템플릿을 이용하여 statements(lists, equation, code, objective) 구성
     # statements는 풀이과정과 답안을 구하기 위한 충분정보가 포함되어야 한다.
@@ -156,15 +164,16 @@ def find_template(question):
         for eq in extracted_equations:
             statements['equation'].append(eq)
     for fn in field_names:
-        if 'template_'+fn not in q:
+        if 'template_'+fn not in matched:
             continue
-        for line in q['template_'+fn]:
+        for line in matched['template_'+fn]:
             for idx, v in enumerate(values):
                 line = re.sub(f'(@{idx})($|\D)', v + '\\g<2>', line)
                 # line = re.sub(f'\\b@{idx}\\b', v, line)
             statements[fn].append(line)
 
     print(f'statements = {statements}')
+    problem['statements'] = statements
 
     return distance, statements
 
