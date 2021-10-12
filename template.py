@@ -97,40 +97,41 @@ def match_to_template(question, template): # template, question sentence, values
     # print(wq)
     # return score(len(wt)-1, len(wq)-1) # / (len(wt) + len(wq))
 
-def find_closest(question):
-    pruning = utils.pruning_vector(question)
-    # 문제에서 숫자열이나 문자열 패턴이 발견되면 추출해내고, 추출한 부분을 제외한 문장으로 매칭을 시도한다.
-    extracted_lists, question = utils.extract_lists(question)
-    extracted_equations, question = utils.extract_equations(question)
+def find_closest(problem):
+
     closest_distance, best_pattern, best_assignments = float('inf'), None, None
     # for p in dataset.dataset_json:
-    #     if utils.is_pruning(p['question_pruning'], pruning) or p['template_lists'] != extracted_lists.keys:
+    #     if utils.is_pruning(p['question_pruning'], problem['pruning_vector']) or p['template_lists'] != extracted_lists.keys:
     #         continue
     #     distance, assignments = match_to_template(question, p)
     #     if distance < closest_distance:
     #         closest_distance, best_pattern, best_assignments = distance, p, assignments
-    for p in dataset.dataset_csv:
-        if utils.is_pruning(p['question_pruning'], pruning):
+    for template in dataset.dataset_csv:
+        if utils.is_pruning(template['question_pruning'], problem['pruning_vector']):
             continue
-        if p['extracted_lists'].keys() != extracted_lists.keys():
+        if template['extracted_lists'].keys() != problem['extracted_lists'].keys():
             continue
-        if (len(p['extracted_equations']) > 0) != (len(extracted_equations) > 0):
+        if (len(template['extracted_equations']) > 0) != (len(problem['extracted_equations']) > 0):
             continue
-        distance, assignments = match_to_template(question, p)
+        distance, assignments = match_to_template(problem['question_preprocessed'], template)
         if distance < closest_distance:
-            closest_distance, best_pattern, best_assignments = distance, p, assignments
+            closest_distance, best_pattern, best_assignments = distance, template, assignments
         if distance < 5:
-            template = p['template']
+            template = template['template']
             print(f'    matching distance = {distance}')
             print(f'    matching template = {template}')
             print(f'    matching assignments = {assignments}')
-    # if pattern:
-        # print(pattern)
-    return closest_distance, best_pattern, best_assignments, extracted_lists, extracted_equations
+
+    return closest_distance, best_pattern, best_assignments
 
 def find_template(problem):
-    question = problem['question_preprocessed']
-    distance, matched, assignments, extracted_lists, extracted_equations = find_closest(question)
+    problem['pruning_vector'] = utils.pruning_vector(problem['question_preprocessed'])
+    # 문제에서 숫자열이나 문자열 패턴이 발견되면 추출해내고, 추출한 부분을 제외한 문장으로 매칭을 시도한다.
+    problem['extracted_lists'], problem['question_preprocessed'] = utils.extract_lists(problem['question_preprocessed'])
+    problem['extracted_equations'], problem['question_preprocessed'] = utils.extract_equations(problem['question_preprocessed'])
+
+    # question = problem['question_preprocessed']
+    distance, matched, assignments = find_closest(problem)
 
     print(f'best match distance = {distance}')
     print(f'best match template = {matched}')
@@ -140,11 +141,11 @@ def find_template(problem):
         if len(valueset) > 0:
             values[idx] = list(valueset)[0]
     print(f'best match template final assigments = {values}')
-    print(f'extracted question lists = {extracted_lists}')
-    print(f'extracted question equations = {extracted_equations}')
+    print('extracted question lists = ' + str(problem['extracted_lists']))
+    print('extracted question equations = ' + str(problem['extracted_equations']))
 
-    problem['extracted_lists'] = extracted_lists
-    problem['extracted_equations'] = extracted_equations
+    # problem['extracted_lists'] = extracted_lists
+    # problem['extracted_equations'] = extracted_equations
     problem['best_template_distance'] = distance
     problem['best_template'] = matched
     problem['best_template_assignment'] = values
@@ -155,13 +156,13 @@ def find_template(problem):
     field_names = ['equation', 'code', 'objective']
     for fn in field_names:
         statements[fn] = []
-    if extracted_lists:
-        if 'numbers' in extracted_lists:
-            statements['code'].append('numbers=' + str(extracted_lists['numbers']))
-        if 'strings' in extracted_lists:
-            statements['code'].append('strings=' + str(extracted_lists['strings']))
-    if extracted_equations:
-        for eq in extracted_equations:
+    if problem['extracted_lists']:
+        if 'numbers' in problem['extracted_lists']:
+            statements['code'].append('numbers=' + str(problem['extracted_lists']['numbers']))
+        if 'strings' in problem['extracted_lists']:
+            statements['code'].append('strings=' + str(problem['extracted_lists']['strings']))
+    if problem['extracted_equations']:
+        for eq in problem['extracted_equations']:
             statements['equation'].append(eq)
     for fn in field_names:
         if 'template_'+fn not in matched:
