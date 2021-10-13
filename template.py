@@ -4,112 +4,23 @@ import wordsim
 import utils
 import dataset
 
-re_var_ending = re.compile(r'(@[0-9]+)(\D*)')
-re_number = re.compile(r'([0-9]+([.][0-9]+)?(/[0-9]+([.][0-9]+)?)?)')
-
-def match_word(w1, type, w2): # w1 = template word, w2 = question word
-    global re_var_ending
-    global re_number
-    match = re_var_ending.fullmatch(w1)
-    if match: # template 단어가 wildcard를 포함하고 있으면
-        ending = match[2]
-        if utils.compare_ending(w2[len(w2)-len(ending):], ending):
-            return 0, w2[:len(w2)-len(ending)]
-        if type == 'number':
-            num = re_number.findall(w2)
-            if num == []:
-                return float('inf'), ''
-            else:
-                return 0, num[0][0]
-        return 1-wordsim.ko_model.wv.similarity(w1, w2), w2
-    else: # 단순 단어 비교
-        if w1 == w2:
-            return 0, None
-        return 1-wordsim.ko_model.wv.similarity(w1, w2), None
-    return
-
-# 문장 비교, 비슷할 수록 낮은 값 리턴
-def match_to_template(question, template): # template, question sentence, values
-    global re_var_ending
-    skip_penalty_question = 0.6
-    skip_penalty_template = 0.6
-    # skip_penalty = 0.6
-
-    values = template['template_values']
-    types = template['template_types']
-
-    wt, wq = template['template'].split(' '), question.split(' ')
-
-    varnum, vartype = [None] * len(wt), [None] * len(wt)
-    for i in range(0, len(wt)):
-        match = re_var_ending.fullmatch(wt[i]) # 템플릿의 단어가 '@num'으로 시작하는 경우
-        if match:
-            varnum[i] = int(match[1][1:])
-            vartype[i] = types[varnum[i]]
-
-    score_table = [[float('inf') for i in range(len(wq))] for j in range(len(wt))]
-    assign_table = [['' for i in range(len(wq))] for j in range(len(wt))]
-    for i1 in range(0, len(wt)):
-        for i2 in range(0, len(wq)):
-            score_table[i1][i2], assign_table[i1][i2] = match_word(wt[i1], vartype[i1], wq[i2])
-            if vartype[i1] != None and utils.literal_type(assign_table[i1][i2]) != vartype[i1]:
-                score_table[i1][i2], assign_table[i1][i2] = float('inf'), ''
-
-    scores = [[float('inf') for i in range(len(wq)+1)] for j in range(len(wt)+1)]
-    for i in range(len(wq)+1):
-        scores[0][i] = i * skip_penalty_question
-    scores[0][0] = 0
-    for j in range(1, len(wt)+1):
-        if varnum[j-1] != None:
-            scores[j][0] = float('inf')
-        else:
-            scores[j][0] = scores[j-1][0] + skip_penalty_template
-    tracks = [[(None, None) for i in range(len(wq)+1)] for j in range(len(wt)+1)]
-
-    for i1 in range(0, len(wt)):
-        for i2 in range(0, len(wq)):
-            if varnum[i1] != None: # @num, 매칭되는 단어가 꼭 있어야 함
-                scores[i1+1][i2+1] = scores[i1][i2] + score_table[i1][i2]
-                tracks[i1+1][i2+1] = (i1, i2)
-            else: # just words
-                scores[i1+1][i2+1] = scores[i1][i2] + score_table[i1][i2]
-                tracks[i1+1][i2+1] = (i1, i2)
-                if scores[i1+1][i2+1] > scores[i1+1][i2] + skip_penalty_template:
-                    scores[i1+1][i2+1] = scores[i1+1][i2] + skip_penalty_template
-                    tracks[i1+1][i2+1] = (i1+1, i2)
-                if scores[i1+1][i2+1] > scores[i1][i2+1] + skip_penalty_question:
-                    scores[i1+1][i2+1] = scores[i1][i2+1] + skip_penalty_question
-                    tracks[i1+1][i2+1] = (i1, i2+1)
-
-    assignments = [set() for i in range(len(values))]
-    def backtrack(i1, i2):
-        if i1 < 0 or i2 < 0:
-            return
-        if varnum[i1] != None and assign_table[i1][i2]:
-            assignments[varnum[i1]].add(assign_table[i1][i2])
-        backtrack(tracks[i1+1][i2+1][0]-1, tracks[i1+1][i2+1][1]-1)
-    backtrack(len(wt)-1, len(wq)-1)
-
-    return scores[len(wt)][len(wq)], assignments
-    # print(score(len(wt)-1, len(wq)-1))
-    # print(table)
-    # print(wt)
-    # print(wq)
-    # return score(len(wt)-1, len(wq)-1) # / (len(wt) + len(wq))
-
-
-def match_word_tags(w1, w2): # w1 = template tag, w2 = question tag
-    skip_penalty_template = 0.6
-    skip_penalty_question = 0.6
-    if w1[1] == w2[1]:
+# pos tagging된 두 단어를 비교한 score를 계산, w1 = template tag, w2 = question tag
+# w = (str, POS, start, end)의 형식, start, end는 문장에서의 span 시작과 끝 index
+# 이상적으로는 str과 POS값을 모두 고려하여 score를 계산하여야 하지만 일단 POS값을 중요시하여 계산
+# POS값에 따른 score matrix를 생각할 수 있고, 이것을 자동학습 할 수 있으면 좋을듯
+def match_word_tags(w1, w2): 
+    if w1[1] == w2[1]: # POS가 같으면 페널티 없음
         return 0
+    if w1[1] == 'NONE' or w2[1] == 'NONE': # 매칭되는 단어가 없어서 스킵할 경우
+        return 0.6
     if w1[1] == 'WILDCARD':
-        if w2[1][0] == 'N':
+        if w2[1][0] == 'N': # WILDCARD는 단어 또는 숫자에 매칭 가능
             return 0
         else:
             return float('inf')
-    if w1[1] == 'SF' or w2[1] == 'SF':
+    if w1[1] == 'SF' or w2[1] == 'SF': # 마침표
         return 0.1
+    # POS가 다른 단어끼리 매칭
     return 1
 
 # 문장 비교, 비슷할 수록 낮은 값 리턴
@@ -156,17 +67,17 @@ def match_to_template_tags(template_tags, question_tags, visualize=False):
         backtrack(tracks[i1][i2][0], tracks[i1][i2][1])
     backtrack(len(template_tags), len(question_tags))
 
-    # if visualize:
-    last = (0, 0, 0)
-    for match in reversed(correspondence):
-        left, right = ('', 'NONE', None, None), ('', 'NONE', None, None)
-        if match[0] > last[0]:
-            left = template_tags[match[0]-1]
-        if match[1] > last[1]:
-            right = question_tags[match[1]-1]
-        print('{:0.2f}'.format(match[2] - last[2]) + ' (' + left[0] + ' ' + left[1] + ') --- (' + right[0] + ' ' + right[1] + ')')
-        last = match
-    print(scores[-1][-1])
+    if visualize:
+        last = (0, 0, 0)
+        for match in reversed(correspondence):
+            left, right = ('', 'NONE', None, None), ('', 'NONE', None, None)
+            if match[0] > last[0]:
+                left = template_tags[match[0]-1]
+            if match[1] > last[1]:
+                right = question_tags[match[1]-1]
+            print('{:0.2f}'.format(match[2] - last[2]) + ' (' + left[0] + ' ' + left[1] + ') --- (' + right[0] + ' ' + right[1] + ')')
+            last = match
+        print('matching score = {:0.2f}'.format(scores[-1][-1]))
 
     return scores[-1][-1], assignments
 
@@ -193,7 +104,7 @@ def find_closest(problem):
         distance, assignments = match_to_template_tags(template['template_tags'], problem['question_tags'])
         if distance < closest_distance:
             closest_distance, best_pattern, best_assignments = distance, template, assignments
-        if distance < 5:
+        if distance < 10:
             template = template['template']
             print(f'    matching distance = {distance}')
             print(f'    matching template = {template}')
@@ -260,12 +171,10 @@ def find_template(problem):
     return distance, statements
 
 # %%
-# match_to_template(
-#     '비행기에 351명이 타고 있습니다. 그 중 158명이 내렸습니다. 비행기에 타고 있는 인원은 얼마입니까?',
-#     dict(template='버스에 22명이 타고 있습니다. 그 중 118명이 내렸습니다. 버스에 타고 있는 인원은 얼마입니까?', template_values=[]*0, template_types=['number']*0))
-
-    
-match_to_template(
-    '끝에 서 있는 사람은 누구입니까?',
-    dict(template='마지막에 서 있는 학생은 누구인가요?', template_values=[]*0, template_types=['number']*0))
-# %%
+score, assignments = match_to_template_tags(
+    utils.pos_tagging('비행기에 @0명이 타고 있습니다. 그 중 @1명이 내렸습니다. 비행기에 타고 있는 인원은 얼마입니까?'),
+    utils.pos_tagging('버스에 22명이 타고 있습니다. 그 중 118명이 내렸을 때, 버스에 남아있는 있는 사람은 얼마입니까?'),
+    visualize=True)
+# score, assignments = match_to_template_tags(utils.pos_tagging('상자 안에 @0개의 감이 있습니다.'), utils.pos_tagging('박스 안에 5개의 과일이 있다.'), visualize=True)
+print(score)
+print(assignments)
