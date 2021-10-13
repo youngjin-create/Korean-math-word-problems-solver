@@ -1,5 +1,58 @@
 # %%
 import re
+from konlpy.tag import Okt, Komoran, Hannanum, Kkma, Mecab
+mecab = Mecab()
+
+re_var = re.compile(r'(@[0-9]+)(\D|$)')
+re_number = re.compile(r'[0-9]+([.][0-9]+)?(/[0-9]+([.][0-9]+)?)?')
+re_equation = re.compile('[0-9A-Z][0-9A-Z\.\+\-\*\/\(\)=<> ]*=[0-9A-Z\.\+\-\*\/\(\)=<> ]*[0-9A-Z]') # 등호(=)를 포함하는 식
+
+def pos_tagging(text, join=None):
+    global re_number
+
+    tags = mecab.pos(text, join=join)
+    new_tags = []
+    position = 0
+    for tag in tags:
+        position = text.find(tag[0], position)
+        new_tags.append((tag[0], tag[1], position, position+len(tag[0])))
+    tags = new_tags
+
+    for match in re_var.finditer(text):
+        # print(match)
+        tags = [tag for tag in tags if not(match.span(1)[0] <= tag[2] and tag[3] <= match.span(1)[1])]
+        tags.append((match.group(1), 'WILDCARD', match.span(1)[0], match.span(1)[1]))
+
+    for match in re_number.finditer(text):
+        # print(match)
+        tags = [tag for tag in tags if not(match.span()[0] <= tag[2] and tag[3] <= match.span()[1])]
+        tags.append((match.group(), 'NUMBER', match.span()[0], match.span()[1]))
+
+    for match in re_equation.finditer(text):
+        # print(match)
+        tags = [tag for tag in tags if not(match.span()[0] <= tag[2] and tag[3] <= match.span()[1])]
+        tags.append((match.group(), 'EQUATION', match.span()[0], match.span()[1]))
+
+    for match in re.finditer('@numbers', text):
+        tags.append((match.group(), 'NUMBERS', match.span()[0], match.span()[1]))
+
+    for match in re.finditer('@strings', text):
+        tags.append((match.group(), 'STRINGS', match.span()[0], match.span()[1]))
+
+    tags.sort(key=lambda x:x[2]*10000-x[3])
+
+    new_tags = []
+    position = 0
+    for tag in tags:
+        if tag[2] < position:
+            continue
+        new_tags.append(tag)
+        position = tag[3]
+    tags = new_tags
+
+    return tags
+
+pos_tagging('546/11, 167.22, 393.22/33.44, 283, 181, @numbers의 @strings의 5개의 @1중에서 @2 두 수를 골라 차를 구했을 때@3S@4')
 
 def predefined_replaces(raw):
     raw = raw.strip()
@@ -59,7 +112,7 @@ def is_pruning(v1, v2):
         return True
     return False
 
-re_number = re.compile(r'[0-9]+([.][0-9]+)?(/[0-9]+([.][0-9]+)?)?')
+# re_number = re.compile(r'[0-9]+([.][0-9]+)?(/[0-9]+([.][0-9]+)?)?')
 re_variable = re.compile(r'[A-Z]')
 
 def literal_type(str):
@@ -103,19 +156,10 @@ def remove_ending(word):
         # return word
     return re_noun_ending.sub(r'\1', word)
 
-# re_numlist = re.compile(r'(' + regexp_num + r'(,[ ]*' + regexp_num + r')+)')
-# regexp_wordspacenum = r'(\S+\s\d+([.]\d+)?(/\d+([.]\d+)?)?)'
-# regexp_wordspacenum_list = r'(' + regexp_wordspacenum + r'(\D*)([ ]*,[ ]*' + regexp_wordspacenum + r'(\6))+)'
-
 regexp_num = r'((\d+([.]\d+)?)((/)(\d+([.]\d+)?))?)'
 re_numbers = re.compile(r'(' + regexp_num + r'(\D*)([ ]*,[ ]*' + regexp_num + r'(\9))+)')
 re_strings = re.compile(r'(([^\d\W]+)([ ]*,[ ]*[^\d\W]+){2,})')
 def extract_lists(q):
-    # global re_numlist
-    # print(re_numlist.findall(q)[0])
-    # print(re_numunitlist.findall(q))
-    # print(re.findall(regexp_wordspacenum_list, q))
-    # lists = re_strings.findall(q)
     results = dict()
 
     global re_numbers
@@ -136,6 +180,13 @@ def extract_lists(q):
         q = q.replace(strings[0][0], '@strings').strip()
 
     return results, q
+
+regexp_wordspacenum = r'(\S+\s\d+([.]\d+)?(/\d+([.]\d+)?)?)'
+regexp_wordspacenums = r'(' + regexp_wordspacenum + r'(\D*)([ ]*,[ ]*' + regexp_wordspacenum + r'(\6))+)'
+re_wordspacenums = re.compile(regexp_wordspacenums)
+def extract_mapping(q):
+    re_wordspacenums
+    return
 
 def extract_equations(q):
     re_equation = '[0-9A-Z][0-9A-Z\.\+\-\*\/\(\)=<> ]*=[0-9A-Z\.\+\-\*\/\(\)=<> ]*[0-9A-Z]' # 등호(=)를 포함하는 식
@@ -167,3 +218,5 @@ print(equations)
 #strings
 #mapping
 # %%
+q = 'num1, num2, num3의 5개의 수 중에서 두 수를 골라 차를 구했을 때 차가 두 번째로 크게 되는 식을 세우고 답을 구하세요.'
+pos_tagging(q)

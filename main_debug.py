@@ -31,7 +31,7 @@ def solve_mwp(problem):
 csvfile = open('debugsheet.csv', 'w', newline='')
 csvfile.close()
 
-def debug_one_question(q_number, question):
+def debug_one_question(question, q_number=0):
     global csvfile
     problem_time = time.time()
 
@@ -58,10 +58,11 @@ def debug_one_question(q_number, question):
 
 def debug_all_questions():
     for q_number, q in enumerate(dataset.dataset_csv):
-        if q_number > 10:
-            break
-        debug_one_question(q_number, q['question'])
+        if q_number % 10 != 0:
+            continue
+        debug_one_question(q['question'], q_number)
         print('elapsed time = {0:.0f} seconds.'.format(time.time() - start_time))
 
 # debug_all_questions()
-debug_one_question(0, '상자에는 사과가 10개 있습니다. 이 중에 5개를 먹었을 때, 남아있는 사과는 몇 개입니까?')
+debug_one_question('비행기에 351명이 타고 있습니다. 그 중 158명이 내렸습니다. 비행기에 타고 있는 인원은 얼마입니까?')
+debug_one_question('상자에는 사과가 10개 있습니다. 이 중에 5개를 먹었을 때, 남아있는 사과는 몇 개입니까?') # 하율이는 팽이가 12개 있습니다. 친구들에게 7개를 빌려주려고 합니다. 빌려주고 남는 팽이는 몇 개일까요?
