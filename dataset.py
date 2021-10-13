@@ -81,6 +81,8 @@ def build_template(q):
                 eq = re.compile(r'(^|[^@])(\b' + re.escape(str) + r'\b)').sub(f'\\g<1>@{idx}', eq)
             q['template_'+fn].append(eq)
 
+    q['template_tags'] = utils.pos_tagging(q['template'])
+
     # # 추가된 필드 출력
     # print(q['template'])
     # print(q['template_lists'])
@@ -89,6 +91,7 @@ def build_template(q):
     # print(q['template_objective'])
     # print(q['template_values'])
     # print(q['template_types'])
+    return
 
 def load_dataset_json():
     global dataset_json

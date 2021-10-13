@@ -97,6 +97,82 @@ def match_to_template(question, template): # template, question sentence, values
     # print(wq)
     # return score(len(wt)-1, len(wq)-1) # / (len(wt) + len(wq))
 
+
+def match_word_tags(w1, w2): # w1 = template tag, w2 = question tag
+    skip_penalty_template = 0.6
+    skip_penalty_question = 0.6
+    if w1[1] == w2[1]:
+        return 0
+    if w1[1] == 'WILDCARD':
+        if w2[1][0] == 'N':
+            return 0
+        else:
+            return float('inf')
+    if w1[1] == 'SF' or w2[1] == 'SF':
+        return 0.1
+    return 1
+
+# 문장 비교, 비슷할 수록 낮은 값 리턴
+def match_to_template_tags(template_tags, question_tags, visualize=False):
+    score_table = [[float('inf') for i in range(len(question_tags)+1)] for j in range(len(template_tags)+1)]
+    # assign_table = [['' for i in range(len(question_tags)+1)] for j in range(len(template_tags)+1)]
+    for i1 in range(0, len(template_tags)+1):
+        for i2 in range(0, len(question_tags)+1):
+            # score_table[i1][i2], assign_table[i1][i2] = match_word_tags(
+            score_table[i1][i2] = match_word_tags(
+                template_tags[i1-1] if i1>0 else ('', 'NONE', None, None),
+                question_tags[i2-1] if i2>0 else ('', 'NONE', None, None))
+
+    # scores: question_tags[0:i1]과 template_tags[0:i2]를 매칭한 최적 스코어
+    scores = [[float('inf') for i in range(len(question_tags)+1)] for j in range(len(template_tags)+1)]
+    tracks = [[(None, None) for i in range(len(question_tags)+1)] for j in range(len(template_tags)+1)]
+    for i1 in range(0, len(template_tags)+1):
+        for i2 in range(0, len(question_tags)+1):
+            scores[i1][i2], tracks[i1][i2] = float('inf'), (None, None)
+            if i1>0 and i2>0 and scores[i1][i2] > scores[i1-1][i2-1] + score_table[i1][i2]:
+                scores[i1][i2] = scores[i1-1][i2-1] + score_table[i1][i2]
+                tracks[i1][i2] = (i1-1, i2-1)
+            if i2>0 and scores[i1][i2] > scores[i1][i2-1] + score_table[0][i2]:
+                scores[i1][i2] = scores[i1][i2-1] + score_table[0][i2]
+                tracks[i1][i2] = (i1, i2-1)
+            if i1>0 and scores[i1][i2] > scores[i1-1][i2] + score_table[i1][0]:
+                scores[i1][i2] = scores[i1-1][i2] + score_table[i1][0]
+                tracks[i1][i2] = (i1-1, i2)
+            if i1==0 and i2==0:
+                scores[i1][i2], tracks[i1][i2] = 0, (None, None)
+
+    correspondence = []
+    assignments = dict()
+    def backtrack(i1, i2):
+        if i1 == None or i2 == None:
+            return
+        if tracks[i1][i2][0] == i1 - 1 and tracks[i1][i2][1] == i2 - 1: # 실제 tags사이에 매칭이 일어난 경우 (None과 매칭되지 않고) WILDCARD에 대응되는 값을 assignments에 추가
+            if template_tags[i1-1][1] == 'WILDCARD':
+                name = template_tags[i1-1][0][1:]
+                if name not in assignments:
+                    assignments[name] = set()
+                assignments[name].add(question_tags[i2-1])
+        correspondence.append((i1, i2, scores[i1][i2]))
+        backtrack(tracks[i1][i2][0], tracks[i1][i2][1])
+    backtrack(len(template_tags), len(question_tags))
+
+    # if visualize:
+    last = (0, 0, 0)
+    for match in reversed(correspondence):
+        left, right = ('', 'NONE', None, None), ('', 'NONE', None, None)
+        if match[0] > last[0]:
+            left = template_tags[match[0]-1]
+        if match[1] > last[1]:
+            right = question_tags[match[1]-1]
+        print('{:0.2f}'.format(match[2] - last[2]) + ' (' + left[0] + ' ' + left[1] + ') --- (' + right[0] + ' ' + right[1] + ')')
+        last = match
+    print(scores[-1][-1])
+
+    return scores[-1][-1], assignments
+
+# match_to_template_tags(utils.pos_tagging('상자 안에 5개의 감이 있습니다.'), utils.pos_tagging('상자 안에 5개의 감이 있습니다.'))
+# match_to_template_tags(utils.pos_tagging('상자 안에 @0개의 감이 있습니다.'), utils.pos_tagging('박스 안에 5개의 과일이 있다.'))
+
 def find_closest(problem):
 
     closest_distance, best_pattern, best_assignments = float('inf'), None, None
@@ -113,7 +189,8 @@ def find_closest(problem):
             continue
         if (len(template['extracted_equations']) > 0) != (len(problem['extracted_equations']) > 0):
             continue
-        distance, assignments = match_to_template(problem['question_preprocessed'], template)
+        # distance, assignments = match_to_template(problem['question_preprocessed'], template)
+        distance, assignments = match_to_template_tags(template['template_tags'], problem['question_tags'])
         if distance < closest_distance:
             closest_distance, best_pattern, best_assignments = distance, template, assignments
         if distance < 5:
@@ -130,6 +207,8 @@ def find_template(problem):
     problem['extracted_lists'], problem['question_preprocessed'] = utils.extract_lists(problem['question_preprocessed'])
     problem['extracted_equations'], problem['question_preprocessed'] = utils.extract_equations(problem['question_preprocessed'])
 
+    problem['question_tags'] = utils.pos_tagging(problem['question_preprocessed'])
+
     # question = problem['question_preprocessed']
     distance, matched, assignments = find_closest(problem)
 
@@ -137,9 +216,11 @@ def find_template(problem):
     print(f'best match template = {matched}')
     print(f'best match template candidate assigments = {assignments}')
     values = [x for x in matched['template_values']]
-    for idx, valueset in enumerate(assignments):
-        if len(valueset) > 0:
-            values[idx] = list(valueset)[0]
+    # for idx, valueset in enumerate(assignments):
+    #     if len(valueset) > 0:
+    #         values[idx] = list(valueset)[0]
+    for key in assignments:
+        assignments[key] = list(assignments[key])[0][0]
     print(f'best match template final assigments = {values}')
     print('extracted question lists = ' + str(problem['extracted_lists']))
     print('extracted question equations = ' + str(problem['extracted_equations']))
@@ -148,7 +229,7 @@ def find_template(problem):
     # problem['extracted_equations'] = extracted_equations
     problem['best_template_distance'] = distance
     problem['best_template'] = matched
-    problem['best_template_assignment'] = values
+    problem['best_template_assignment'] = assignments
 
     # 매칭된 템플릿을 이용하여 statements(lists, equation, code, objective) 구성
     # statements는 풀이과정과 답안을 구하기 위한 충분정보가 포함되어야 한다.
@@ -168,8 +249,8 @@ def find_template(problem):
         if 'template_'+fn not in matched:
             continue
         for line in matched['template_'+fn]:
-            for idx, v in enumerate(values):
-                line = re.sub(f'(@{idx})($|\D)', v + '\\g<2>', line)
+            for key in assignments:
+                line = re.sub(f'(@{key})($|\D)', assignments[key] + '\\g<2>', line)
                 # line = re.sub(f'\\b@{idx}\\b', v, line)
             statements[fn].append(line)
 
@@ -179,4 +260,12 @@ def find_template(problem):
     return distance, statements
 
 # %%
-# match_to_template_simple('각 학생들이 게임에서 얻은 점수는 다음과 같습니다. @0 @1점, @2 @3점, @4 @5점, @6 @7점, @8 @9점, @10 @11점입니다. 25점에 가장 가까운 점수를 얻은 학생은 누구입니까?', '각 학생들이 게임에서 얻은 점수는 다음과 같습니다. 승연 2점, 호성 5점, 두혁 55점입니다. 25점에 가장 가까운 점수를 얻은 학생은 누구입니까?', ['']*2)
+# match_to_template(
+#     '비행기에 351명이 타고 있습니다. 그 중 158명이 내렸습니다. 비행기에 타고 있는 인원은 얼마입니까?',
+#     dict(template='버스에 22명이 타고 있습니다. 그 중 118명이 내렸습니다. 버스에 타고 있는 인원은 얼마입니까?', template_values=[]*0, template_types=['number']*0))
+
+    
+match_to_template(
+    '끝에 서 있는 사람은 누구입니까?',
+    dict(template='마지막에 서 있는 학생은 누구인가요?', template_values=[]*0, template_types=['number']*0))
+# %%
