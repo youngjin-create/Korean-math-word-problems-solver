@@ -14,7 +14,7 @@ def match_word_tags(w1, w2):
     if w1[1] == 'NONE' or w2[1] == 'NONE': # 매칭되는 단어가 없어서 스킵할 경우
         return 0.6
     if w1[1] == 'WILDCARD':
-        if w2[1][0] == 'N': # WILDCARD는 단어 또는 숫자에 매칭 가능
+        if w2[1][0] == 'N' or w2[1] == 'SL': # WILDCARD는 단어 또는 숫자에 매칭 가능
             return 0
         else:
             return float('inf')
@@ -85,30 +85,30 @@ def match_to_template_tags(template_tags, question_tags, visualize=False):
 # match_to_template_tags(utils.pos_tagging('상자 안에 @0개의 감이 있습니다.'), utils.pos_tagging('박스 안에 5개의 과일이 있다.'))
 
 def find_closest(problem):
-
     closest_distance, best_pattern, best_assignments = float('inf'), None, None
-    # for p in dataset.dataset_json:
-    #     if utils.is_pruning(p['question_pruning'], problem['pruning_vector']) or p['template_lists'] != extracted_lists.keys:
-    #         continue
-    #     distance, assignments = match_to_template(question, p)
-    #     if distance < closest_distance:
-    #         closest_distance, best_pattern, best_assignments = distance, p, assignments
-    for template in dataset.dataset_csv:
-        if utils.is_pruning(template['question_pruning'], problem['pruning_vector']):
-            continue
-        if template['extracted_lists'].keys() != problem['extracted_lists'].keys():
-            continue
-        if (len(template['extracted_equations']) > 0) != (len(problem['extracted_equations']) > 0):
-            continue
-        # distance, assignments = match_to_template(problem['question_preprocessed'], template)
-        distance, assignments = match_to_template_tags(template['template_tags'], problem['question_tags'])
-        if distance < closest_distance:
-            closest_distance, best_pattern, best_assignments = distance, template, assignments
-        if distance < 10:
-            template = template['template']
-            print(f'    matching distance = {distance}')
-            print(f'    matching template = {template}')
-            print(f'    matching assignments = {assignments}')
+    datasets = [dataset.dataset_csv, dataset.dataset_csv_qanda] # 사용할 데이터셋
+    dists = []
+    for dset in datasets:
+        for template in dset:
+            if utils.is_pruning(template['question_pruning'], problem['pruning_vector']):
+                continue
+            if template['extracted_lists'].keys() != problem['extracted_lists'].keys():
+                continue
+            if (len(template['extracted_equations']) > 0) != (len(problem['extracted_equations']) > 0):
+                continue
+            # distance, assignments = match_to_template(problem['question_preprocessed'], template)
+            distance, assignments = match_to_template_tags(template['template_tags'], problem['question_tags'])
+            if distance < closest_distance:
+                closest_distance, best_pattern, best_assignments = distance, template, assignments
+
+            dists.append([distance, template, assignments])
+            # if distance < 10:
+            #     template = template['template']
+            #     print(f'    matching distance = {distance}')
+            #     print(f'    matching template = {template}')
+            #     print(f'    matching assignments = {assignments}')
+
+    problem['closest_k'] = sorted(dists, key=lambda x: x[0])[:10]
 
     return closest_distance, best_pattern, best_assignments
 
@@ -175,6 +175,10 @@ score, assignments = match_to_template_tags(
     utils.pos_tagging('비행기에 @0명이 타고 있습니다. 그 중 @1명이 내렸습니다. 비행기에 타고 있는 인원은 얼마입니까?'),
     utils.pos_tagging('버스에 22명이 타고 있습니다. 그 중 118명이 내렸을 때, 버스에 남아있는 있는 사람은 얼마입니까?'),
     visualize=True)
+# score, assignments = match_to_template_tags(
+#     utils.pos_tagging('비행기에 351명이 타고 있습니다. 그 중 158명이 내렸습니다. 비행기에 타고 있는 인원은 얼마입니까?'),
+#     utils.pos_tagging('달력에서 31일까지 있는 연속 된 2달 중, 더 나중에 있는 달은 언제 입니까?'),
+#     visualize=True)
 # score, assignments = match_to_template_tags(utils.pos_tagging('상자 안에 @0개의 감이 있습니다.'), utils.pos_tagging('박스 안에 5개의 과일이 있다.'), visualize=True)
 print(score)
 print(assignments)

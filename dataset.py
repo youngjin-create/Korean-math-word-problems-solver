@@ -5,7 +5,8 @@ import re
 import utils
 
 dataset_json = []
-dataset_csv = []
+# dataset_csv = []
+# dataset_csv_qanda = []
 
 def find_literals(line, question):
     strlist = []
@@ -103,23 +104,26 @@ def load_dataset_json():
     for q in dataset_json:
         build_template(q)
 
-def load_dataset_csv():
-    global dataset_csv
+def load_dataset_csv(filename):
+    # global dataset_csv
     dataset_csv = []
-    with open('dataset.csv', newline='') as csvfile:
+    with open(filename, newline='') as csvfile:
         reader = csv.reader(csvfile, delimiter=',', quotechar='"')
         for row in reader:
             if row[0]=='유형':
                 continue
-            q = dict(question=row[1], type=row[0], answer=row[3], equation=row[6], code=row[7], objective=row[8])
+            q = dict(question=row[1], type=row[0], answer=row[3], equation=row[6], code=row[7], objective=row[8], id=row[9])
             dataset_csv.append(q)
             # print(q)
             
     for q in dataset_csv:
         build_template(q)
 
+    return dataset_csv
+
 # %%
 print('loading dataset...', end=' ')
-load_dataset_json()
-load_dataset_csv()
+# load_dataset_json()
+dataset_csv = load_dataset_csv('dataset.csv')
+dataset_csv_qanda = load_dataset_csv('dataset_qanda.csv')
 print('done.')
