@@ -144,6 +144,53 @@ def find_answer_in_inequality(equations, order_symbol):
     return field
 
 
+
+import itertools
+# import time
+def find_answer_in_inequality2(equations):
+    # start = time.time()
+    field = {}
+    equations = list(map(lambda x: x.replace(' ', ''), equations))
+    variable_list = set(itertools.chain.from_iterable( map(lambda x: re.split('>|<', x), equations)))   
+
+    # 부등호 refinement
+    expressions = ['('+x+')' for x in equations]
+    for i in range(0,len(expressions)): 
+        for v in variable_list:
+            expressions[i] = expressions[i].replace(v, 'field[\''+v+'\']')
+
+    num_variables = len(variable_list) 
+    possible_answer = list(itertools.permutations(list(range(num_variables)))) # 모든 경우의 수
+
+
+    for answer in possible_answer:
+        # 변수 할당
+        for name, value in zip(variable_list, answer):
+            field[name] = value
+        
+        # Evaluation
+        num_solve = 0
+        for e in expressions:
+            if eval(e):
+                num_solve +=1
+            else:
+                break # 프루닝
+
+        if num_solve == len(expressions):
+            print(field)
+            print("최소: " + min(field, key=field.get))
+            print("최대: " + max(field, key=field.get))
+    
+            # stop = time.time()
+            # print("Best Time:", stop - start)            
+            return field
+
+    # stop = time.time()
+    # print("Worst Time:", stop - start)
+    return field
+
+
+
 def solution_code_generate(equations, eq_dict, objective, code):
     answer_str = "vars = dict()\n"
     for key, value in eq_dict.items():
@@ -155,7 +202,7 @@ def solution_code_generate(equations, eq_dict, objective, code):
         for index, equation in enumerate(equations):
             replaced_str = equation.replace("=","==")
 
-            vars = re.compile('[가-힣]+|[A-Za-z]').findall(replaced_str)
+            vars = re.compile('\(?[가-힣]+\)?|[A-Za-z]').findall(replaced_str)
             for var in vars:
                 replaced_str = replaced_str.replace(var, "vars['" + var + "']")
             answer_str += replaced_str
@@ -187,14 +234,18 @@ def do_math(statements):
         code = statements['code'][0]
 
         # 부등식일 경우
-        if "<" in equations[0]:
-            field = find_answer_in_inequality(equations[0], '<')
+        if ('<' in equations[0]) or ('>' in equations[0]):
+            field = find_answer_in_inequality2(equations)
             eq_dict = field
             answer_str = solution_code_generate(equations, eq_dict, objective, code)
-        elif ">" in equations[0]:
-            field = find_answer_in_inequality(equations[0], '>')
-            eq_dict = field
-            answer_str = solution_code_generate(equations, eq_dict, objective, code)
+        # elif "<" in equations[0]:
+        #     field = find_answer_in_inequality(equations[0], '<')
+        #     eq_dict = field
+        #     answer_str = solution_code_generate(equations, eq_dict, objective, code)
+        # elif ">" in equations[0]:
+        #     field = find_answer_in_inequality(equations[0], '>')
+        #     eq_dict = field
+        #     answer_str = solution_code_generate(equations, eq_dict, objective, code)
         else:
             # 수식을 좌변으로 모음
             substitued_equations = equation_substitution(equations)
@@ -203,6 +254,7 @@ def do_math(statements):
             # 정답을 기반으로 solution 코드를 생성
             answer_str = solution_code_generate(equations, eq_dict, objective, code)
             print(answer_str)
+
 
     # if 'objective' in statements:
     if len(statements['objective']) > 0:
