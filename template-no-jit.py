@@ -1,13 +1,10 @@
 # %%
-from numba import jit
-
 import re
 import wordsim
 import utils
 import dataset
 
 import time
-import numpy as np
 
 # pos tagging된 두 단어를 비교한 score를 계산, w1 = template tag, w2 = question tag
 # w = (str, POS, start, end)의 형식, start, end는 문장에서의 span 시작과 끝 index
@@ -28,93 +25,49 @@ def match_word_tags(w1, w2):
     # POS가 다른 단어끼리 매칭
     return 1
 
-
-# 문장 비교, 비슷할 수록 낮은 값 리턴
-@jit(nopython=True)
-def match_to_template_tags_jit(len_t, len_q, score_table, scores, tracks1, tracks2):
-    for i1 in range(0, len_t+1):
-        for i2 in range(0, len_q+1):
-            scores[i1,i2], tracks1[i1][i2], tracks2[i1][i2] = 1000000.0, -1000000, -1000000
-            if i1>0 and i2>0 and scores[i1,i2] > scores[i1-1,i2-1] + score_table[i1][i2]:
-                scores[i1,i2] = scores[i1-1,i2-1] + score_table[i1][i2]
-                tracks1[i1][i2] = i1-1
-                tracks2[i1][i2] = i2-1
-            if i2>0 and scores[i1,i2] > scores[i1,i2-1] + score_table[0][i2]:
-                scores[i1,i2] = scores[i1,i2-1] + score_table[0][i2]
-                tracks1[i1][i2] = i1
-                tracks2[i1][i2] = i2-1
-            if i1>0 and scores[i1,i2] > scores[i1-1,i2] + score_table[i1][0]:
-                scores[i1,i2] = scores[i1-1,i2] + score_table[i1][0]
-                tracks1[i1][i2] = i1-1
-                tracks2[i1][i2] = i2
-            if i1==0 and i2==0:
-                scores[i1,i2], tracks1[i1][i2], tracks2[i1][i2] = 0.0, -1000000, -1000000
-    return #scores, tracks1, tracks2
-
 # 문장 비교, 비슷할 수록 낮은 값 리턴
 def match_to_template_tags(template_tags, question_tags, visualize=False):
-    len_t, len_q = len(template_tags), len(question_tags)
-    score_table = 1000000.0 * np.ones([len_t+1, len_q+1])
-
-    # for i1 in range(0, len(template_tags)+1):
-    #     for i2 in range(0, len(question_tags)+1):
-    #         score_table[i1][i2] = match_word_tags(
-    #             template_tags[i1-1] if i1>0 else ('', 'NONE', None, None),
-    #             question_tags[i2-1] if i2>0 else ('', 'NONE', None, None))
-
+    score_table = [[float('inf') for i in range(len(question_tags)+1)] for j in range(len(template_tags)+1)]
+    # assign_table = [['' for i in range(len(question_tags)+1)] for j in range(len(template_tags)+1)]
     for i1 in range(0, len(template_tags)+1):
         for i2 in range(0, len(question_tags)+1):
-            t_tag = template_tags[i1-1] if i1>0 else ('', 'NONE', -1, -1)
-            q_tag = question_tags[i2-1] if i2>0 else ('', 'NONE', -1, -1)
-            if t_tag[1] == q_tag[1]: # POS가 같으면 페널티 없음
-                s = 0.0
-            elif t_tag[1] == 'NONE' or q_tag[1] == 'NONE': # 매칭되는 단어가 없어서 스킵할 경우
-                s = 0.6
-            elif t_tag[1] == 'WILDCARD':
-                if q_tag[1][0] == 'N' or q_tag[1] == 'SL': # WILDCARD는 단어 또는 숫자에 매칭 가능
-                    s = 0.0
-                else:
-                    s = 1000000.0
-            elif t_tag[1] == 'SF' or q_tag[1] == 'SF': # 마침표
-                s = 0.1
-            # POS가 다른 단어끼리 매칭
-            else:
-                s = 1.0
-            score_table[i1][i2] = s
-    
-    scores = np.zeros([len_t+1, len_q+1])
-    tracks1 = np.zeros([len_t+1, len_q+1], dtype=int)
-    tracks2 = np.zeros([len_t+1, len_q+1], dtype=int)
-    match_to_template_tags_jit(len_t, len_q, score_table, scores, tracks1, tracks2)
+            # score_table[i1][i2], assign_table[i1][i2] = match_word_tags(
+            score_table[i1][i2] = match_word_tags(
+                template_tags[i1-1] if i1>0 else ('', 'NONE', None, None),
+                question_tags[i2-1] if i2>0 else ('', 'NONE', None, None))
+
+    # scores: question_tags[0:i1]과 template_tags[0:i2]를 매칭한 최적 스코어
+    scores = [[float('inf') for i in range(len(question_tags)+1)] for j in range(len(template_tags)+1)]
+    tracks = [[(None, None) for i in range(len(question_tags)+1)] for j in range(len(template_tags)+1)]
+    for i1 in range(0, len(template_tags)+1):
+        for i2 in range(0, len(question_tags)+1):
+            scores[i1][i2], tracks[i1][i2] = float('inf'), (None, None)
+            if i1>0 and i2>0 and scores[i1][i2] > scores[i1-1][i2-1] + score_table[i1][i2]:
+                scores[i1][i2] = scores[i1-1][i2-1] + score_table[i1][i2]
+                tracks[i1][i2] = (i1-1, i2-1)
+            if i2>0 and scores[i1][i2] > scores[i1][i2-1] + score_table[0][i2]:
+                scores[i1][i2] = scores[i1][i2-1] + score_table[0][i2]
+                tracks[i1][i2] = (i1, i2-1)
+            if i1>0 and scores[i1][i2] > scores[i1-1][i2] + score_table[i1][0]:
+                scores[i1][i2] = scores[i1-1][i2] + score_table[i1][0]
+                tracks[i1][i2] = (i1-1, i2)
+            if i1==0 and i2==0:
+                scores[i1][i2], tracks[i1][i2] = 0, (None, None)
 
     correspondence = []
     assignments = dict()
-    i1, i2 = len_t, len_q
-    while True:
-        if i1 == -1000000 or i2 == -1000000:
-            break
-        if tracks1[i1][i2] == i1 - 1 and tracks2[i1][i2] == i2 - 1: # 실제 tags사이에 매칭이 일어난 경우 (None과 매칭되지 않고) WILDCARD에 대응되는 값을 assignments에 추가
+    def backtrack(i1, i2):
+        if i1 == None or i2 == None:
+            return
+        if tracks[i1][i2][0] == i1 - 1 and tracks[i1][i2][1] == i2 - 1: # 실제 tags사이에 매칭이 일어난 경우 (None과 매칭되지 않고) WILDCARD에 대응되는 값을 assignments에 추가
             if template_tags[i1-1][1] == 'WILDCARD':
                 name = template_tags[i1-1][0][1:]
                 if name not in assignments:
                     assignments[name] = set()
                 assignments[name].add(question_tags[i2-1])
-                # assignments[name] = question_tags[i2-1]
-        correspondence.append((i1, i2, scores[i1,i2]))
-        i1, i2 = tracks1[i1][i2], tracks2[i1][i2]
-
-    # def backtrack(i1, i2):
-    #     if i1 == -1000000 or i2 == -1000000:
-    #         return
-    #     if tracks1[i1][i2] == i1 - 1 and tracks2[i1][i2] == i2 - 1: # 실제 tags사이에 매칭이 일어난 경우 (None과 매칭되지 않고) WILDCARD에 대응되는 값을 assignments에 추가
-    #         if template_tags[i1-1][1] == 'WILDCARD':
-    #             name = template_tags[i1-1][0][1:]
-    #             if name not in assignments:
-    #                 assignments[name] = set()
-    #             assignments[name].add(question_tags[i2-1])
-    #     correspondence.append((i1, i2, scores[i1][i2]))
-    #     backtrack(tracks1[i1][i2], tracks2[i1][i2])
-    # backtrack(len(template_tags), len(question_tags))
+        correspondence.append((i1, i2, scores[i1][i2]))
+        backtrack(tracks[i1][i2][0], tracks[i1][i2][1])
+    backtrack(len(template_tags), len(question_tags))
 
     if visualize:
         last = (0, 0, 0)
@@ -233,13 +186,8 @@ def find_template(problem):
 #     utils.pos_tagging('@strings 각각 1개씩 있습니다. 이 중 @1개를 택하여 1개의 접시에 담으려고 합니다. @2과 @0을 함께 담지 않는 방법은 모두 몇 가지입니까?'),
 #     utils.pos_tagging('@strings 각각 1개씩 있습니다. 이 중 3개를 택하여 한 개의 접시에 담으려고 합니다. 포도와 귤을 함께 담지 않는 방법은 모두 몇 가지입니까?'),
 #     visualize=True)
-# score, assignments = match_to_template_tags(
-#     utils.pos_tagging('@strings 각각 1개씩 있습니다. 이 중 @1개를 택하여 $1개의 접시에 담으려고 합니다. @3과 @0을 함께 담지 않는 방법은 모두 몇 가지입니까?'),
-#     utils.pos_tagging('@strings 각각 1개씩 있습니다. 이 중 3개를 택하여 한 개의 접시에 담으려고 합니다. 감과 귤을 함께 담지 않는 방법은 모두 몇 가지입니까?'),
-#     visualize=True)
-
 score, assignments = match_to_template_tags(
-    utils.pos_tagging('비행기에 @0명이 타고 있습니다. 그 중 @1명이 내렸습니다. 비행기에 타고 있는 인원은 얼마입니까?'),
+    utils.pos_tagging('@strings 각각 1개씩 있습니다. 이 중 @1개를 택하여 $1개의 접시에 담으려고 합니다. @3과 @0을 함께 담지 않는 방법은 모두 몇 가지입니까?'),
     utils.pos_tagging('@strings 각각 1개씩 있습니다. 이 중 3개를 택하여 한 개의 접시에 담으려고 합니다. 감과 귤을 함께 담지 않는 방법은 모두 몇 가지입니까?'),
     visualize=True)
 print(score)
