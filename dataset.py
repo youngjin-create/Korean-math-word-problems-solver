@@ -11,17 +11,16 @@ dataset_json = []
 def find_literals(line, question):
     strlist = []
 
-    # line이 통채로 equation에 포함된 경우, 예) 수식 1A+2B=C3
-    if line in question and len(line) > 0:
-        strlist.append(line)
+    # @#$ + 숫자
+    strlist.extend(re.findall(r'[@#$][ns]?\d+\b', line))
 
-    # 단어
+    # 단어, 숫자제외
     strlist.extend(re.findall(r'\b[^\d\W]+\b', line))
 
-    # 숫자
-    re_number = r'[0-9]+([.][0-9]+)?(/[0-9]+([.][0-9]+)?)?' #'[0-9]+(\.[0-9]+)?(\/[0-9]+(\.[0-9]+)?)?'
+    # 숫자, @#$으로 시작하지 않는 경우만
+    re_number = r'(^|[^@#$])([0-9]+([.][0-9]+)?(/[0-9]+([.][0-9]+)?)?)' #'[0-9]+(\.[0-9]+)?(\/[0-9]+(\.[0-9]+)?)?'
     for match in re.compile(re_number).finditer(line):
-        strlist.append(match.group())
+        strlist.append(match.group(2))
 
     strset = set(strlist)
     return strset
@@ -39,11 +38,11 @@ def build_template(q):
     q['extracted_lists'], q['question_preprocessed'] = utils.extract_lists(q['question_preprocessed'])
     q['extracted_equations'], q['question_preprocessed'] = utils.extract_equations(q['question_preprocessed'])
 
-    if len(q['extracted_lists']) > 0 or len(q['extracted_equations']) > 0:
-        print(q['question'])
-        print(q['question_preprocessed'])
-        print(q['extracted_lists'])
-        print(q['extracted_equations'])
+    # if len(q['extracted_lists']) > 0 or len(q['extracted_equations']) > 0:
+    #     print(q['question'])
+    #     print(q['question_preprocessed'])
+    #     print(q['extracted_lists'])
+    #     print(q['extracted_equations'])
 
     # 풀이 과정에서 literal을 추출하여 문제를 템플릿화
     strset = set()
@@ -65,12 +64,27 @@ def build_template(q):
     strlist.sort(key=len)
     strlist.reverse()
     strlist[:] = [x for x in strlist if len(re.findall(r'(^|\s)(' + re.escape(x) + r')($|\D)', q['question_preprocessed'])) > 0]
-    q['template_values'] = strlist
-    q['template_types'] = [utils.literal_type(x) for x in strlist]
+    # wildcard dictionary
+    wcs = dict()
+    for s in strlist:
+        if s[0] in ['@', '#', '$']:
+            wcs[s] = s
+        else:
+            prefix = '@n' if utils.literal_type(s) == 'number' else '@s'
+            idx = 0
+            while prefix+f'{idx}' in wcs.keys():
+                idx += 1
+            wcs[prefix+f'{idx}'] = s
+    q['template_wildcards'] = wcs
+
+    # q['template_values'] = strlist
+    # q['template_types'] = [utils.literal_type(x) for x in strlist]
 
     template = q['question_preprocessed']
-    for idx, str in enumerate(strlist):
-        template = re.sub(r'(^|\s)(' + re.escape(str) + r')($|\D)', f'\\g<1>@{idx}\\g<3>', template)
+    for key in q['template_wildcards']:
+        template = re.sub(r'(^|\s)(' + re.escape(q['template_wildcards'][key]) + r')($|\D)', f'\\g<1>{key}\\g<3>', template)
+    # for idx, str in enumerate(strlist):
+    #     template = re.sub(r'(^|\s)(' + re.escape(str) + r')($|\D)', f'\\g<1>@{idx}\\g<3>', template)
     q['template'] = template
 
     for fn in field_names:
@@ -78,8 +92,10 @@ def build_template(q):
         if fn not in q:
             continue
         for eq in q[fn]:
-            for idx, str in enumerate(strlist):
-                eq = re.compile(r'(^|[^@])(\b' + re.escape(str) + r'\b)').sub(f'\\g<1>@{idx}', eq)
+            for key in q['template_wildcards']:
+                eq = re.sub(r'(^|[^@])(\b' + re.escape(q['template_wildcards'][key]) + r'\b)', f'\\g<1>{key}', eq)
+            # for idx, str in enumerate(strlist):
+            #     eq = re.compile(r'(^|[^@])(\b' + re.escape(str) + r'\b)').sub(f'\\g<1>@{idx}', eq)
             q['template_'+fn].append(eq)
 
     q['template_tags'] = utils.pos_tagging(q['template'])

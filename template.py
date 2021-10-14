@@ -94,8 +94,8 @@ def match_to_template_tags(template_tags, question_tags, visualize=False):
         if i1 == -1000000 or i2 == -1000000:
             break
         if tracks1[i1][i2] == i1 - 1 and tracks2[i1][i2] == i2 - 1: # 실제 tags사이에 매칭이 일어난 경우 (None과 매칭되지 않고) WILDCARD에 대응되는 값을 assignments에 추가
-            if template_tags[i1-1][1] == 'WILDCARD':
-                name = template_tags[i1-1][0][1:]
+            if template_tags[i1-1][1].startswith('WILDCARD'):
+                name = template_tags[i1-1][0]
                 if name not in assignments:
                     assignments[name] = set()
                 assignments[name].add(question_tags[i2-1])
@@ -175,13 +175,13 @@ def find_template(problem):
     print(f'best match distance = {distance}')
     print(f'best match template = {matched}')
     print(f'best match template candidate assigments = {assignments}')
-    values = [x for x in matched['template_values']]
+    # values = [x for x in matched['template_values']]
     # for idx, valueset in enumerate(assignments):
     #     if len(valueset) > 0:
     #         values[idx] = list(valueset)[0]
     for key in assignments:
         assignments[key] = list(assignments[key])[0][0]
-    print(f'best match template final assigments = {values}')
+    print(f'best match template final assigments = {assignments}')
     print('extracted question lists = ' + str(problem['extracted_lists']))
     print('extracted question equations = ' + str(problem['extracted_equations']))
 
@@ -210,7 +210,7 @@ def find_template(problem):
             continue
         for line in matched['template_'+fn]:
             for key in assignments:
-                line = re.sub(f'(@{key})($|\D)', assignments[key] + '\\g<2>', line)
+                line = re.sub(f'({key})($|\D)', assignments[key] + '\\g<2>', line)
                 # line = re.sub(f'\\b@{idx}\\b', v, line)
             statements[fn].append(line)
 
@@ -224,27 +224,6 @@ def find_template(problem):
 #     utils.pos_tagging('비행기에 @0명이 타고 있습니다. 그 중 @1명이 내렸습니다. 비행기에 타고 있는 인원은 얼마입니까?'),
 #     utils.pos_tagging('버스에 22명이 타고 있습니다. 그 중 118명이 내렸을 때, 버스에 남아있는 있는 사람은 얼마입니까?'),
 #     visualize=True)
-# score, assignments = match_to_template_tags(
-#     utils.pos_tagging('비행기에 351명이 타고 있습니다. 그 중 158명이 내렸습니다. 비행기에 타고 있는 인원은 얼마입니까?'),
-#     utils.pos_tagging('달력에서 31일까지 있는 연속 된 2달 중, 더 나중에 있는 달은 언제 입니까?'),
-#     visualize=True)
-# score, assignments = match_to_template_tags(utils.pos_tagging('상자 안에 @0개의 감이 있습니다.'), utils.pos_tagging('박스 안에 5개의 과일이 있다.'), visualize=True)
-# score, assignments = match_to_template_tags(
-#     utils.pos_tagging('@strings 각각 1개씩 있습니다. 이 중 @1개를 택하여 1개의 접시에 담으려고 합니다. @2과 @0을 함께 담지 않는 방법은 모두 몇 가지입니까?'),
-#     utils.pos_tagging('@strings 각각 1개씩 있습니다. 이 중 3개를 택하여 한 개의 접시에 담으려고 합니다. 포도와 귤을 함께 담지 않는 방법은 모두 몇 가지입니까?'),
-#     visualize=True)
-# score, assignments = match_to_template_tags(
-#     utils.pos_tagging('@strings 각각 1개씩 있습니다. 이 중 @1개를 택하여 $1개의 접시에 담으려고 합니다. @3과 @0을 함께 담지 않는 방법은 모두 몇 가지입니까?'),
-#     utils.pos_tagging('@strings 각각 1개씩 있습니다. 이 중 3개를 택하여 한 개의 접시에 담으려고 합니다. 감과 귤을 함께 담지 않는 방법은 모두 몇 가지입니까?'),
-#     visualize=True)
-
-score, assignments = match_to_template_tags(
-    utils.pos_tagging('비행기에 @0명이 타고 있습니다. 그 중 @1명이 내렸습니다. 비행기에 타고 있는 인원은 얼마입니까?'),
-    utils.pos_tagging('@strings 각각 1개씩 있습니다. 이 중 3개를 택하여 한 개의 접시에 담으려고 합니다. 감과 귤을 함께 담지 않는 방법은 모두 몇 가지입니까?'),
-    visualize=True)
-print(score)
-print(assignments)
-
 # start_time = time.time()
 # for i in range(1000):
 #     # utils.pos_tagging('비행기에 @0명이 타고 있습니다. 그 중 @1명이 내렸습니다. 비행기에 타고 있는 인원은 얼마입니까?')
@@ -256,3 +235,10 @@ print(assignments)
 #         utils.pos_tagging('비행기에 @0명이 타고 있습니다. 그 중 @1명이 내렸습니다. 비행기에 타고 있는 인원은 얼마입니까?'),
 #         utils.pos_tagging('버스에 22명이 타고 있습니다. 그 중 118명이 내렸을 때, 버스에 남아있는 있는 사람은 얼마입니까?'))
 # print(time.time() - start_time)
+
+score, assignments = match_to_template_tags(
+    utils.pos_tagging('$1과 $2의 나이의 합은 #1살입니다. $3이 $4보다 #2살 많다면 $5의 나이는 얼마입니까?'),
+    utils.pos_tagging('형과 나의 나이의 합은 37살입니다. 형이 나보다 3살 많다면 나의 나이는 얼마입니까?'),
+    visualize=True)
+print(score)
+print(assignments)
