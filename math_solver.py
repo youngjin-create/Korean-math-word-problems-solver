@@ -196,6 +196,10 @@ def solution_code_generate(equations, eq_dict, objective, code):
     for key, value in eq_dict.items():
         answer_str+= "vars['" + str(key) + "']" + "=" + str(value) + "\n"
 
+    # math와 itertools 라이브러리는 기본으로 추가
+    answer_str += "import math\n"
+    answer_str += "import itertools\n"
+
     # code가 없는 경우
     if len(code) == 0:
         answer_str += "if "
@@ -211,10 +215,8 @@ def solution_code_generate(equations, eq_dict, objective, code):
                 answer_str += " and "
         answer_str += ":\n    "
         answer_str += "print("+ objective + ")"
+    # code가 있는 경우
     else:
-        # math와 itertools 라이브러리는 기본으로 추가
-        answer_str += "import math\n"
-        answer_str += "import itertools\n"
         answer_str += code
 
     return answer_str
@@ -253,7 +255,7 @@ def do_math(statements):
             eq_dict = find_answer_using_sympy(substitued_equations)
             # 정답을 기반으로 solution 코드를 생성
             answer_str = solution_code_generate(equations, eq_dict, objective, code)
-            print(answer_str)
+            #print(answer_str)
 
 
     # if 'objective' in statements:
@@ -264,7 +266,7 @@ def do_math(statements):
     try:
         exec(answer_str, env, env)
         answer = eval(objective, env, env)
-        print(answer_str)
+        #print(answer_str)
         return answer, answer_str
 
         # exec('\n'.join(derivation), env, env)
