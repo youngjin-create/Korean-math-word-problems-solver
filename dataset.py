@@ -5,8 +5,7 @@ import re
 
 import utils
 import tagging
-# import gspread
-# from oauth2client.service_account import ServiceAccountCredentials
+import dataset_google_sheets
 
 dataset_json = []
 
@@ -143,11 +142,22 @@ def load_dataset_csv(filename):
 
     return dataset_csv
 
+def load_dataset_google_sheets(sheetname):
+    dataset = dataset_google_sheets.load_dataset(sheetname)
+    
+    for q in dataset:
+        build_template(q)
+
+    return dataset
+
+
 # %%
 print('loading dataset...', end=' ')
 # load_dataset_json()
-dataset_csv = load_dataset_csv('dataset.csv')
+# dataset_csv = load_dataset_csv('dataset.csv')
+dataset_google_drive = load_dataset_google_sheets('선생님문제모음')
 # dataset_csv_qanda = load_dataset_csv('dataset_qanda.csv')
-datasets_all = [dataset_csv] #, dataset.dataset_csv_qanda] # 사용할 데이터셋
+# datasets_all = [dataset_csv] #, dataset.dataset_csv_qanda] # 사용할 데이터셋
+datasets_all = [dataset_google_drive] #, dataset.dataset_csv_qanda] # 사용할 데이터셋
 
 print('done.')

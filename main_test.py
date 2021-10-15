@@ -1,14 +1,17 @@
 # %%
 from multiprocessing import Pool
 import csv
+import re
 import time
 start_time = time.time()
+from datetime import datetime
 
 import utils
 import template
 import rulebased
 import dataset
 import math_solver
+import dataset_google_sheets
 
 # %%
 def solve_mwp(problem):
@@ -50,14 +53,18 @@ def debug_one_question(question, q_number=0):
     # except Exception as e:
     #     print(e)
 
+    closest_k = ''
+    for k in problem['closest_k']:
+        closest_k += k[1]['id'] + ' ({:.2f}) '.format(k[0]) + k[1]['template'] + '\n'
+    result_row = [problem['id'], problem['question'], problem['question_preprocessed'], problem['extracted_lists'], problem['extracted_equations'],
+        problem['best_template_distance'], problem['best_template']['template'], problem['best_template_assignment'], problem['statements'], closest_k,
+        code, answer, '{0:.0f}'.format(time.time() - problem_time)]
+
     with open('test_results.csv', 'a', newline='') as csvfile:
-        closest_k = ''
-        for k in problem['closest_k']:
-            closest_k += k[1]['id'] + ' ({:.2f}) '.format(k[0]) + k[1]['template'] + '\n'
         writer = csv.writer(csvfile, delimiter=',', quotechar='"')
-        writer.writerow([problem['id'], problem['question'], problem['question_preprocessed'], problem['extracted_lists'], problem['extracted_equations'],
-            problem['best_template_distance'], problem['best_template']['template'], problem['best_template_assignment'], problem['statements'], closest_k,
-            code, answer, '{0:.0f}'.format(time.time() - problem_time)])
+        writer.writerow(result_row)
+
+    return result_row
 
 def f(arg1, arg2):
     print(arg1)
@@ -68,10 +75,12 @@ def debug_all_questions():
     # with Pool(4) as p:
     #     print(p.starmap(f, [(1, 2), (2, 3), (3, 4)]))
     # return
-    # dataset.dataset_csv = dataset.dataset_csv[:40]
+    test = dataset.dataset_google_drive#[:40]
     with Pool(32) as p:
-        results = p.starmap(debug_one_question, [(q['question_original'], q['id']) for q in dataset.dataset_csv])
+        results = p.starmap(debug_one_question, [(q['question_original'], q['id']) for q in test])
     print('elapsed time = {0:.0f} seconds.'.format(time.time() - start_time))
+
+    return results
 
     # for q_number, q in enumerate(dataset.dataset_csv):
     #     # if q_number % 10 != 0:
@@ -79,7 +88,8 @@ def debug_all_questions():
     #     debug_one_question(q['question_original'], q['id'])
     #     print('elapsed time = {0:.0f} seconds.'.format(time.time() - start_time))
 
-debug_all_questions()
+results = debug_all_questions()
+dataset_google_sheets.save_results(datetime.now().strftime("%m/%d %H;%M;%S"), results)
 # debug_one_question('A는 B보다 먼저 교실에 도착했습니다. C는 A보다 먼저 교실에 도착했습니다. B는 D보다 늦게 교실에 도착했습니다. D는 A보다 늦게 교실에 도착했습니다. 교실에 가장 빨리 온 것은 누구입니까?')
 # debug_one_question('비행기에 351명이 타고 있습니다. 그 중 158명이 내렸습니다. 비행기에 타고 있는 인원은 얼마입니까?')
 # debug_one_question('상자에는 사과가 10개 있습니다. 이 중에 5개를 먹었을 때, 남아있는 사과는 몇 개입니까?') # 하율이는 팽이가 12개 있습니다. 친구들에게 7개를 빌려주려고 합니다. 빌려주고 남는 팽이는 몇 개일까요?
@@ -92,5 +102,5 @@ debug_all_questions()
 # debug_one_question('박세리는 한유미보다 나이가 많고, 한유미는 남현희보다 어리고 정유인보다는 나이가 많습니다. 네 명 중 가장 나이가 어린 사람은 누구입니까?')
 # debug_one_question('석진이는 호석이보다 무겁고 지민이보다 가볍습니다. 남준이는 호석이보다 가볍습니다. 4명 중 가장 가벼운 사람은 누구입니까?')
 # debug_one_question('어떤 수를 2/9로 나누어야 할 것을 잘못하여 곱했더니 22/7이 되었습니다. 바르게 계산하면 얼마인가요?')
-# debug_one_question('어떤 수를 7/20로 나누어야 할 것을 잘못하여 곱했더니 1/4이 되었습니다. 바르게 계산하면 얼마인가요?')
+# debug_one_question('어떤 수를 5로 나누어야 할 것을 잘못하여 곱했더니 25이 되었습니다. 바르게 계산하면 얼마인가요?')
 # %%
