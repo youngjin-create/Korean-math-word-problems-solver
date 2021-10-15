@@ -12,18 +12,18 @@ import dataset
 # POS값에 따른 score matrix를 생각할 수 있고, 이것을 자동학습 할 수 있으면 좋을듯
 def match_word_tags(w1, w2): 
     if w1[1] == w2[1]: # POS가 같으면 페널티 없음
-        return 0
+        return 0.0
     if w1[1] == 'NONE' or w2[1] == 'NONE': # 매칭되는 단어가 없어서 스킵할 경우
         return 0.6
     if w1[1] == 'WILDCARD':
         if w2[1][0] == 'N' or w2[1] == 'SL': # WILDCARD는 단어 또는 숫자에 매칭 가능
-            return 0
+            return 0.0
         else:
             return float('inf')
     if w1[1] == 'SF' or w2[1] == 'SF': # 마침표
         return 0.1
     # POS가 다른 단어끼리 매칭
-    return 1
+    return 1.0
 
 
 # 문장 비교, 비슷할 수록 낮은 값 리턴
@@ -65,10 +65,22 @@ def match_to_template_tags(template_tags, question_tags, visualize=False):
             q_tag = question_tags[i2-1] if i2>0 else ('', 'NONE', -1, -1)
             if t_tag[1] == q_tag[1]: # POS가 같으면 페널티 없음
                 s = 0.0
+            elif t_tag[0] == q_tag[0]: # 글자가 같으면 페널티 없음
+                s = 0.0
             elif t_tag[1] == 'NONE' or q_tag[1] == 'NONE': # 매칭되는 단어가 없어서 스킵할 경우
                 s = 0.6
             elif t_tag[1] == 'WILDCARD':
                 if q_tag[1][0] == 'N' or q_tag[1] == 'SL': # WILDCARD는 단어 또는 숫자에 매칭 가능
+                    s = 0.0
+                else:
+                    s = 1000000.0
+            elif t_tag[1] == 'WILDCARD_NUM':
+                if q_tag[1] == 'NUMBER':
+                    s = 0.0
+                else:
+                    s = 1000000.0
+            elif t_tag[1] == 'WILDCARD_STR':
+                if q_tag[1] != 'NUMBER' and (q_tag[1][0] == 'N' or q_tag[1] == 'SL'):
                     s = 0.0
                 else:
                     s = 1000000.0
@@ -234,8 +246,8 @@ def find_template(problem):
 
 if __name__=="__main__": # 모듈 단독 테스트
     score, assignments = match_to_template_tags(
-        utils.pos_tagging('$1과 $2의 나이의 합은 #1살입니다. $3이 $4보다 #2살 많다면 $5의 나이는 얼마입니까?'),
-        utils.pos_tagging('형과 나의 나이의 합은 37살입니다. 형이 나보다 3살 많다면 나의 나이는 얼마입니까?'),
+        utils.pos_tagging('@s1 @n0개 중에서 @s2이가 @n1개, @s0가 @n2개를 먹었습니다. 남아 있는 @s1는 몇 개 입니까?'),
+        utils.pos_tagging('사과 8개 중에서 민준이가 3개, 윤서가 2개를 먹었습니다. 남아 있는 사과는 몇 개 일까요?'),
         visualize=True)
     print(score)
     print(assignments)
