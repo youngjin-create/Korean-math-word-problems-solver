@@ -238,8 +238,15 @@ def do_math(statements):
         objective = statements['objective'][0]
         code = statements['code'][0]
 
+        # equation과 code가 없는 경우 바로 정답을 print
+        if equations[0] == '' and code == '':
+            answer_str=""
+            # math와 itertools 라이브러리는 기본으로 추가
+            answer_str += "import math\n"
+            answer_str += "import itertools\n"
+            answer_str += "print(" + objective + ")"
         # 부등식일 경우
-        if ('<' in equations[0]) or ('>' in equations[0]):
+        elif ('<' in equations[0]) or ('>' in equations[0]):
             field = find_answer_in_inequality2(equations)
             eq_dict = field
             answer_str = solution_code_generate(equations, eq_dict, objective, code)
@@ -259,7 +266,6 @@ def do_math(statements):
             # 정답을 기반으로 solution 코드를 생성
             answer_str = solution_code_generate(equations, eq_dict, objective, code)
             #print(answer_str)
-
 
     # if 'objective' in statements:
     if len(statements['objective']) > 0:
