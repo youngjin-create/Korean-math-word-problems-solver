@@ -2,7 +2,11 @@
 import json
 import csv
 import re
+
 import utils
+import tagging
+# import gspread
+# from oauth2client.service_account import ServiceAccountCredentials
 
 dataset_json = []
 
@@ -75,14 +79,9 @@ def build_template(q):
             wcs[prefix+f'{idx}'] = s
     q['template_wildcards'] = wcs
 
-    # q['template_values'] = strlist
-    # q['template_types'] = [utils.literal_type(x) for x in strlist]
-
     template = q['question_preprocessed']
     for key in q['template_wildcards']:
         template = re.sub(r'(^|\s)(' + re.escape(q['template_wildcards'][key]) + r')($|\D)', f'\\g<1>{key}\\g<3>', template)
-    # for idx, str in enumerate(strlist):
-    #     template = re.sub(r'(^|\s)(' + re.escape(str) + r')($|\D)', f'\\g<1>@{idx}\\g<3>', template)
     q['template'] = template
 
     for fn in field_names:
@@ -92,12 +91,21 @@ def build_template(q):
         for eq in q[fn]:
             for key in q['template_wildcards']:
                 eq = re.sub(r'(^|[^@])(\b' + re.escape(q['template_wildcards'][key]) + r'\b)', f'\\g<1>{key}', eq)
-            # for idx, str in enumerate(strlist):
-            #     eq = re.compile(r'(^|[^@])(\b' + re.escape(str) + r'\b)').sub(f'\\g<1>@{idx}', eq)
             q['template_'+fn].append(eq)
 
-    q['template_tags'] = utils.pos_tagging(q['template'])
+    q['template_tags'] = tagging.pos_tagging(q['template'])
+    original_tags = tagging.pos_tagging(utils.preprocess(q['question_original']))
+    score, assignments, correspondence = tagging.match_to_template_tags(q['template_tags'], original_tags)
+    for c in correspondence:
+        if c[0] <= 0 or c[1] <= 0:
+            continue
+        if q['template_tags'][c[0]-1][0] == original_tags[c[1]-1][0]:
+            if q['template_tags'][c[0]-1][1] not in ['WILDCARD', 'WILDCARD_NUM', 'WILDCARD_STR', 'NUMBER', 'STRING', 'EQUATION', 'NUMBERS', 'STRINGS', 'MAPPING']:
+                tag = list(q['template_tags'][c[0]-1])
+                tag[1] = original_tags[c[1]-1][1]
+                q['template_tags'][c[0]-1] = tuple(tag)
 
+    
     # # 추가된 필드 출력
     # print(q['template'])
     # print(q['template_lists'])

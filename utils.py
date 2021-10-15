@@ -1,74 +1,10 @@
 # %%
 import re
-from konlpy.tag import Okt, Komoran, Hannanum, Kkma, Mecab
-mecab = Mecab()
 
 re_var = re.compile(r'((@[ns]?|#|\$)[0-9]+)(\D|$)')
 re_number = re.compile(r'[0-9]+([.][0-9]+)?(/[0-9]+([.][0-9]+)?)?')
 re_string = re.compile(r'\(\w\)')
 re_equation = re.compile('[0-9A-Z][0-9A-Z\.\+\-\*\/\(\)=<> ]*=[0-9A-Z\.\+\-\*\/\(\)=<> ]*[0-9A-Z]') # 등호(=)를 포함하는 식
-
-# 템플릿 매칭을 위한 사용자 정의 태그 : WILDCARD, WILDCARD_NUM, WILDCARD_STR, NUMBER, STRING, EQUATION, NUMBERS, STRINGS, MAPPING
-def pos_tagging(text, join=None):
-    global re_number
-
-    tags = mecab.pos(text, join=join)
-    new_tags = []
-    position = 0
-    for tag in tags:
-        position = text.find(tag[0], position)
-        new_tags.append((tag[0], tag[1], position, position+len(tag[0])))
-    tags = new_tags
-
-    for match in re_var.finditer(text):
-        # print(match)
-        tags = [tag for tag in tags if not(match.span(1)[0] <= tag[2] and tag[3] <= match.span(1)[1])]
-        if match.group(2) in ['@n', '#']:
-            cl = 'WILDCARD_NUM'
-        elif match.group(2) in ['@s', '$']:
-            cl = 'WILDCARD_STR'
-        else:
-            cl = 'WILDCARD'
-        tags.append((match.group(1), cl, match.span(1)[0], match.span(1)[1]))
-
-    for match in re_number.finditer(text):
-        # print(match)
-        tags = [tag for tag in tags if not(match.span()[0] <= tag[2] and tag[3] <= match.span()[1])]
-        tags.append((match.group(), 'NUMBER', match.span()[0], match.span()[1]))
-
-    for match in re_string.finditer(text):
-        # print(match)
-        tags = [tag for tag in tags if not(match.span()[0] <= tag[2] and tag[3] <= match.span()[1])]
-        tags.append((match.group(), 'STRING', match.span()[0], match.span()[1]))
-
-    for match in re_equation.finditer(text):
-        # print(match)
-        tags = [tag for tag in tags if not(match.span()[0] <= tag[2] and tag[3] <= match.span()[1])]
-        tags.append((match.group(), 'EQUATION', match.span()[0], match.span()[1]))
-
-    for match in re.finditer('@numbers', text):
-        tags.append((match.group(), 'NUMBERS', match.span()[0], match.span()[1]))
-
-    for match in re.finditer('@strings', text):
-        tags.append((match.group(), 'STRINGS', match.span()[0], match.span()[1]))
-
-    for match in re.finditer('@mapping', text):
-        tags.append((match.group(), 'MAPPING', match.span()[0], match.span()[1]))
-
-    tags.sort(key=lambda x:x[2]*10000-x[3])
-
-    new_tags = []
-    position = 0
-    for tag in tags:
-        if tag[2] < position:
-            continue
-        new_tags.append(tag)
-        position = tag[3]
-    tags = new_tags
-
-    return tags
-
-pos_tagging('546/11, 167.22, 393.22/33.44, $1은 $2를 #1개 가지고 (가)는 (나)보다, B는 C보다 작습니다.')
 
 def predefined_replaces(raw):
     raw = raw.strip()
@@ -89,9 +25,9 @@ def predefined_replaces(raw):
 
     raw = re.sub(r'\b첫 ', '1', raw)
         
-    raw = re.sub(r'\b몇개', '몇 개', raw)
+    # raw = re.sub(r'\b몇개', '몇 개', raw)
 
-    raw = re.sub(r'\b어떤 수', '어떤수', raw)
+    # raw = re.sub(r'\b어떤 수', '어떤수', raw)
     raw = re.sub(r'\b몇 개가 있습니까?', '몇 개입니까?', raw)
     raw = re.sub(r'\b무슨 색깔입니까?', '무슨 색입니까?', raw)
 
@@ -223,6 +159,12 @@ q = '무지개는 일반적으로 빨강색, 주황색, 노랑색, 초록색, �
 q = '흰색 차, 검은색 차, 보라색 차, 초록색 차, 빨간색 차가 1개씩 있습니다. 이 차 중 서로 다른 2대의 차를 골라 여행을 가려고 합니다. 고르는 방법은 모두 몇 가지입니까?'
 q = '수연이는 가로에 3칸, 세로에 2칸인 붕어빵 틀로 붕어빵을 만들려고 합니다. 수연이가 한 번에 만들 수 있는 붕어빵은 모두 몇 개일까요?'
 q = '가현이는 친구들에게 빨간 구슬 5개, 노란 구슬 3개, 초록 구슬 14개, 검정 구슬 2개를 빌렸습니다. 총 몇 개의 구슬을 빌렸나요?'
+q = '546/11, 167.22, 393.22/33.44, $1은 $2를 #1개 가지고 (가)는 (나)보다, B는 C보다 작습니다.'
+
+# 문장에서 반복되는 숫자나 표현 분류
+#numbers
+#strings
+#mapping
 if __name__=="__main__": # 모듈 단독 테스트
     lists, q = extract_lists(preprocess(q))
     equations, q = extract_equations(preprocess(q))
@@ -230,10 +172,4 @@ if __name__=="__main__": # 모듈 단독 테스트
     print(lists)
     print(equations)
 
-# 문장에서 반복되는 숫자나 표현 분류
-#numbers
-#strings
-#mapping
-# %%
-q = 'num1, num2, num3의 5개의 수 중에서 두 수를 골라 차를 구했을 때 차가 두 번째로 크게 되는 식을 세우고 답을 구하세요.'
-pos_tagging(q)
+    
