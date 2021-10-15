@@ -223,11 +223,12 @@ q = '무지개는 일반적으로 빨강색, 주황색, 노랑색, 초록색, �
 q = '흰색 차, 검은색 차, 보라색 차, 초록색 차, 빨간색 차가 1개씩 있습니다. 이 차 중 서로 다른 2대의 차를 골라 여행을 가려고 합니다. 고르는 방법은 모두 몇 가지입니까?'
 q = '수연이는 가로에 3칸, 세로에 2칸인 붕어빵 틀로 붕어빵을 만들려고 합니다. 수연이가 한 번에 만들 수 있는 붕어빵은 모두 몇 개일까요?'
 q = '가현이는 친구들에게 빨간 구슬 5개, 노란 구슬 3개, 초록 구슬 14개, 검정 구슬 2개를 빌렸습니다. 총 몇 개의 구슬을 빌렸나요?'
-lists, q = extract_lists(preprocess(q))
-equations, q = extract_equations(preprocess(q))
-print(q)
-print(lists)
-print(equations)
+if __name__=="__main__": # 모듈 단독 테스트
+    lists, q = extract_lists(preprocess(q))
+    equations, q = extract_equations(preprocess(q))
+    print(q)
+    print(lists)
+    print(equations)
 
 # 문장에서 반복되는 숫자나 표현 분류
 #numbers

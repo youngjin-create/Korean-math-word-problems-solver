@@ -6,7 +6,7 @@ from gensim import models
 print('loading word embeddings...', end=' ')
 # ko_model = models.fasttext.load_facebook_model('../../../word2vec/gensim_fasttext/cc.ko.300.bin')
 # ko_model = models.fasttext.load_facebook_model('fasttext/cc.ko.300.bin')
-ko_model = models.fasttext.load_facebook_model('fasttext/ko_Kyobong.200.bin')
+# ko_model = models.fasttext.load_facebook_model('fasttext/ko_Kyobong.200.bin')
 print('done.')
 
 similarity_cache = dict()

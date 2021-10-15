@@ -1,13 +1,10 @@
 # %%
-from numba import jit
-
 import re
-import wordsim
+from numba import jit
+import numpy as np
+
 import utils
 import dataset
-
-import time
-import numpy as np
 
 # pos tagging된 두 단어를 비교한 score를 계산, w1 = template tag, w2 = question tag
 # w = (str, POS, start, end)의 형식, start, end는 문장에서의 span 시작과 끝 index
@@ -135,9 +132,8 @@ def match_to_template_tags(template_tags, question_tags, visualize=False):
 
 def find_closest(problem):
     closest_distance, best_pattern, best_assignments = float('inf'), None, None
-    datasets = [dataset.dataset_csv, dataset.dataset_csv_qanda] # 사용할 데이터셋
     dists = []
-    for dset in datasets:
+    for dset in dataset.datasets_all:
         for template in dset:
             if utils.is_pruning(template['question_pruning'], problem['pruning_vector']):
                 continue
@@ -236,9 +232,10 @@ def find_template(problem):
 #         utils.pos_tagging('버스에 22명이 타고 있습니다. 그 중 118명이 내렸을 때, 버스에 남아있는 있는 사람은 얼마입니까?'))
 # print(time.time() - start_time)
 
-score, assignments = match_to_template_tags(
-    utils.pos_tagging('$1과 $2의 나이의 합은 #1살입니다. $3이 $4보다 #2살 많다면 $5의 나이는 얼마입니까?'),
-    utils.pos_tagging('형과 나의 나이의 합은 37살입니다. 형이 나보다 3살 많다면 나의 나이는 얼마입니까?'),
-    visualize=True)
-print(score)
-print(assignments)
+if __name__=="__main__": # 모듈 단독 테스트
+    score, assignments = match_to_template_tags(
+        utils.pos_tagging('$1과 $2의 나이의 합은 #1살입니다. $3이 $4보다 #2살 많다면 $5의 나이는 얼마입니까?'),
+        utils.pos_tagging('형과 나의 나이의 합은 37살입니다. 형이 나보다 3살 많다면 나의 나이는 얼마입니까?'),
+        visualize=True)
+    print(score)
+    print(assignments)
