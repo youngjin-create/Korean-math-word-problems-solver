@@ -27,6 +27,8 @@ def time_limit(seconds):
 def equation_substitution(equations):
     substitued_equations = []
     for equation in equations:
+        if equation == '':
+            continue
         left_eq, right_eq = equation.split('=')
         substitued_eq = left_eq + '-(' + right_eq + ')'
         substitued_equations.append(substitued_eq)
@@ -231,7 +233,8 @@ def do_math(statements):
         pass
 
     if len(statements['equation']) > 0 and len(statements['objective']) > 0:
-        equations = statements['equation'][0].split('\r\n')
+        equations = re.split(r'[\r\n]+', statements['equation'][0])
+        # equations = statements['equation'][0].split('\r\n')
         objective = statements['objective'][0]
         code = statements['code'][0]
 

@@ -8,6 +8,7 @@ import utils
 import template
 import rulebased
 import dataset
+import math_solver
 
 # %%
 def solve_mwp(problem):
@@ -20,10 +21,10 @@ def solve_mwp(problem):
         distance, statements = template.find_template(problem)
 
     # 변환된 수학적 표현을 풀어서 python code 형태로 답을 구함
-    # answer, derivation = math_solver.solve(statements, time_limit_sec=99999)
+    answer, derivation = math_solver.solve(statements, time_limit_sec=99999)
 
-    # if answer != None:
-        # return answer, derivation
+    if answer != None:
+        return answer, derivation
     return '0', ['print(0)'] # if failed, print 0
 
 # %%
@@ -78,7 +79,7 @@ def debug_all_questions():
     #     debug_one_question(q['question_original'], q['id'])
     #     print('elapsed time = {0:.0f} seconds.'.format(time.time() - start_time))
 
-debug_all_questions()
+# debug_all_questions()
 # debug_one_question('A는 B보다 먼저 교실에 도착했습니다. C는 A보다 먼저 교실에 도착했습니다. B는 D보다 늦게 교실에 도착했습니다. D는 A보다 늦게 교실에 도착했습니다. 교실에 가장 빨리 온 것은 누구입니까?')
 # debug_one_question('비행기에 351명이 타고 있습니다. 그 중 158명이 내렸습니다. 비행기에 타고 있는 인원은 얼마입니까?')
 # debug_one_question('상자에는 사과가 10개 있습니다. 이 중에 5개를 먹었을 때, 남아있는 사과는 몇 개입니까?') # 하율이는 팽이가 12개 있습니다. 친구들에게 7개를 빌려주려고 합니다. 빌려주고 남는 팽이는 몇 개일까요?
@@ -88,4 +89,5 @@ debug_all_questions()
 # debug_one_question('형과 나의 나이의 합은 37살입니다. 형이 나보다 3살 많다면 나의 나이는 얼마입니까?')
 # debug_one_question('색종이를 4명에게 똑같이 나누어 주어야 할 것을 잘못하여 5명에게 똑같이 나누어 주었더니 한 사람당 15장씩 주고 2장이 남았습니다. 이 색종이를 4명에게 똑같이 나누어 주면 한 사람당 최대한 몇 장씩 가지게 됩니까?')
 # debug_one_question('비행기에 351명이 타고 있습니다. 그 중 158명이 내렸습니다. 비행기에 타고 있는 인원은 얼마입니까?')
+debug_one_question('박세리는 한유미보다 나이가 많고, 한유미는 남현희보다 어리고 정유인보다는 나이가 많습니다. 네 명 중 가장 나이가 어린 사람은 누구입니까?')
 # %%
