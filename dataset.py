@@ -33,17 +33,8 @@ def build_template(q):
         return
 
     q['question_preprocessed'] = utils.preprocess(q['question'])
-
     q['question_pruning'] = utils.pruning_vector(q['question_preprocessed'])
-
-    q['extracted_lists'], q['question_preprocessed'] = utils.extract_lists(q['question_preprocessed'])
-    q['extracted_equations'], q['question_preprocessed'] = utils.extract_equations(q['question_preprocessed'])
-
-    # if len(q['extracted_lists']) > 0 or len(q['extracted_equations']) > 0:
-    #     print(q['question'])
-    #     print(q['question_preprocessed'])
-    #     print(q['extracted_lists'])
-    #     print(q['extracted_equations'])
+    q['question_predefined_patterns'], q['question_preprocessed'] = utils.extract_predefined_patterns(q['question_preprocessed'])
 
     # 풀이 과정에서 literal을 추출하여 문제를 템플릿화
     strset = set()
@@ -56,7 +47,7 @@ def build_template(q):
         for line in q[fn]:
             strset |= find_literals(line, q['question_preprocessed'])
 
-    discard_keywords = ['vars', 'x', 'print', 'argmin', 'argmax', 'len', 'min', 'max', 'math', 'floor']
+    discard_keywords = ['vars', 'x', 'print', 'argmin', 'argmax', 'len', 'min', 'max', 'math', 'floor', 'True', 'False']
     for k in discard_keywords:
         strset.discard(k)
 
@@ -92,6 +83,7 @@ def build_template(q):
                 eq = re.sub(r'(^|[^@])(\b' + re.escape(q['template_wildcards'][key]) + r'\b)', f'\\g<1>{key}', eq)
             q['template_'+fn].append(eq)
 
+    # wildcard 치환으로 인해서 tag 정보가 잘못 추출되는 경우가 발생, 원래 문장을 이용해서 추출한 tag으로 수정해준다.
     q['template_tags'] = tagging.pos_tagging(q['template'])
     original_tags = tagging.pos_tagging(utils.preprocess(q['question_original']))
     score, assignments, correspondence = tagging.match_to_template_tags(q['template_tags'], original_tags)
@@ -103,16 +95,7 @@ def build_template(q):
                 tag = list(q['template_tags'][c[0]-1])
                 tag[1] = original_tags[c[1]-1][1]
                 q['template_tags'][c[0]-1] = tuple(tag)
-
     
-    # # 추가된 필드 출력
-    # print(q['template'])
-    # print(q['template_lists'])
-    # print(q['template_equation'])
-    # print(q['template_code'])
-    # print(q['template_objective'])
-    # print(q['template_values'])
-    # print(q['template_types'])
     return
 
 def load_dataset_json():
