@@ -26,7 +26,7 @@ def find_literals(line, question):
     strset = set(strlist)
     return strset
 
-def build_template(q):
+def build_template(q, is_phrase=False):
     # print(' ')
     if 'question' not in q:
         print('empty question error.')
@@ -96,6 +96,9 @@ def build_template(q):
                 tag[1] = original_tags[c[1]-1][1]
                 q['template_tags'][c[0]-1] = tuple(tag)
     
+    if is_phrase:
+        q['template_tags'] = [('', 'PADDING', 0, 0), *q['template_tags'], ('', 'PADDING', 0, 0)]
+        
     return
 
 def load_dataset_json():
@@ -125,11 +128,11 @@ def load_dataset_csv(filename):
 
     return dataset_csv
 
-def load_dataset_google_sheets(sheetname):
+def load_dataset_google_sheets(sheetname, is_phrase=False):
     dataset = dataset_google_sheets.load_dataset(sheetname)
     
     for q in dataset:
-        build_template(q)
+        build_template(q, is_phrase)
 
     return dataset
 
@@ -138,9 +141,13 @@ def load_dataset_google_sheets(sheetname):
 print('loading dataset...', end=' ')
 # load_dataset_json()
 # dataset_csv = load_dataset_csv('dataset.csv')
-dataset_google_drive = load_dataset_google_sheets('선생님문제모음')
+dataset_google_sentences_teacher = load_dataset_google_sheets('선생님문제모음')
+dataset_google_phrases = load_dataset_google_sheets('Phrase매칭', is_phrase=True)
 # dataset_csv_qanda = load_dataset_csv('dataset_qanda.csv')
 # datasets_all = [dataset_csv] #, dataset.dataset_csv_qanda] # 사용할 데이터셋
-datasets_all = [dataset_google_drive] #, dataset.dataset_csv_qanda] # 사용할 데이터셋
+dataset_sentences = []
+dataset_sentences.extend(dataset_google_sentences_teacher) #, dataset.dataset_csv_qanda] # 사용할 데이터셋
+dataset_phrases = []
+dataset_phrases.extend(dataset_google_phrases)
 
 print('done.')

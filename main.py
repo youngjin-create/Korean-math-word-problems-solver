@@ -17,7 +17,7 @@ def solve_mwp(problem):
     # 여러가지 방법을 이용하여 자연어로 된 문제를 수학적 표현으로 변환
     distance, statements = rulebased.match(problem)
     if distance == None:
-        distance, statements = template.find_template(problem)
+        distance, statements = template.match(problem)
 
     # 변환된 수학적 표현을 풀어서 python code 형태로 답을 구함
     answer, derivation = math_solver.solve(statements, time_limit_sec=99999)

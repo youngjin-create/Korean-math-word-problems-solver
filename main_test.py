@@ -21,7 +21,7 @@ def solve_mwp(problem):
     # 여러가지 방법을 이용하여 자연어로 된 문제를 수학적 표현으로 변환
     distance, statements = rulebased.match(problem)
     if distance == None:
-        distance, statements = template.find_template(problem)
+        distance, statements = template.match(problem)
 
     # 변환된 수학적 표현을 풀어서 python code 형태로 답을 구함
     answer, derivation = math_solver.solve(statements, time_limit_sec=99999)
@@ -56,9 +56,9 @@ def debug_one_question(question, q_number=0):
     closest_k = ''
     for k in problem['closest_k']:
         closest_k += k[1]['id'] + ' ({:.2f}) '.format(k[0]) + k[1]['template'] + '\n'
-    result_row = [problem['id'], problem['question'], problem['question_preprocessed'], problem['extracted_lists'], problem['extracted_mapping'], problem['extracted_equations'],
+    result_row = [problem['id'], problem['question'], problem['question_preprocessed'], problem['question_predefined_patterns'],
         problem['best_template_distance'], problem['best_template']['template'], problem['best_template_assignment'], problem['statements'], closest_k,
-        code, answer, '{0:.0f}'.format(time.time() - problem_time)]
+        code, answer, '{0:.2f}'.format(time.time() - problem_time)]
 
     with open('test_results.csv', 'a', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=',', quotechar='"')
@@ -72,10 +72,7 @@ def f(arg1, arg2):
     return arg1 + arg2
 
 def debug_all_questions():
-    # with Pool(4) as p:
-    #     print(p.starmap(f, [(1, 2), (2, 3), (3, 4)]))
-    # return
-    test = dataset.dataset_google_drive#[:40]
+    test = dataset.dataset_google_sentences_teacher#[:40]
     with Pool(32) as p:
         results = p.starmap(debug_one_question, [(q['question_original'], q['id']) for q in test])
     print('elapsed time = {0:.0f} seconds.'.format(time.time() - start_time))
@@ -84,13 +81,7 @@ def debug_all_questions():
 
     return results
 
-    # for q_number, q in enumerate(dataset.dataset_csv):
-    #     # if q_number % 10 != 0:
-    #         # continue
-    #     debug_one_question(q['question_original'], q['id'])
-    #     print('elapsed time = {0:.0f} seconds.'.format(time.time() - start_time))
+results = debug_all_questions()
 
-# results = debug_all_questions()
-
-debug_one_question('50m 달리기 시합에서 상희는 7초, 민아는 13초, 선호는 5초를 기록했습니다. 민아는 몇 등인가요?')
+# debug_one_question('학생들이 몸무게를 비교하고 있습니다. 석진이는 호석이보다 무겁고 지민이보다 가볍습니다. 남준이는 지민이보다 무겁습니다. 4명 중 가장 가벼운 사람은 누구입니까?')
 # %%
