@@ -12,6 +12,9 @@ re_number = re.compile(r'[0-9]+([.][0-9]+)?(/[0-9]+([.][0-9]+)?)?')
 re_string = re.compile(r'\(\w\)')
 re_equation = re.compile('[0-9A-Z][0-9A-Z\.\+\-\*\/\(\)=<> ]*=[0-9A-Z\.\+\-\*\/\(\)=<> ]*[0-9A-Z]') # 등호(=)를 포함하는 식
 
+def add_paddings(tags):
+    return [('', 'PADDING', 0, 0), *tags, ('', 'PADDING', 0, 0)]
+
 # 템플릿 매칭을 위한 사용자 정의 태그 : WILDCARD, WILDCARD_NUM, WILDCARD_STR, NUMBER, STRING, EQUATION, NUMBERS, STRINGS, MAPPING
 def pos_tagging(text, join=None):
     global re_number
@@ -165,8 +168,10 @@ def match_to_template_tags(template_tags, question_tags, visualize=False):
     tracks2 = np.zeros([len_t+1, len_q+1], dtype=int)
     match_to_template_tags_jit(len_t, len_q, score_table, scores, tracks1, tracks2)
 
-    correspondence = []
     assignments = dict()
+    span = [None, None]
+    
+    correspondence = []
     i1, i2 = len_t, len_q
     while True:
         if i1 == -1000000 or i2 == -1000000:
@@ -178,6 +183,10 @@ def match_to_template_tags(template_tags, question_tags, visualize=False):
                     assignments[name] = set()
                 assignments[name].add(question_tags[i2-1])
                 # assignments[name] = question_tags[i2-1]
+        if template_tags[i1-1][1] != 'PADDING':
+            span[0] = i2-1
+            if span[1] == None:
+                span[1] = i2
         correspondence.append((i1, i2, scores[i1,i2]))
         i1, i2 = tracks1[i1][i2], tracks2[i1][i2]
 
@@ -209,7 +218,8 @@ def match_to_template_tags(template_tags, question_tags, visualize=False):
             last = match
         print('matching score = {:0.2f}'.format(scores[-1][-1]))
 
-    return scores[-1][-1], assignments, correspondence
+    # return scores[-1][-1], assignments, correspondence
+    return scores[-1][-1], assignments, span
 
 # %%
 if __name__== "__main__": # 모듈 단독 테스트
@@ -218,9 +228,12 @@ if __name__== "__main__": # 모듈 단독 테스트
 
 # %%
 if __name__== "__main__": # 모듈 단독 테스트
-    score, assignments, _ = match_to_template_tags(
-        pos_tagging('두 수의 곱은 #1이고,'),
-        pos_tagging('두 수 A와 B의 최대공약수는 9이고 두 수의 곱은 810입니다. 두 수의 최소공배수를 구하세요.'),
+    score, assignments, span = match_to_template_tags(
+        # add_paddings(pos_tagging('비행기에 #1명이 타고 있습니다.')),
+        # add_paddings(pos_tagging('그 중 #1명이 내렸습니다.')),
+        add_paddings(pos_tagging('비행기에 타고 있는 인원은 얼마입니까?')),
+        pos_tagging('비행기에 351명이 타고 있습니다. 그 중 158명이 내렸습니다. 비행기에 타고 있는 인원은 얼마입니까?'),
         visualize=True)
     print(score)
     print(assignments)
+    print(span)
