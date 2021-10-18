@@ -6,6 +6,7 @@ import re
 import utils
 import tagging
 import dataset_google_sheets
+import pickle
 
 dataset_json = []
 
@@ -139,15 +140,34 @@ def load_dataset_google_sheets(sheetname, is_phrase=False):
 
 # %%
 print('loading dataset...', end=' ')
+
+
 # load_dataset_json()
 # dataset_csv = load_dataset_csv('dataset.csv')
+
+############### SAVE DATA #############
 dataset_google_sentences_teacher = load_dataset_google_sheets('선생님문제모음')
 dataset_google_phrases = load_dataset_google_sheets('Phrase매칭', is_phrase=True)
 # dataset_csv_qanda = load_dataset_csv('dataset_qanda.csv')
 # datasets_all = [dataset_csv] #, dataset.dataset_csv_qanda] # 사용할 데이터셋
+
+# loaded_data = { 
+#     'dataset_google_sentences_teacher' : dataset_google_sentences_teacher,
+#     'dataset_google_sheets' : dataset_google_phrases
+# }
+# with open('data.pickle', 'wb') as f:
+#     pickle.dump(loaded_data, f, pickle.HIGHEST_PROTOCOL)
+
+############## LOADING DATA ###############
+# with open('data.pickle', 'rb') as f:
+#     loaded_data = pickle.load(f)
+# dataset_google_sentences_teacher = loaded_data['dataset_google_sentences_teacher']
+# dataset_google_phrases = loaded_data['dataset_google_sheets']
+
 dataset_sentences = []
 dataset_sentences.extend(dataset_google_sentences_teacher) #, dataset.dataset_csv_qanda] # 사용할 데이터셋
 dataset_phrases = []
 dataset_phrases.extend(dataset_google_phrases)
+
 
 print('done.')

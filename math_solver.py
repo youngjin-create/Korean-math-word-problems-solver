@@ -233,8 +233,17 @@ def do_math(statements):
         pass
 
     if len(statements['equation']) > 0 and len(statements['objective']) > 0:
-        equations = re.split(r'[\r\n]+', statements['equation'][0])
+
+        #equations = re.split(r'[\r\n]' , statements['equation'][0])
         # equations = statements['equation'][0].split('\r\n')
+
+        equations = []
+        for item in statements['equation']:
+            splitted_item = re.split(r'[\r\n]' , item)
+            for eq_token in splitted_item:
+                if eq_token != '':
+                    equations.append(eq_token)
+
         objective = statements['objective'][0]
         code = statements['code'][0]
 
