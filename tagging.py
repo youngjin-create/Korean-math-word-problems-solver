@@ -189,6 +189,7 @@ def match_to_template_tags(template_tags, question_tags, visualize=False):
                 span[1] = i2
         correspondence.append((i1, i2, scores[i1,i2]))
         i1, i2 = tracks1[i1][i2], tracks2[i1][i2]
+    span[0] = max(span[0], 0)
 
     # def backtrack(i1, i2):
     #     if i1 == -1000000 or i2 == -1000000:
@@ -218,21 +219,22 @@ def match_to_template_tags(template_tags, question_tags, visualize=False):
             last = match
         print('matching score = {:0.2f}'.format(scores[-1][-1]))
 
-    # return scores[-1][-1], assignments, correspondence
-    return scores[-1][-1], assignments, span
+    return scores[-1][-1], assignments, correspondence, span
 
 # %%
 if __name__== "__main__": # 모듈 단독 테스트
-    q = '#1에서 22를 뺀 값은 11입니다. $1이는 지민이보다 무겁습니다. 이 사람보다 무거운 사람은?'
+    q = '키가 큰 순서대로 줄을 서려고 합니다. 준수는 재중이보다 작고, 재중이는 창민이보다 작습니다. 윤호는 재중이보다 크지만 창민이보다 작습니다. 두번째로 줄을 서는 사람은 누구입니까?'
     print(pos_tagging(q))
 
 # %%
 if __name__== "__main__": # 모듈 단독 테스트
-    score, assignments, span = match_to_template_tags(
+    score, assignments, correspondence, span = match_to_template_tags(
         # add_paddings(pos_tagging('비행기에 #1명이 타고 있습니다.')),
         # add_paddings(pos_tagging('그 중 #1명이 내렸습니다.')),
-        add_paddings(pos_tagging('비행기에 타고 있는 인원은 얼마입니까?')),
-        pos_tagging('비행기에 351명이 타고 있습니다. 그 중 158명이 내렸습니다. 비행기에 타고 있는 인원은 얼마입니까?'),
+        # add_paddings(pos_tagging('비행기에 타고 있는 인원은 얼마입니까?')),
+        # pos_tagging('비행기에 351명이 타고 있습니다. 그 중 158명이 내렸습니다. 비행기에 타고 있는 인원은 얼마입니까?'),
+        add_paddings(pos_tagging('4명 중 가장 가벼운 사람은 누구입니까?')),
+        pos_tagging('학생들이 몸무게를 비교하고 있습니다. 석진이는 호석이보다 무겁고 지민이보다 가볍습니다. 남준이는 지민이보다 무겁습니다. 4명 중 가장 가벼운 사람은 누구입니까?'),
         visualize=True)
     print(score)
     print(assignments)

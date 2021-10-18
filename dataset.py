@@ -87,7 +87,7 @@ def build_template(q, is_phrase=False):
     # wildcard 치환으로 인해서 tag 정보가 잘못 추출되는 경우가 발생, 원래 문장을 이용해서 추출한 tag으로 수정해준다.
     q['template_tags'] = tagging.pos_tagging(q['template'])
     original_tags = tagging.pos_tagging(utils.preprocess(q['question_original']))
-    score, assignments, correspondence = tagging.match_to_template_tags(q['template_tags'], original_tags)
+    score, assignments, correspondence, _ = tagging.match_to_template_tags(q['template_tags'], original_tags)
     for c in correspondence:
         if c[0] <= 0 or c[1] <= 0:
             continue
@@ -98,7 +98,8 @@ def build_template(q, is_phrase=False):
                 q['template_tags'][c[0]-1] = tuple(tag)
     
     if is_phrase:
-        q['template_tags'] = [('', 'PADDING', 0, 0), *q['template_tags'], ('', 'PADDING', 0, 0)]
+        q['template_tags'] = tagging.add_paddings(q['template_tags'])
+        # q['template_tags'] = [('', 'PADDING', 0, 0), *q['template_tags'], ('', 'PADDING', 0, 0)]
         
     return
 

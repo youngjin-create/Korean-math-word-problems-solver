@@ -17,7 +17,7 @@ def find_closest(problem):
         if (len(template['question_predefined_patterns']['equations']) > 0) != (len(problem['question_predefined_patterns']['equations']) > 0):
             continue
         # distance, assignments = match_to_template(problem['question_preprocessed'], template)
-        distance, assignments, _ = tagging.match_to_template_tags(template['template_tags'], problem['question_tags'])
+        distance, assignments, _, _ = tagging.match_to_template_tags(template['template_tags'], problem['question_tags'])
         if distance < closest_distance:
             closest_distance, best_pattern, best_assignments = distance, template, assignments
 
@@ -31,8 +31,7 @@ def find_phrases(problem):
     len_q = len(problem['question_tags'])
     matches = [[(float('inf'), None, None) for i in range(0, len_q+1)] for j in range(0, len_q+1)]
     for template in dataset.dataset_phrases:
-        distance, assignments, correspondence = tagging.match_to_template_tags(template['template_tags'], problem['question_tags'])
-        span = [1, 2]
+        distance, assignments, _, span = tagging.match_to_template_tags(template['template_tags'], problem['question_tags'])
         if distance < matches[span[0]][span[1]][0]:
             matches[span[0]][span[1]] = (distance, template, assignments)
 
