@@ -158,23 +158,31 @@ def find_answer_in_inequality2(equations):
     # start = time.time()
     field = {}
     equations = list(map(lambda x: x.replace(' ', ''), equations))
-    variable_list = set(itertools.chain.from_iterable( map(lambda x: re.split('>|<', x), equations)))   
+    whole_variable_list = set(itertools.chain.from_iterable( map(lambda x: re.split('>|<|=', x), equations))) 
 
     # 부등호 refinement
-    expressions = ['('+x+')' for x in equations]
+    expressions = ['(' + x.replace('=','==') +')' for x in equations]
     for i in range(0,len(expressions)): 
-        for v in variable_list:
+        for v in whole_variable_list:
             expressions[i] = expressions[i].replace(v, 'field[\''+v+'\']')
 
+    # Equal equations list 
+    equal_eq = dict(map(lambda y: y.split('='), list(filter(lambda x: '=' in x, equations))))
+    equal_eq_list = set(equal_eq.keys())
+
+    variable_list = whole_variable_list - equal_eq_list 
     num_variables = len(variable_list) 
     possible_answer = list(itertools.permutations(list(range(num_variables)))) # 모든 경우의 수
-
 
     for answer in possible_answer:
         # 변수 할당
         for name, value in zip(variable_list, answer):
             field[name] = value
-        
+
+        # Equal 변수 할당
+        for name in equal_eq_list:
+            field[name] = field[equal_eq[name]]
+
         # Evaluation
         num_solve = 0
         for e in expressions:
@@ -195,6 +203,7 @@ def find_answer_in_inequality2(equations):
     # stop = time.time()
     # print("Worst Time:", stop - start)
     return field
+
 
 
 
