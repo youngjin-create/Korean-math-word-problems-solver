@@ -105,7 +105,7 @@ def match_word_tags(t_tag, q_tag):
     elif t_tag[1] == 'NONE' or q_tag[1] == 'NONE': # 매칭되는 단어가 없어서 스킵할 경우
         s = 0.6
     elif t_tag[1] == 'WILDCARD':
-        if q_tag[1][0] == 'N' or q_tag[1] == 'SL': # WILDCARD는 단어 또는 숫자에 매칭 가능
+        if q_tag[1][0] == 'N' or q_tag[1] == 'SL' or q_tag[1] == 'VA+ETM': # WILDCARD는 단어 또는 숫자에 매칭 가능
             s = 0.0
         else:
             s = 1000000.0
@@ -115,7 +115,7 @@ def match_word_tags(t_tag, q_tag):
         else:
             s = 1000000.0
     elif t_tag[1] == 'WILDCARD_STR':
-        if q_tag[1] != 'NUMBER' and (q_tag[1][0] == 'N' or q_tag[1] == 'SL'):
+        if q_tag[1] != 'NUMBER' and (q_tag[1][0] == 'N' or q_tag[1] == 'SL' or q_tag[1] == 'VA+ETM'):
             s = 0.0
         else:
             s = 1000000.0
@@ -233,8 +233,10 @@ if __name__== "__main__": # 모듈 단독 테스트
         # add_paddings(pos_tagging('그 중 #1명이 내렸습니다.')),
         # add_paddings(pos_tagging('비행기에 타고 있는 인원은 얼마입니까?')),
         # pos_tagging('비행기에 351명이 타고 있습니다. 그 중 158명이 내렸습니다. 비행기에 타고 있는 인원은 얼마입니까?'),
-        add_paddings(pos_tagging('4명 중 가장 가벼운 사람은 누구입니까?')),
-        pos_tagging('학생들이 몸무게를 비교하고 있습니다. 석진이는 호석이보다 무겁고 지민이보다 가볍습니다. 남준이는 지민이보다 무겁습니다. 4명 중 가장 가벼운 사람은 누구입니까?'),
+        # add_paddings(pos_tagging('4명 중 가장 가벼운 사람은 누구입니까?')),
+        # pos_tagging('학생들이 몸무게를 비교하고 있습니다. 석진이는 호석이보다 무겁고 지민이보다 가볍습니다. 남준이는 지민이보다 무겁습니다. 4명 중 가장 가벼운 사람은 누구입니까?'),
+        pos_tagging('$1구슬과 $2구슬, $3구슬을 모두 합하면 #1개입니다. $4구슬은 $5구슬보다 #2개가 많고, $6구슬은 #3개일 때 $7구슬은 몇 개입니까?'),
+        pos_tagging('빨간 구슬과 노란 구슬, 파란 구슬을 모두 합하면 100개입니다. 노란 구슬은 파란 구슬보다 5개가 많고, 파란 구슬은 23개일 때 빨간 구슬은 몇 개입니까?'),
         visualize=True)
     print(score)
     print(assignments)
