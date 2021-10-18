@@ -183,7 +183,7 @@ def match_to_template_tags(template_tags, question_tags, visualize=False):
                     assignments[name] = set()
                 assignments[name].add(question_tags[i2-1])
                 # assignments[name] = question_tags[i2-1]
-        if template_tags[i1-1][1] != 'PADDING':
+        if i1 > 0 and template_tags[i1-1][1] != 'PADDING':
             span[0] = i2-1
             if span[1] == None:
                 span[1] = i2

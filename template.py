@@ -25,7 +25,7 @@ def find_closest(problem):
 
     problem['closest_k'] = sorted(dists, key=lambda x: x[0])[:10]
 
-    return closest_distance, best_pattern, best_assignments
+    return closest_distance, [(best_pattern, best_assignments)]
 
 def find_phrases(problem):
     len_q = len(problem['question_tags'])
@@ -35,33 +35,37 @@ def find_phrases(problem):
         if distance < matches[span[0]][span[1]][0]:
             matches[span[0]][span[1]] = (distance, template, assignments)
 
-    return
+    scores = np.zeros([len_q+1])
+    tracks = np.zeros([len_q+1], dtype=int)
+
+    scores[0] = 0
+    tracks[0] = -1
+    for e in range(1, len_q+1):
+        scores[e] = scores[e-1] + 0.6
+        tracks[e] = e-1
+        for s in range(0, e):
+            if scores[e] > scores[s] + matches[s][e][0]:
+                scores[e] = scores[s] + matches[s][e][0]
+                tracks[e] = s
+
+    template_assignment_list = []
+
+    pos = len_q
+    while pos >= 0 and tracks[pos] >= 0:
+        # print(pos)
+        # print(scores[pos])
+        # print(matches[tracks[pos]][pos])
+        if matches[tracks[pos]][pos][0] != float('inf'):
+            print(matches[tracks[pos]][pos][1]['template'], matches[tracks[pos]][pos][2])
+            template_assignment_list.append((matches[tracks[pos]][pos][1], matches[tracks[pos]][pos][2]))
+        pos = tracks[pos]
+
+    return scores[-1], template_assignment_list
     # return closest_distance, best_pattern, best_assignments
 
-def match(problem):
-    problem['pruning_vector'] = utils.pruning_vector(problem['question_preprocessed'])
-
-    problem['question_predefined_patterns'], problem['question_preprocessed'] = utils.extract_predefined_patterns(problem['question_preprocessed'])
-
-    problem['question_tags'] = tagging.pos_tagging(problem['question_preprocessed'])
-
-    distance, matched, assignments = find_closest(problem)
-    # find_phrases(problem)
-
-    print(f'best match distance = {distance}')
-    print(f'best match template = {matched}')
-    print(f'best match template candidate assigments = {assignments}')
-    for key in assignments:
-        assignments[key] = list(assignments[key])[0][0]
-    print(f'best match template final assigments = {assignments}')
-    print('extracted predefined patterns = ' + str(problem['question_predefined_patterns']))
-
-    problem['best_template_distance'] = distance
-    problem['best_template'] = matched
-    problem['best_template_assignment'] = assignments
-
-    # 매칭된 템플릿을 이용하여 statements(lists, equation, code, objective) 구성
-    # statements는 풀이과정과 답안을 구하기 위한 충분정보가 포함되어야 한다.
+# 매칭된 템플릿을 이용하여 statements(lists, equation, code, objective) 구성
+# statements는 풀이과정과 답안을 구하기 위한 충분정보가 포함되어야 한다.
+def compile_statements(problem, template_assignment_list):
     statements = dict()
     field_names = ['equation', 'code', 'objective']
     for fn in field_names:
@@ -71,15 +75,49 @@ def match(problem):
             statements['code'].append(key + '=' + str(problem['question_predefined_patterns']['lists'][key]))
         for eq in problem['question_predefined_patterns']['equations']:
             statements['equation'].append(eq)
-    for fn in field_names:
-        if 'template_'+fn not in matched:
-            continue
-        for line in matched['template_'+fn]:
-            for key in assignments:
-                line = re.sub(f'({re.escape(key)})($|\D)', assignments[key] + '\\g<2>', line)
-            statements[fn].append(line)
+    for item in reversed(template_assignment_list):
+        matched, assignments = item[0], item[1]
+        for fn in field_names:
+            if 'template_'+fn not in matched:
+                continue
+            for line in matched['template_'+fn]:
+                for key in assignments:
+                    st = list(assignments[key])[0][0] if type(assignments[key]) == set else assignments[key]
+                    # line = re.sub(f'({re.escape(key)})($|\D)', assignments[key] + '\\g<2>', line)
+                    line = re.sub(f'({re.escape(key)})($|\D)', st + '\\g<2>', line)
+                if line != '':
+                    statements[fn].append(line)
+    return statements
+
+def match(problem):
+    problem['pruning_vector'] = utils.pruning_vector(problem['question_preprocessed'])
+
+    problem['question_predefined_patterns'], problem['question_preprocessed'] = utils.extract_predefined_patterns(problem['question_preprocessed'])
+
+    problem['question_tags'] = tagging.pos_tagging(problem['question_preprocessed'])
+
+    # distance, matched, assignments = find_closest(problem)
+    distance, matches = find_closest(problem)
+    distance_phrases, matches_phrases = find_phrases(problem)
+
+    print('extracted predefined patterns = ' + str(problem['question_predefined_patterns']))
+
+    print(f'\033[33mbest match sentence\033[0;0m')
+    print(f'{distance} {matches}')
+    print(f'\033[33mbest match phrases\033[0;0m')
+    print(f'{distance_phrases} {matches_phrases}')
+
+    if distance_phrases < distance:
+        matches = matches_phrases
+
+    problem['best_template_distance'] = distance
+    problem['best_template'] = [x[0]['template'] for x in matches]
+    problem['best_template_assignment'] = [x[1] for x in matches]
+
+    statements = compile_statements(problem, matches)
 
     print(f'statements = {statements}')
     problem['statements'] = statements
 
     return distance, statements
+
