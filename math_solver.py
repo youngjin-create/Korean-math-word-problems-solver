@@ -45,7 +45,7 @@ def find_answer_using_sympy(substitued_equations):
     variables = set()
     for equation in substitued_equations:
          # 한글 단어들을 변수로 설정
-         vars = re.compile('[가-힣]+|[A-Za-z]').findall(equation)
+         vars = re.compile('[가-힣]+|[A-Za-z]+').findall(equation)
          variables.update(vars)
 
     var_symbol_list = []
@@ -53,7 +53,8 @@ def find_answer_using_sympy(substitued_equations):
         var_symbol_list.append(Symbol(var))
 
     # sympy를 이용한 방정식 풀이
-    eq_dict = sympy.solve(substitued_equations, var_symbol_list, dict=True)[0]
+    sol = sympy.solve(substitued_equations, var_symbol_list, dict=True)
+    eq_dict = sol[0] if sol != [] else {}
 
     return eq_dict
 
@@ -204,165 +205,153 @@ def find_answer_in_inequality2(equations):
     # print("Worst Time:", stop - start)
     return field
 
-
-
-
 def solution_code_generate(equations, eq_dict, objective, code):
     answer_str = "vars = dict()\n"
     for key, value in eq_dict.items():
-        answer_str+= "vars['" + str(key) + "']" + "=" + str(value) + "\n"
+        answer_str += "vars['" + str(key) + "']" + "=" + str(value) + "\n"
 
     # math와 itertools 라이브러리는 기본으로 추가
     answer_str += "import math\n"
     answer_str += "import itertools\n"
 
-    # code가 없는 경우
-    if len(code) == 0:
-        answer_str += "if "
-        for index, equation in enumerate(equations):
-            replaced_str = equation.replace("=","==")
-
-            vars = re.compile('\(?[가-힣]+\)?|[A-Za-z]').findall(replaced_str)
-            for var in vars:
-                replaced_str = replaced_str.replace(var, "vars['" + var + "']")
-            answer_str += replaced_str
-
-            if index != (len(equations)-1):
-                answer_str += " and "
-        answer_str += ":\n    "
-        answer_str += "print("+ objective + ")"
-    # code가 있는 경우
-    else:
-        answer_str += code
+    answer_str += "if True"
+    for index, equation in enumerate(equations):
+        replaced_str = equation.replace("=","==")
+        answer_str += " and "
+        vars = re.compile('\(?[가-힣]+\)?|[A-Za-z]').findall(replaced_str)
+        for var in vars:
+            replaced_str = replaced_str.replace(var, "vars['" + var + "']")
+        answer_str += replaced_str
+    answer_str += ":\n    "
+    for c in code:
+        answer_str += '    ' + c
+    answer_str += "print(" + objective + ")"
 
     return answer_str
 
 def expand_term(matchobj):
-  global additional_conditions
+    global additional_conditions
 
-  retval = []
-  term = matchobj.group(0)
-  l = len(term)
-  if l == 1:
-    return term
-  else:
-    for i in range(l):
-      e = l-i-1
-      retval.append("{}*{}".format(10**e, term[i]))
-    if term[0] in string.ascii_uppercase:
-      additional_conditions.append(term[0])
-    return "({})".format('+'.join(retval))
+    retval = []
+    term = matchobj.group(0)
+    l = len(term)
+    if l == 1:
+        return term
+    else:
+        for i in range(l):
+            e = l-i-1
+        retval.append("{}*{}".format(10**e, term[i]))
+        if term[0] in string.ascii_uppercase:
+            additional_conditions.append(term[0])
+        return "({})".format('+'.join(retval))
 
 def solver_digit_var(in_formula):
-  global additional_conditions
+    global additional_conditions
 
-  if isinstance(in_formula, list):
-    eq = ' and '.join(in_formula)
-  elif isinstance(in_formula, str):
-    eq = in_formula
-  else:
-    return None
+    if isinstance(in_formula, list):
+        eq = ' and '.join(in_formula)
+    elif isinstance(in_formula, str):
+        eq = in_formula
+    else:
+        return None
 
-  formula = re.sub('[0-9A-Z]+', expand_term, eq)
-  formula = formula.replace('!=', '<>')
-  formula = formula.replace('=', '==')
-  formula = formula.replace('<>', '!=')
-  for nonzero in additional_conditions:
-    formula = formula + " and {}!=0".format(nonzero)
+    formula = re.sub('[0-9A-Z]+', expand_term, eq)
+    formula = formula.replace('!=', '<>')
+    formula = formula.replace('=', '==')
+    formula = formula.replace('<>', '!=')
+    for nonzero in additional_conditions:
+        formula = formula + " and {}!=0".format(nonzero)
 
-  code = parser.expr(formula).compile()
+    code = parser.expr(formula).compile()
 
-  variables = []
-  for i in string.ascii_uppercase:
-    if eq.find(i) > -1:
-      variables.append(i)
+    variables = []
+    for i in string.ascii_uppercase:
+        if eq.find(i) > -1:
+            variables.append(i)
 
-  retval = []
-  envs = dict()
-  for i in range(0, 10**len(variables)):
-    for v in range(0, len(variables)):
-      envs[variables[v]] = (i % 10**(v+1)) // 10**v
-    if eval(code, envs):
-      r = dict()
-      for v in variables:
-        r[v] = envs[v]
-      retval.append(r)
+    retval = []
+    envs = dict()
+    for i in range(0, 10**len(variables)):
+        for v in range(0, len(variables)):
+            envs[variables[v]] = (i % 10**(v+1)) // 10**v
+        if eval(code, envs):
+            r = dict()
+        for v in variables:
+            r[v] = envs[v]
+        retval.append(r)
 
-  return retval
+    return retval
 
 # 주어진 statements(equation, code 등)에서 실행가능한 python 코드를 생성하고, 실행해서 얻어진 답을 반환한다.
 # statements: equation, code, objective
 def do_math(statements):
-    derivation = []
-    objective = 'x'
+    # if len(statements['equation']) > 0 and len(statements['objective']) > 0:
+    #equations = re.split(r'[\r\n]' , statements['equation'][0])
+    # equations = statements['equation'][0].split('\r\n')
+    equations = []
+    for item in statements['equation']:
+        equations.extend(re.split(r'[\r\n]', item))
+        # splitted_item = re.split(r'[\r\n]' , item)
+        # for eq_token in splitted_item:
+        #     if eq_token != '':
+        #         equations.append(eq_token)
 
-    if 'equation' in statements:
-        pass
+    # 중복값 제거
+    equations = list(set(equations))
 
-    if len(statements['equation']) > 0 and len(statements['objective']) > 0:
+    code = []
+    for item in statements['code']:
+        code.extend(re.split(r'[\r\n]', item))
+    # statements['code'][0] if statements['code'] != [] else ''
 
-        #equations = re.split(r'[\r\n]' , statements['equation'][0])
-        # equations = statements['equation'][0].split('\r\n')
+    objective = statements['objective'][0] if statements['objective'] != [] else ''
 
-        equations = []
-        for item in statements['equation']:
-            splitted_item = re.split(r'[\r\n]' , item)
-            for eq_token in splitted_item:
-                if eq_token != '':
-                    equations.append(eq_token)
-
-        # 중복값 제거
-        equations = list(set(equations))
-
-        objective = statements['objective'][0]
-        code = statements['code'][0]
-
-        # equation과 code가 없는 경우 바로 정답을 print
-        if len(equations) == 0 and code == '':
-            answer_str=""
-            # math와 itertools 라이브러리는 기본으로 추가
-            answer_str += "import math\n"
-            answer_str += "import itertools\n"
-            answer_str += "print(" + objective + ")"
-        else:
-            # 1. sympy solver로 풀이 시도
-            answer_str=''
+    # equation과 code가 없는 경우 바로 정답을 print
+    if len(equations) == 0 and len(code) == '':
+        answer_str = ""
+        # math와 itertools 라이브러리는 기본으로 추가
+        answer_str += "import math\n"
+        answer_str += "import itertools\n"
+        answer_str += "print(" + objective + ")"
+    else:
+        # 1. sympy solver로 풀이 시도
+        answer_str=''
+        try:
+            # 수식을 좌변으로 모음
+            substitued_equations = equation_substitution(equations)
+            # sympy를 이용해서 정답을 찾음
+            eq_dict = find_answer_using_sympy(substitued_equations)
+            # 정답을 기반으로 solution 코드를 생성
+            answer_str = solution_code_generate(equations, eq_dict, objective, code)
+        except Exception as e1:
+            print('sympy solver exception')
+        # 2. digit var solver로 풀이 시도
+        if answer_str == '':
+            global additional_conditions
+            additional_conditions = []
             try:
-                # 수식을 좌변으로 모음
-                substitued_equations = equation_substitution(equations)
-                # sympy를 이용해서 정답을 찾음
-                eq_dict = find_answer_using_sympy(substitued_equations)
-                # 정답을 기반으로 solution 코드를 생성
+                field = solver_digit_var(equations)
+                eq_dict = field[0]
                 answer_str = solution_code_generate(equations, eq_dict, objective, code)
-            except Exception as e1:
-                print('sympy solver exception')
-            # 2. digit var solver로 풀이 시도
-            if answer_str == '':
-                global additional_conditions
-                additional_conditions = []
-                try:
-                    field = solver_digit_var(equations)
-                    eq_dict = field[0]
-                    answer_str = solution_code_generate(equations, eq_dict, objective, code)
-                except Exception as e2:
-                    print('digit var solver exception')
-            # 3. 부등식 solver로 풀이 시도
-            if answer_str == '':
-                try:
-                    field = find_answer_in_inequality2(equations)
-                    eq_dict = field
-                    answer_str = solution_code_generate(equations, eq_dict, objective, code)
-                except Exception as e3:
-                    print('inequality solver exception')
+            except Exception as e2:
+                print('digit var solver exception')
+        # 3. 부등식 solver로 풀이 시도
+        if answer_str == '':
+            try:
+                field = find_answer_in_inequality2(equations)
+                eq_dict = field
+                answer_str = solution_code_generate(equations, eq_dict, objective, code)
+            except Exception as e3:
+                print('inequality solver exception')
 
     # if 'objective' in statements:
-    if len(statements['objective']) > 0:
-        objective = statements['objective'][0]
+    # if len(statements['objective']) > 0:
+        # objective = statements['objective'][0]
 
     env = dict()
     try:
         exec(answer_str, env, env)
-        answer = eval(objective, env, env)
+        answer = eval(objective, env, env) if objective != '' else '' 
         #print(answer_str)
         return answer, answer_str
 
@@ -395,4 +384,3 @@ def solve(statements, time_limit_sec):
     except Exception as e:
         print("do_math() exception!")
     return answer, derivation
-# %%
