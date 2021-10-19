@@ -54,8 +54,9 @@ def debug_one_question(question, q_number=0):
     #     print(e)
 
     closest_k = ''
-    for k in problem['closest_k']:
-        closest_k += k[1]['id'] + ' ({:.2f}) '.format(k[0]) + k[1]['template'] + '\n'
+    if 'closest_k' in problem:
+        for k in problem['closest_k']:
+            closest_k += k[1]['id'] + ' ({:.2f}) '.format(k[0]) + k[1]['template'] + '\n'
     result_row = [problem['id'], problem['question'], problem['question_preprocessed'], problem['question_predefined_patterns'],
         problem['best_template_distance'], problem['best_template'], problem['best_template_assignment'], problem['statements'], closest_k,
         code, answer, '{0:.2f}'.format(time.time() - problem_time)]
@@ -81,9 +82,10 @@ def debug_all_questions():
 
     return results
 
-# results = debug_all_questions()
+results = debug_all_questions()
 
 # debug_one_question('한 변이 12/5cm인 정삼각형의 둘레는 몇 cm입니까? ')
-debug_one_question('학생들이 몸무게를 비교하고 있습니다. 석진이는 호석이보다 무겁고 지민이보다 가볍습니다. 남준이는 지민이보다 무겁습니다. 4명 중 가장 가벼운 사람은 누구입니까?')
+# debug_one_question('학생들이 몸무게를 비교하고 있습니다. 석진이는 호석이보다 무겁고 지민이보다 가볍습니다. 남준이는 지민이보다 무겁습니다. 4명 중 가장 가벼운 사람은 누구입니까?')
 # debug_one_question('비행기에 351명이 타고 있습니다. 그 중 158명이 내렸습니다. 비행기에 타고 있는 인원은 얼마입니까?')
+# debug_one_question('6에 어떤 수를 곱해야 하는데 잘못하여 어떤 수를 6로 나누었더니 9이 되었습니다. 바르게 계산한 결과를 구하시오.')
 # %%

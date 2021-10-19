@@ -19,8 +19,8 @@ def find_literals(line, question):
     # 단어, 숫자제외
     strlist.extend(re.findall(r'\b[^\d\W]+\b', line))
 
-    # 숫자, @#$으로 시작하지 않는 경우만
-    re_number = r'(^|[^@#$])([0-9]+([.][0-9]+)?(/[0-9]+([.][0-9]+)?)?)' #'[0-9]+(\.[0-9]+)?(\/[0-9]+(\.[0-9]+)?)?'
+    # 숫자, 괄호로 묶인 경우만
+    re_number = r'(\()([0-9]+([.][0-9]+)?(/[0-9]+([.][0-9]+)?)?)(\))' #'[0-9]+(\.[0-9]+)?(\/[0-9]+(\.[0-9]+)?)?'
     for match in re.compile(re_number).finditer(line):
         strlist.append(match.group(2))
 
