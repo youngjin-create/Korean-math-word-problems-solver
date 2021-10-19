@@ -83,6 +83,8 @@ def compile_statements(problem, template_assignment_list):
             for line in matched['template_'+fn]:
                 for key in assignments:
                     st = list(assignments[key])[0][0] if type(assignments[key]) == set else assignments[key]
+                    if key.startswith('@n') and not(st[0].isnumeric()):
+                        st = utils.object_to_number(st)
                     # line = re.sub(f'({re.escape(key)})($|\D)', assignments[key] + '\\g<2>', line)
                     line = re.sub(f'({re.escape(key)})($|\D)', st + '\\g<2>', line)
                 if line != '':
@@ -96,8 +98,8 @@ def match(problem):
 
     problem['question_tags'] = tagging.pos_tagging(problem['question_preprocessed'])
 
-    # distance, matched, assignments = find_closest(problem)
     distance, matches = find_closest(problem)
+    # distance, matches = find_phrases(problem)
     distance_phrases, matches_phrases = find_phrases(problem)
 
     print('extracted predefined patterns = ' + str(problem['question_predefined_patterns']))

@@ -10,6 +10,9 @@ import pickle
 
 dataset_json = []
 
+def is_Korean_number(w):
+    return w in ['삼', '사', '오', '육', '칠', '팔', '구', '십', '십', '십이', '십삼', '십사', '십오', '십육', '십칠', '십팔', '십구', '이십']
+
 def find_literals(line, question):
     strlist = []
 
@@ -24,7 +27,13 @@ def find_literals(line, question):
     for match in re.compile(re_number).finditer(line):
         strlist.append(match.group(2))
 
-    strset = set(strlist)
+    strset = set([x for x in strlist if is_Korean_number(x) == False])
+    return strset
+
+def find_KorNumSpecial(line): # (삼) (사) (오) 특별처리
+    strset = set()
+    for match in re.finditer(r'(\()(삼|사|오|육|칠|팔|구|십|십일|십이|십삼|십사|십오|십육|십칠|십팔|십구|이십)(\))', line):
+        strset.add(match.group(2))
     return strset
 
 def build_template(q, is_phrase=False):
@@ -58,22 +67,39 @@ def build_template(q, is_phrase=False):
     strlist.reverse()
     strlist[:] = [x for x in strlist if len(re.findall(r'(^|\s)(' + re.escape(x) + r')($|\D)', q['question_preprocessed'])) > 0]
     # wildcard dictionary
-    wcs = dict()
+    wcs, wcs_rev = dict(), dict()
     for s in strlist:
         if s[0] in ['@', '#', '$']:
             wcs[s] = s
+            wcs_rev[s] = s
         else:
             prefix = '@n' if utils.literal_type(s) == 'number' else '@s'
             idx = 0
             while prefix+f'{idx}' in wcs.keys():
                 idx += 1
             wcs[prefix+f'{idx}'] = s
+            wcs_rev[s] = prefix+f'{idx}'
     q['template_wildcards'] = wcs
 
     template = q['question_preprocessed']
     for key in q['template_wildcards']:
         template = re.sub(r'(^|\s)(' + re.escape(q['template_wildcards'][key]) + r')($|\D)', f'\\g<1>{key}\\g<3>', template)
     q['template'] = template
+
+    Kornumset = set()
+    for fn in field_names:
+        if fn not in q:
+            continue
+        for line in q[fn]:
+            Kornumset |= find_KorNumSpecial(line) # (삼) (사) (오) 특별처리
+
+    for s in Kornumset:
+        prefix = '@n'
+        idx = 0
+        while prefix+f'{idx}' in wcs.keys():
+            idx += 1
+        wcs[prefix+f'{idx}'] = s
+        wcs_rev[s] = prefix+f'{idx}'
 
     for fn in field_names:
         q['template_'+fn] = []
@@ -96,6 +122,16 @@ def build_template(q, is_phrase=False):
                 tag = list(q['template_tags'][c[0]-1])
                 tag[1] = original_tags[c[1]-1][1]
                 q['template_tags'][c[0]-1] = tuple(tag)
+
+    for idx in range(0, len(q['template_tags'])):
+        for n in Kornumset:
+            tag = q['template_tags'][idx]
+            if tag[0] == n+'각형' or tag[0] == n+'면체' or tag[0] == n+'각뿔' or tag[0] == n+'각기둥' or tag[0] == '정'+n+'각형' or tag[0] == '정'+n+'면체':
+                tag = list(q['template_tags'][idx])
+                q['template'] = q['template'].replace(tag[0], tag[0].replace(n, wcs_rev[n]))
+                tag[1] = 'WILDCARD_OBJECT_' + tag[0].replace(n, '_n_')
+                tag[0] = wcs_rev[n]
+                q['template_tags'][idx] = tuple(tag)
     
     if is_phrase:
         q['template_tags'] = tagging.add_paddings(q['template_tags'])

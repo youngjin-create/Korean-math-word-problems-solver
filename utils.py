@@ -64,6 +64,12 @@ def is_pruning(v1, v2):
         return True
     return False
 
+otn = dict(zip(['삼', '사', '오', '육', '칠', '팔', '구', '십', '십일', '십이', '십삼', '십사', '십오', '십육', '십칠', '십팔', '십구', '이십'], [str(x) for x in list(range(3,21))]))
+def object_to_number(w):
+    for key in otn:
+        if key in w:
+            return otn[key]
+
 # re_number = re.compile(r'[0-9]+([.][0-9]+)?(/[0-9]+([.][0-9]+)?)?')
 re_variable = re.compile(r'[A-Z]')
 

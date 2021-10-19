@@ -126,6 +126,12 @@ def match_word_tags(t_tag, q_tag):
             s = 0.0
         else:
             s = 1000000.0
+    elif t_tag[1].startswith('WILDCARD_OBJECT'):
+        sp = t_tag[1].split('_')
+        if q_tag[0].startswith(sp[2]) and q_tag[0].endswith(sp[4]):
+            s = 0.0
+        else:
+            s = 1000000.0
     elif t_tag[1] == 'SF' or q_tag[1] == 'SF': # 마침표
         s = 0.1
     # POS가 다른 단어끼리 매칭
@@ -185,9 +191,14 @@ def match_to_template_tags(template_tags, question_tags, visualize=False):
             break
         if tracks1[i1][i2] == i1 - 1 and tracks2[i1][i2] == i2 - 1: # 실제 tags사이에 매칭이 일어난 경우 (None과 매칭되지 않고) WILDCARD에 대응되는 값을 assignments에 추가
             if template_tags[i1-1][1].startswith('WILDCARD'):
+                # if template_tags[i1-1][1].startswith('WILDCARD_OBJECT'):
+                    # q_tag = (object_to_num(question_tags[i2-1][0]), question_tags[i2-1]
+                # else:
+                    # q_tag = question_tags[i2-1]
                 name = template_tags[i1-1][0]
                 if name not in assignments:
                     assignments[name] = set()
+                # assignments[name].add(q_tag)
                 assignments[name].add(question_tags[i2-1])
                 # assignments[name] = question_tags[i2-1]
         if i1 > 0 and template_tags[i1-1][1] != 'PADDING':
