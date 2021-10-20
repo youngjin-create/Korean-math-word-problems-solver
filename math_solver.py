@@ -218,9 +218,10 @@ def solution_code_generate(equations, eq_dict, objective, code):
     for index, equation in enumerate(equations):
         replaced_str = equation.replace("=","==")
         answer_str += " and "
-        vars = re.compile('\(?[가-힣]+\)?|[A-Za-z]').findall(replaced_str)
+        vars = re.compile('(([가-힣]+)|(\([가|나|다|라|마|바|사|아|자|차|카|타|파|하]\))|([A-Za-z]))').findall(replaced_str)
         for var in vars:
-            replaced_str = replaced_str.replace(var, "vars['" + var + "']")
+            replaced_str = re.sub(r'\b' + re.escape(var[0]) + r'\b', "vars['" + var[0] + "']", replaced_str)
+            # replaced_str = replaced_str.replace(var[0], "vars['" + var[0] + "']")
         answer_str += replaced_str
     answer_str += ":\n    "
     for c in code:
