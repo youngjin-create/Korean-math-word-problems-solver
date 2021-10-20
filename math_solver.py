@@ -219,7 +219,8 @@ def solution_code_generate(equations, eq_dict, objective, code):
         replaced_str = equation.replace("=","==")
         answer_str += " and "
         for key in eq_dict:
-            replaced_str = re.sub(r'([^\[])(' + re.escape(str(key)) + r')([^\[])', f"\\g<1>vars['{key}']\\g<3>", replaced_str)
+            # replaced_str = re.sub(r'([^\[])(' + re.escape(str(key)) + r')([^\[])', f"\\g<1>vars['{key}']\\g<3>", replaced_str)
+            replaced_str = re.sub(r'\b' + re.escape(str(key)) + r'\b', f"vars['{key}']", replaced_str)
         # vars = re.compile('(([가-힣]+)|(\([가|나|다|라|마|바|사|아|자|차|카|타|파|하]\))|([A-Za-z]))').findall(replaced_str)
         # for var in vars:
         #     replaced_str = re.sub(r'\b' + re.escape(var[0]) + r'\b', "vars['" + var[0] + "']", replaced_str)
@@ -391,5 +392,5 @@ def solve(statements, time_limit_sec):
 
 # %%
 if __name__=="__main__": # 모듈 단독 테스트
-    do_math({'equation': ['(10)*x-(8)=(7)*x+(13)'], 'code': [], 'objective': ["vars['x']"]})
+    do_math({'equation': ['x=(8)+(7)'], 'code': [], 'objective': ["vars['x']"]})
     # do_math({'equation': ['정현이 = 15','영진 = 180 / 15', '경주 = 7 / 2\n'], 'code': [], 'objective': ["vars['정현이']"]})

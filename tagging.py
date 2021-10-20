@@ -95,9 +95,19 @@ def pos_tagging(text, join=None):
     #             tags[i][1] = 'XSN'
 
     for tag in tags:
+        if tag[0] == 'ml' and tag[1] == 'SL':
+            tag[0] = '밀리리터'
+            tag[1] = 'NNBC'
+        if tag[0] == '㎖' and tag[1] == 'SY':
+            tag[0] = '밀리리터'
+            tag[1] = 'NNBC'
         if tag[0] == 'l' and tag[1] == 'SL':
             tag[0] = '리터'
             tag[1] = 'NNBC'
+        if tag[0] == 'ℓ' and tag[1] == 'SY':
+            tag[0] = '리터'
+            tag[1] = 'NNBC'
+
         if tag[0] == 'cm' and tag[1] == 'SL':
             tag[0] = '센티미터'
             tag[1] = 'NNBC'
