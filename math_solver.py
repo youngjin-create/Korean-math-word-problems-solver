@@ -298,8 +298,7 @@ def do_math(statements):
         #         equations.append(eq_token)
 
     # 중복값 제거
-    equations = list(set(equations))
-
+    equations = [x for x in list(set(equations)) if x.strip() != '']
     code = []
     for item in statements['code']:
         code.extend(re.split(r'[\r\n]', item))
@@ -387,3 +386,7 @@ def solve(statements, time_limit_sec):
     except Exception as e:
         print("do_math() exception!")
     return answer, derivation
+
+# %%
+if __name__=="__main__": # 모듈 단독 테스트
+    do_math({'equation': ['정현이 = 15','영진 = 180 / 15', '경주 = 7 / 2\n'], 'code': [], 'objective': ["vars['정현이']"]})
