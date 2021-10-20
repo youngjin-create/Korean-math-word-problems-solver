@@ -103,18 +103,22 @@ def match(problem):
 
     distance, matches = find_closest(problem)
     # distance, matches = find_phrases(problem)
-    distance_phrases, matches_phrases = find_phrases(problem)
+    if len(problem['question']) > 40:
+        distance_phrases, matches_phrases = find_phrases(problem)
 
-    print('extracted predefined patterns = ' + str(problem['question_predefined_patterns']))
+        print('extracted predefined patterns = ' + str(problem['question_predefined_patterns']))
 
-    print(f'\033[33mbest match sentence\033[0;0m')
-    print(f'{distance} {matches}')
-    print(f'\033[33mbest match phrases\033[0;0m')
-    print(f'{distance_phrases} {matches_phrases}')
+        print(f'\033[33mbest match sentence\033[0;0m')
+        print(f'{distance} {matches}')
+        print(f'\033[33mbest match phrases\033[0;0m')
+        print(f'{distance_phrases} {matches_phrases}')
 
-    if distance_phrases < distance:
-        distance = distance_phrases
-        matches = matches_phrases
+        if distance_phrases < distance:
+            distance = distance_phrases
+            matches = matches_phrases
+
+    if matches == None or matches[0][0] == None:
+        return None, []
 
     problem['best_template_distance'] = distance
     problem['best_template'] = [x[0]['template'] for x in matches]

@@ -94,6 +94,36 @@ def pos_tagging(text, join=None):
     #         if tags[i-1][1].startswith('WILDCARD') and tags[i+1][1] == 'JX':
     #             tags[i][1] = 'XSN'
 
+    for tag in tags:
+        if tag[0] == 'l' and tag[1] == 'SL':
+            tag[0] = '리터'
+            tag[1] = 'NNBC'
+        if tag[0] == 'cm' and tag[1] == 'SL':
+            tag[0] = '센티미터'
+            tag[1] = 'NNBC'
+        if tag[0] == 'm' and tag[1] == 'SL':
+            tag[0] = '미터'
+            tag[1] = 'NNBC'
+        if tag[0] == 'km' and tag[1] == 'SL':
+            tag[0] = '킬로미터'
+            tag[1] = 'NNBC'
+
+        if tag[0] == '㎝' and tag[1] == 'SY':
+            tag[0] = '센티미터'
+            tag[1] = 'NNBC'
+        if tag[0] == '㎠' and tag[1] == 'SY':
+            tag[0] = '제곱센티미터'
+            tag[1] = 'NNBC'
+        if tag[0] == '㎤' and tag[1] == 'SY':
+            tag[0] = '세제곱센티미터'
+            tag[1] = 'NNBC'
+        if tag[0] == '㎡' and tag[1] == 'SY':
+            tag[0] = '제곱미터'
+            tag[1] = 'NNBC'
+        if tag[0] == '㎥' and tag[1] == 'SY':
+            tag[0] = '세제곱미터'
+            tag[1] = 'NNBC'
+
     tags = [tuple(x) for x in tags]
 
     return tags

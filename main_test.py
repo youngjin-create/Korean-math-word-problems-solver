@@ -23,11 +23,12 @@ def solve_mwp(problem):
     if distance == None:
         distance, statements = template.match(problem)
 
-    # 변환된 수학적 표현을 풀어서 python code 형태로 답을 구함
-    answer, derivation = math_solver.solve(statements, time_limit_sec=999999)
+    if distance != None:
+        # 변환된 수학적 표현을 풀어서 python code 형태로 답을 구함
+        answer, derivation = math_solver.solve(statements, time_limit_sec=999999)
+        if answer != None:
+            return answer, derivation
 
-    if answer != None:
-        return answer, derivation
     return '0', ['print(0)'] # if failed, print 0
 
 # %%

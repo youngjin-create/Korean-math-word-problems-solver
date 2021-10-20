@@ -17,7 +17,7 @@ def load_dataset(sheetname):
     for row in worksheet.get_all_records(numericise_ignore=['all']):
         row = list(row.values())
         q = dict(id=row[0], type=row[1], question_original=row[2], question=row[3], answer=row[5], equation=row[8], code=row[9], objective=row[10])
-        if q['id'] == 'ID' or q['question'] == '':
+        if q['id'] == 'ID' or (q['question_original'] == '' and q['question'] == ''):
             continue
         dataset.append(q)
 

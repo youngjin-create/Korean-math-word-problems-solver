@@ -38,8 +38,8 @@ def find_KorNumSpecial(line): # (삼) (사) (오) 특별처리
 
 def build_template(q, is_phrase=False):
     # print(' ')
-    if 'question' not in q:
-        print('empty question error.')
+    if 'question' not in q or q['question'] == '':
+        # print('empty question error.')
         return
 
     # q['question_preprocessed'] = utils.preprocess(q['question'])
@@ -160,7 +160,7 @@ def load_dataset_csv(filename):
         reader = csv.reader(csvfile, delimiter=',', quotechar='"')
         for row in reader:
             q = dict(id=row[0], type=row[1], question_original=row[2], question=row[3], answer=row[5], equation=row[8], code=row[9], objective=row[10])
-            if q['id'] == 'ID' or q['question'] == '':
+            if q['id'] == 'ID' or (q['question_original'] == '' and q['question'] == ''):
                 continue
             dataset_csv.append(q)
             # print(q)

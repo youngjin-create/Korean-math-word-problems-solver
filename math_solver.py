@@ -226,9 +226,9 @@ def solution_code_generate(equations, eq_dict, objective, code):
     answer_str += ":\n"
     for c in code:
         answer_str += '    ' + c + '\n'
-    answer_str += "    print(" + objective + ")"
+    objective_str = "    print(" + objective + ")"
 
-    return answer_str
+    return answer_str, objective_str
 
 def expand_term(matchobj):
     global additional_conditions
@@ -323,7 +323,7 @@ def do_math(statements):
             # sympy를 이용해서 정답을 찾음
             eq_dict = find_answer_using_sympy(substitued_equations)
             # 정답을 기반으로 solution 코드를 생성
-            answer_str = solution_code_generate(equations, eq_dict, objective, code)
+            answer_str, objective_str = solution_code_generate(equations, eq_dict, objective, code)
         except Exception as e1:
             print('sympy solver exception')
         # 2. digit var solver로 풀이 시도
@@ -333,7 +333,7 @@ def do_math(statements):
             try:
                 field = solver_digit_var(equations)
                 eq_dict = field[0]
-                answer_str = solution_code_generate(equations, eq_dict, objective, code)
+                answer_str, objective_str = solution_code_generate(equations, eq_dict, objective, code)
             except Exception as e2:
                 print('digit var solver exception')
         # 3. 부등식 solver로 풀이 시도
@@ -341,7 +341,7 @@ def do_math(statements):
             try:
                 field = find_answer_in_inequality2(equations)
                 eq_dict = field
-                answer_str = solution_code_generate(equations, eq_dict, objective, code)
+                answer_str, objective_str = solution_code_generate(equations, eq_dict, objective, code)
             except Exception as e3:
                 print('inequality solver exception')
 
@@ -351,22 +351,24 @@ def do_math(statements):
 
     env = dict()
     try:
-        exec(answer_str, env, env)
-        answer = eval(objective, env, env) if objective != '' else '' 
+        exec(answer_str + objective_str, env, env)
+        answer = eval(objective, env, env) if objective != '' else ''
+
+        if answer != None:
+            if type(answer) == str:
+                objective_in_string = objective
+            elif type(answer) == int or (type(answer) == float and int(answer) == round(answer, 5)):
+                objective_in_string = '"{0:.0f}".format(' + objective + ')'
+            elif type(answer) == float:
+                objective_in_string = '"{0:.2f}".format(' + objective + ')'
+            answer_str += '    print(' + objective_in_string + ')'
+            answer = eval(objective_in_string, env, env)
+
         #print(answer_str)
         return answer, answer_str
 
         # exec('\n'.join(derivation), env, env)
         # answer = eval(objective, env, env)
-        # if answer != None:
-        #     if type(answer) == str:
-        #         objective_in_string = objective
-        #     elif type(answer) == int or (type(answer) == float and int(answer) == round(answer, 5)):
-        #         objective_in_string = '"{0:.0f}".format(' + objective + ')'
-        #     elif type(answer) == float:
-        #         objective_in_string = '"{0:.2f}".format(' + objective + ')'
-        #     derivation.append('print(' + objective_in_string + ')')
-        #     answer = eval(objective_in_string, env, env)
                 
         #     return answer, derivation
     except Exception as e:
