@@ -9,6 +9,8 @@ import utils
 
 re_var = re.compile(r'((@[ns]?|#|\$)[0-9]+)(\D|$)')
 re_number = re.compile(r'[0-9]+([.][0-9]+)?(/[0-9]+([.][0-9]+)?)?')
+re_numvar = re.compile(r'[A-Z]')
+re_numexpr = re.compile(r'[0-9A-Z\(][0-9A-Z\(\)\.\+\-\*\/ ]*[0-9A-Z\)]')
 re_string = re.compile(r'\(\w\)')
 re_equation = re.compile('[0-9A-Z][0-9A-Z\.\+\-\*\/\(\)=<> ]*=[0-9A-Z\.\+\-\*\/\(\)=<> ]*[0-9A-Z]') # 등호(=)를 포함하는 식
 
@@ -43,6 +45,16 @@ def pos_tagging(text, join=None):
         tags = [tag for tag in tags if not(match.span()[0] <= tag[2] and tag[3] <= match.span()[1])]
         tags.append((match.group(), 'NUMBER', match.span()[0], match.span()[1]))
 
+    for match in re_numvar.finditer(text):
+        # print(match)
+        tags = [tag for tag in tags if not(match.span()[0] <= tag[2] and tag[3] <= match.span()[1])]
+        tags.append((match.group(), 'NUMBER', match.span()[0], match.span()[1]))
+
+    for match in re_numexpr.finditer(text):
+        # print(match)
+        tags = [tag for tag in tags if not(match.span()[0] <= tag[2] and tag[3] <= match.span()[1])]
+        tags.append((match.group(), 'NUMBER', match.span()[0], match.span()[1]))
+
     for match in re_string.finditer(text):
         # print(match)
         tags = [tag for tag in tags if not(match.span()[0] <= tag[2] and tag[3] <= match.span()[1])]
@@ -53,10 +65,10 @@ def pos_tagging(text, join=None):
         tags = [tag for tag in tags if not(match.span()[0] <= tag[2] and tag[3] <= match.span()[1])]
         tags.append((match.group(), 'EQUATION', match.span()[0], match.span()[1]))
 
-    for match in re.finditer('@numbers', text):
+    for match in re.finditer('@numbers[0-9]', text):
         tags.append((match.group(), 'NUMBERS', match.span()[0], match.span()[1]))
 
-    for match in re.finditer('@strings', text):
+    for match in re.finditer('@strings[0-9]', text):
         tags.append((match.group(), 'STRINGS', match.span()[0], match.span()[1]))
 
     for match in re.finditer('@mapping', text):
@@ -132,7 +144,7 @@ def match_word_tags(t_tag, q_tag):
             s = 0.0
         else:
             s = 1000000.0
-    elif t_tag[1] == 'SF' or q_tag[1] == 'SF': # 마침표
+    elif t_tag[1] == 'SF' or q_tag[1] == 'SF' or t_tag[1] == 'XSN' or q_tag[1] == 'XSN': # 마침표
         s = 0.1
     # POS가 다른 단어끼리 매칭
     else:

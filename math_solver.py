@@ -223,10 +223,10 @@ def solution_code_generate(equations, eq_dict, objective, code):
             replaced_str = re.sub(r'\b' + re.escape(var[0]) + r'\b', "vars['" + var[0] + "']", replaced_str)
             # replaced_str = replaced_str.replace(var[0], "vars['" + var[0] + "']")
         answer_str += replaced_str
-    answer_str += ":\n    "
+    answer_str += ":\n"
     for c in code:
-        answer_str += '    ' + c
-    answer_str += "print(" + objective + ")"
+        answer_str += '    ' + c + '\n'
+    answer_str += "    print(" + objective + ")"
 
     return answer_str
 

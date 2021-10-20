@@ -10,6 +10,9 @@ def find_closest(problem):
     closest_distance, best_pattern, best_assignments = float('inf'), None, None
     dists = []
     for template in dataset.dataset_sentences:
+        if len(template['objective']) == 0 or (len(template['objective']) == 1 and template['objective'][0] == ''):
+            continue
+
         if utils.is_pruning(template['question_pruning'], problem['pruning_vector']):
             continue
         if template['question_predefined_patterns']['lists'].keys() != problem['question_predefined_patterns']['lists'].keys():
@@ -83,7 +86,7 @@ def compile_statements(problem, template_assignment_list):
             for line in matched['template_'+fn]:
                 for key in assignments:
                     st = list(assignments[key])[0][0] if type(assignments[key]) == set else assignments[key]
-                    if key.startswith('@n') and not(st[0].isnumeric()):
+                    if key.startswith('@n'):# and not(st[0].isnumeric()):
                         st = utils.object_to_number(st)
                     # line = re.sub(f'({re.escape(key)})($|\D)', assignments[key] + '\\g<2>', line)
                     line = re.sub(f'({re.escape(key)})($|\D)', st + '\\g<2>', line)
@@ -110,6 +113,7 @@ def match(problem):
     print(f'{distance_phrases} {matches_phrases}')
 
     if distance_phrases < distance:
+        distance = distance_phrases
         matches = matches_phrases
 
     problem['best_template_distance'] = distance

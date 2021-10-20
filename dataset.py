@@ -42,9 +42,13 @@ def build_template(q, is_phrase=False):
         print('empty question error.')
         return
 
-    q['question_preprocessed'] = utils.preprocess(q['question'])
+    # q['question_preprocessed'] = utils.preprocess(q['question'])
+    # q['question_pruning'] = utils.pruning_vector(q['question_preprocessed'])
+    # q['question_predefined_patterns'], q['question_preprocessed'] = utils.extract_predefined_patterns(q['question_preprocessed'])
+
+    q['question_predefined_patterns'], q['question_preprocessed'] = utils.extract_predefined_patterns(q['question'])
+    q['question_preprocessed'] = utils.preprocess(q['question_preprocessed'])
     q['question_pruning'] = utils.pruning_vector(q['question_preprocessed'])
-    q['question_predefined_patterns'], q['question_preprocessed'] = utils.extract_predefined_patterns(q['question_preprocessed'])
 
     # 풀이 과정에서 literal을 추출하여 문제를 템플릿화
     strset = set()
