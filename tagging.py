@@ -124,6 +124,16 @@ def pos_tagging(text, join=None):
             tag[0] = '세제곱미터'
             tag[1] = 'NNBC'
 
+        if tag[0] == 'g' and tag[1] == 'SL':
+            tag[0] = '그램'
+            tag[1] = 'NNBC'
+        if tag[0] == 'kg' and tag[1] == 'SL':
+            tag[0] = '킬로그램'
+            tag[1] = 'NNBC'
+
+        if len(tag[0]) == 3 and tag[0][2] == '이' and tag[1] == 'NNP':
+            tag[0] = tag[0][0:2]
+
     tags = [tuple(x) for x in tags]
 
     return tags
@@ -283,7 +293,7 @@ def match_to_template_tags(template_tags, question_tags, visualize=False):
 
 # %%
 if __name__== "__main__": # 모듈 단독 테스트
-    q = '키가 큰 순서대로 줄을 서려고 합니다. 준수는 재중이보다 작고, 재중이는 창민이보다 작습니다. 윤호는 재중이보다 크지만 창민이보다 작습니다. 두번째로 줄을 서는 사람은 누구입니까?'
+    q = '지현이의 나이는 12살이고 동생은 지현이보다 3살 적습니다. 어머니의 나이는 동생의 나이의 5배보다 1살이 더 많습니다. 어머니의 나이는 몇 살인가요?'
     print(pos_tagging(q))
 
 # %%
