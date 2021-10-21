@@ -153,19 +153,25 @@ def pos_tagging(text, join=None):
 # w = (str, POS, start, end)의 형식, start, end는 문장에서의 span 시작과 끝 index
 # 이상적으로는 str과 POS값을 모두 고려하여 score를 계산하여야 하지만 일단 POS값을 중요시하여 계산
 # POS값에 따른 score matrix를 생각할 수 있고, 이것을 자동학습 할 수 있으면 좋을듯
-important_words = ['꼭짓점', '꼭지점',
+important_words = [
+    '왼쪽', '오른쪽',
+    '꼭짓점', '꼭지점',
     '삼각형', '사각형', '오각형', '육각형', '칠각형', '팔각형', '직사각형', '마름모', '평행사변형', '사다리꼴', '원', '지름', '반지름', '길이', '둘레', '가로', '세로', '대각선',
     '정삼각형', '정사각형', '정오각형', '정육각형', '정칠각형', '정팔각형',
     '정사면체', '정육면체', '겉넓이', '넓이']
+important_VV = [ '주', '받' ]
 def match_word_tags(t_tag, q_tag):
     global important_words
+    global important_VV
     s = 1.0
     if t_tag[1] == 'PADDING':
         s = -0.000001
     elif t_tag[1] == q_tag[1]: # POS가 같으면 페널티 없음
         if t_tag[0] == q_tag[0]:
             s = 0.0
-        elif q_tag[0] in important_words:
+        elif q_tag[1] == 'VV' and q_tag[0] in important_VV:
+            s = 2
+        elif q_tag[1] != 'VV' and q_tag[0] in important_words:
             s = 2
         else:
             s = 0.1
