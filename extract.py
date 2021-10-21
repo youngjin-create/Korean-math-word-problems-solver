@@ -30,7 +30,7 @@ def extract_lists(q):
         results['numbers'] = [eval(x[0]) for x in items]
         q = q.replace(numbers[0][0], '@numbers').strip()
 
-        q = re.sub(r'^\w+\s+\w+\s+@numbers', '@numbers', q)
+        q = re.sub(r'^\w+\s+\w+\s+(수\s+)?@numbers', '@numbers', q)
 
     global re_strings
     strings = re_strings.findall(q)
@@ -119,7 +119,7 @@ q = '각 학생들이 게임에서 얻은 점수는 다음과 같습니다. 승�
 q = '유정이는 국어, 수학, 사회, 과학 시험 점수를 95점, 80점, 70점, 100점을 받았습니다. 유정이의 시험 평균 점수는 몇 점입니까?'
 q = '100이 2개, 10이 5개, 1이 7개인 수는 무엇입니까?'
 q = '어느 농부는 200㎡의 밭에 감자, 고구마, 무, 배추, 콩을 각각 25%, 30%, 20%, 15%, 10%로 나누어 심었습니다. 고구마를 심은 면적은 무를 심은 면적보다 몇㎡ 더 넓습니까?'
-q = '546/11, 167.22, 393.22/33.44, 283, 181의 5개의 수 중에서 두 수를 골라 차를 구했을 때 차가 두 번째로 크게 되는 식을 세우고 답을 구하세요.'
+q = '다섯 개의 수 546/11, 167.22, 393.22/33.44, 283, 181의 5개의 수 중에서 두 수를 골라 차를 구했을 때 차가 두 번째로 크게 되는 식을 세우고 답을 구하세요.'
 
 if __name__=="__main__": # 모듈 단독 테스트
     predefined_patters, q = extract_predefined_patterns(q)
