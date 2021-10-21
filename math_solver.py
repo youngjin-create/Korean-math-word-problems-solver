@@ -205,7 +205,19 @@ def find_answer_in_inequality2(equations):
     # print("Worst Time:", stop - start)
     return field
 
+lambdas = dict({
+    'divisors': 'divisors = lambda n: [x for x in range(1, n+1) if n % x == 0]',
+    'digits': 'digits = lambda numbers, n: [int(''.join(str(i) for i in x)) for x in itertools.permutations(numbers, n) if x[0] != 0]',
+    'digitsz': 'digitsz = lambda numbers, n: [int(''.join(str(i) for i in x)) for x in itertools.permutations(numbers, n)]',
+    'alldigits': 'alldigits = lambda n: range(10**(n-1), 10**n)',
+    'shiftr': 'shiftr = lambda x, n: x * 10**n',
+    'shiftl': 'shiftl = lambda x, n: x / 10**n',
+    'lcm': 'lcm = lambda x,y: int(x*y/math.gcd(x,y))',
+    'sumdigits': 'sumdigits = lambda n: sum([int(x) for x in list(str(n))])'
+})
+
 def solution_code_generate(equations, eq_dict, objective, code):
+    global lambdas
     answer_str = "vars = dict()\n"
     for key, value in eq_dict.items():
         answer_str += "vars['" + str(key) + "']" + "=" + str(value) + "\n"
@@ -213,6 +225,14 @@ def solution_code_generate(equations, eq_dict, objective, code):
     # math와 itertools 라이브러리는 기본으로 추가
     answer_str += "import math\n"
     answer_str += "import itertools\n"
+
+    temp = ''
+    for c in code:
+        temp += ' ' + c + ' '
+    temp += objective
+    for key in lambdas:
+        if key in temp:
+            answer_str += lambdas[key] + '\n'
 
     answer_str += "if True"
     for index, equation in enumerate(equations):

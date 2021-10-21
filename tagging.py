@@ -159,7 +159,8 @@ important_words = [
     '삼각형', '사각형', '오각형', '육각형', '칠각형', '팔각형', '직사각형', '마름모', '평행사변형', '사다리꼴', '원', '지름', '반지름', '길이', '둘레', '가로', '세로', '대각선',
     '정삼각형', '정사각형', '정오각형', '정육각형', '정칠각형', '정팔각형',
     '정사면체', '정육면체', '겉넓이', '넓이']
-important_VV = [ '주', '받', '넣']
+important_VV = ['주', '받', '넣']
+important_NNG = ['차', '합']
 def match_word_tags(t_tag, q_tag):
     global important_words
     global important_VV
@@ -171,7 +172,9 @@ def match_word_tags(t_tag, q_tag):
             s = 0.0
         elif q_tag[1] == 'VV' and q_tag[0] in important_VV:
             s = 2
-        elif q_tag[1] != 'VV' and q_tag[0] in important_words:
+        elif q_tag[1] == 'NNG' and q_tag[0] in important_NNG:
+            s = 2
+        elif q_tag[0] in important_words:
             s = 2
         else:
             s = 0.1
