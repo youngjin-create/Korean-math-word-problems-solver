@@ -207,8 +207,8 @@ def find_answer_in_inequality2(equations):
 
 lambdas = dict({
     'divisors': 'divisors = lambda n: [x for x in range(1, n+1) if n % x == 0]',
-    'digits': 'digits = lambda numbers, n: [int(''.join(str(i) for i in x)) for x in itertools.permutations(numbers, n) if x[0] != 0]',
-    'digitsz': 'digitsz = lambda numbers, n: [int(''.join(str(i) for i in x)) for x in itertools.permutations(numbers, n)]',
+    'digits': 'digits = lambda ns, n: [int(\'\'.join(str(i) for i in x)) for x in itertools.permutations(ns, n) if x[0] != 0]',
+    'digitsz': 'digitsz = lambda ns, n: [int(\'\'.join(str(i) for i in x)) for x in itertools.permutations(ns, n)]',
     'alldigits': 'alldigits = lambda n: range(10**(n-1), 10**n)',
     'shiftr': 'shiftr = lambda x, n: x * 10**n',
     'shiftl': 'shiftl = lambda x, n: x / 10**n',
