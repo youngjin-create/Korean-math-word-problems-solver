@@ -159,7 +159,7 @@ important_words = [
     '삼각형', '사각형', '오각형', '육각형', '칠각형', '팔각형', '직사각형', '마름모', '평행사변형', '사다리꼴', '원', '지름', '반지름', '길이', '둘레', '가로', '세로', '대각선',
     '정삼각형', '정사각형', '정오각형', '정육각형', '정칠각형', '정팔각형',
     '정사면체', '정육면체', '겉넓이', '넓이']
-important_VV = [ '주', '받' ]
+important_VV = [ '주', '받', '넣']
 def match_word_tags(t_tag, q_tag):
     global important_words
     global important_VV
@@ -178,7 +178,7 @@ def match_word_tags(t_tag, q_tag):
     elif t_tag[0] == q_tag[0]:
         s = 0.1
     elif t_tag[1] == 'NONE' or q_tag[1] == 'NONE': # 매칭되는 단어가 없어서 스킵할 경우
-        s = 0.6
+        s = 0.4
     elif t_tag[1] == 'WILDCARD':
         if q_tag[1][0] == 'N' or q_tag[1] == 'SL' or q_tag[1] == 'VA+ETM': # WILDCARD는 단어 또는 숫자에 매칭 가능
             s = 0.0
@@ -305,7 +305,8 @@ def match_to_template_tags(template_tags, question_tags, visualize=False):
             last = match
         print('matching score = {:0.2f}'.format(scores[-1][-1]))
 
-    return scores[-1][-1], assignments, correspondence, span
+    #return scores[-1][-1], assignments, correspondence, span
+    return scores[-1][-1] / (len_t + len_q), assignments, correspondence, span
 
 # %%
 if __name__== "__main__": # 모듈 단독 테스트
