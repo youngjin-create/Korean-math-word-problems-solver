@@ -193,6 +193,8 @@ def match_word_tags(t_tag, q_tag):
             s = 0.3
         else:
             s = 0.6
+    elif (t_tag[0] == '뺀' and q_tag[0] == '차') or (q_tag[0] == '뺀' and t_tag[0] == '차'):
+        s = 0.1
     elif t_tag[1] == 'WILDCARD':
         if q_tag[1][0] == 'N' or q_tag[1] == 'SL' or q_tag[1] == 'VA+ETM': # WILDCARD는 단어 또는 숫자에 매칭 가능
             s = 0.0
