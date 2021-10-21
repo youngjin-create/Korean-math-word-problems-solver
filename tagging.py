@@ -17,6 +17,79 @@ re_equation = re.compile('[0-9A-Z][0-9A-Z\.\+\-\*\/\(\)=<> ]*=[0-9A-Z\.\+\-\*\/\
 def add_paddings(tags):
     return [('', 'PADDING', 0, 0), *tags, ('', 'PADDING', 0, 0)]
 
+def post_process_tagging(tags):
+    for tag in tags:
+        if tag[0] == 'ml' and tag[1] == 'SL':
+            tag[0] = '밀리리터'
+            tag[1] = 'NNBC'
+        if tag[0] == '㎖' and tag[1] == 'SY':
+            tag[0] = '밀리리터'
+            tag[1] = 'NNBC'
+        if tag[0] == 'l' and tag[1] == 'SL':
+            tag[0] = '리터'
+            tag[1] = 'NNBC'
+        if tag[0] == 'ℓ' and tag[1] == 'SY':
+            tag[0] = '리터'
+            tag[1] = 'NNBC'
+
+        if tag[0] == 'cm' and tag[1] == 'SL':
+            tag[0] = '센티미터'
+            tag[1] = 'NNBC'
+        if tag[0] == 'm' and tag[1] == 'SL':
+            tag[0] = '미터'
+            tag[1] = 'NNBC'
+        if tag[0] == 'km' and tag[1] == 'SL':
+            tag[0] = '킬로미터'
+            tag[1] = 'NNBC'
+
+        if tag[0] == '㎝' and tag[1] == 'SY':
+            tag[0] = '센티미터'
+            tag[1] = 'NNBC'
+        if tag[0] == '㎠' and tag[1] == 'SY':
+            tag[0] = '제곱센티미터'
+            tag[1] = 'NNBC'
+        if tag[0] == '㎤' and tag[1] == 'SY':
+            tag[0] = '세제곱센티미터'
+            tag[1] = 'NNBC'
+        if tag[0] == '㎡' and tag[1] == 'SY':
+            tag[0] = '제곱미터'
+            tag[1] = 'NNBC'
+        if tag[0] == '㎥' and tag[1] == 'SY':
+            tag[0] = '세제곱미터'
+            tag[1] = 'NNBC'
+
+        if tag[0] == 'g' and tag[1] == 'SL':
+            tag[0] = '그램'
+            tag[1] = 'NNBC'
+        if tag[0] == 'kg' and tag[1] == 'SL':
+            tag[0] = '킬로그램'
+            tag[1] = 'NNBC'
+
+        if len(tag[0]) == 3 and tag[0][2] == '이' and tag[1] == 'NNP':
+            tag[0] = tag[0][0:2]
+
+    # for i in range(0, len(tags)):
+    #     if tags[i][0] == '이' and (tags[i][1] == 'NR' or tags[i][1] == 'XSN' or tags[i][1] == 'JKS'):
+    #         tags[i][1] = 'IGNORE'
+
+    # for i in range(1, len(tags)-1):
+    #     if tags[i][0] == '이' and tags[i][1] == 'NR':
+    #         if tags[i-1][1].startswith('WILDCARD') and tags[i+1][1] == 'JX':
+    #             tags[i][1] = 'XSN'
+    for idx in range(1, len(tags)):
+        if tags[idx-1][0] == '더' and tags[idx-1][1] == 'MAG' and tags[idx][0] == '하' and tags[idx][1] == 'VV':
+            tags[idx-1][0] = '더하!'
+            tags[idx-1][1] = 'VV'
+            tags[idx][0] = ''
+            tags[idx][1] = 'NONE'
+        if tags[idx-1][0] == '더' and tags[idx-1][1] == 'MAG' and tags[idx][0] == '했' and tags[idx][1] == 'VV+EP':
+            tags[idx-1][0] = '더하!'
+            tags[idx-1][1] = 'VV'
+            tags[idx][0] = '었'
+            tags[idx][1] = 'EP'
+
+    return
+
 # 템플릿 매칭을 위한 사용자 정의 태그 : WILDCARD, WILDCARD_NUM, WILDCARD_STR, NUMBER, STRING, EQUATION, NUMBERS, STRINGS, MAPPING
 def pos_tagging(text, join=None):
     global re_number
@@ -85,66 +158,9 @@ def pos_tagging(text, join=None):
         position = tag[3]
     tags = new_tags
 
-    # for i in range(0, len(tags)):
-    #     if tags[i][0] == '이' and (tags[i][1] == 'NR' or tags[i][1] == 'XSN' or tags[i][1] == 'JKS'):
-    #         tags[i][1] = 'IGNORE'
+    post_process_tagging(tags)
 
-    # for i in range(1, len(tags)-1):
-    #     if tags[i][0] == '이' and tags[i][1] == 'NR':
-    #         if tags[i-1][1].startswith('WILDCARD') and tags[i+1][1] == 'JX':
-    #             tags[i][1] = 'XSN'
-
-    for tag in tags:
-        if tag[0] == 'ml' and tag[1] == 'SL':
-            tag[0] = '밀리리터'
-            tag[1] = 'NNBC'
-        if tag[0] == '㎖' and tag[1] == 'SY':
-            tag[0] = '밀리리터'
-            tag[1] = 'NNBC'
-        if tag[0] == 'l' and tag[1] == 'SL':
-            tag[0] = '리터'
-            tag[1] = 'NNBC'
-        if tag[0] == 'ℓ' and tag[1] == 'SY':
-            tag[0] = '리터'
-            tag[1] = 'NNBC'
-
-        if tag[0] == 'cm' and tag[1] == 'SL':
-            tag[0] = '센티미터'
-            tag[1] = 'NNBC'
-        if tag[0] == 'm' and tag[1] == 'SL':
-            tag[0] = '미터'
-            tag[1] = 'NNBC'
-        if tag[0] == 'km' and tag[1] == 'SL':
-            tag[0] = '킬로미터'
-            tag[1] = 'NNBC'
-
-        if tag[0] == '㎝' and tag[1] == 'SY':
-            tag[0] = '센티미터'
-            tag[1] = 'NNBC'
-        if tag[0] == '㎠' and tag[1] == 'SY':
-            tag[0] = '제곱센티미터'
-            tag[1] = 'NNBC'
-        if tag[0] == '㎤' and tag[1] == 'SY':
-            tag[0] = '세제곱센티미터'
-            tag[1] = 'NNBC'
-        if tag[0] == '㎡' and tag[1] == 'SY':
-            tag[0] = '제곱미터'
-            tag[1] = 'NNBC'
-        if tag[0] == '㎥' and tag[1] == 'SY':
-            tag[0] = '세제곱미터'
-            tag[1] = 'NNBC'
-
-        if tag[0] == 'g' and tag[1] == 'SL':
-            tag[0] = '그램'
-            tag[1] = 'NNBC'
-        if tag[0] == 'kg' and tag[1] == 'SL':
-            tag[0] = '킬로그램'
-            tag[1] = 'NNBC'
-
-        if len(tag[0]) == 3 and tag[0][2] == '이' and tag[1] == 'NNP':
-            tag[0] = tag[0][0:2]
-
-    tags = [tuple(x) for x in tags]
+    tags = [tuple(x) for x in tags if x[1] != 'NONE']
 
     return tags
 
@@ -326,7 +342,7 @@ def match_to_template_tags(template_tags, question_tags, visualize=False):
 
 # %%
 if __name__== "__main__": # 모듈 단독 테스트
-    q = '지현이의 나이는 12살이고 동생은 지현이보다 3살 적습니다. 어머니의 나이는 동생의 나이의 5배보다 1살이 더 많습니다. 어머니의 나이는 몇 살인가요?'
+    q = '13에서 12를 더하였더니 25가 되었습니다.'
     print(pos_tagging(q))
 
 # %%
