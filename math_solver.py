@@ -213,7 +213,8 @@ lambdas = dict({
     'shiftr': 'shiftr = lambda x, n: x * 10**n',
     'shiftl': 'shiftl = lambda x, n: x / 10**n',
     'lcm': 'lcm = lambda x,y: int(x*y/math.gcd(x,y))',
-    'sumdigits': 'sumdigits = lambda n: sum([int(x) for x in list(str(n))])'
+    'sumdigits': 'sumdigits = lambda n: sum([int(x) for x in list(str(n))])',
+    'mathcomb': 'mathcomb = lambda x, y: int(math.factorial(x)/(math.factorial(y)*math.factorial(x-y)))'
 })
 
 def solution_code_generate(equations, eq_dict, objective, code):
@@ -412,5 +413,5 @@ def solve(statements, time_limit_sec):
 
 # %%
 if __name__=="__main__": # 모듈 단독 테스트
-    do_math({'equation': ['x=(8)+(7)'], 'code': [], 'objective': ["vars['x']"]})
+    do_math({'equation': [], 'code': ["strings=['흰색', '검은색', '보라색', '초록색', '빨간색']"], 'objective': ['math.comb(len(strings), (2))']})
     # do_math({'equation': ['정현이 = 15','영진 = 180 / 15', '경주 = 7 / 2\n'], 'code': [], 'objective': ["vars['정현이']"]})
