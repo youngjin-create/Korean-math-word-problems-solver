@@ -57,7 +57,7 @@ def debug_one_question(question, q_number=0, right_answer=''):
     closest_k = ''
     if 'closest_k' in problem:
         for k in problem['closest_k']:
-            closest_k += k[1]['id'] + ' ({:.2f}) '.format(k[0]) + k[1]['template'] + '\n'
+            closest_k += k[1]['id'] + ' ({:.4f}) '.format(k[0]) + k[1]['template'] + '\n'
     result_row = [problem['id'], problem['question'], problem['question_preprocessed'], problem['question_predefined_patterns'],
         problem['best_template_distance'], problem['best_template'], problem['best_template_assignment'], problem['statements'], closest_k,
         code, answer, right_answer, '{0:.2f}'.format(time.time() - problem_time)]
@@ -92,5 +92,7 @@ results = debug_all_questions()
 # debug_one_question('1,0,4,8 수 카드 4장 중에서 3장을 골라 한 번씩만 사용하여 세 자리 수를 만들려고 합니다. 만들 수 있는 세 자리 수 중에서 두 번째로 큰 수와 두 번째로 작은 수의 차를 구하시오.')
 # debug_one_question('민수는 10살입니다. 민수의 누나는 민수보다 3살이 더 많습니다. 엄마의 나이는 누나보다 3배 더 많고, 이모의 나이는 민수보다 3배 더 많습니다. 아빠의 나이는 민수보다 4배 더 많습니다. 두번째로 나이가 많은 사람은 누구입니까?')
 # debug_one_question('(가) 그릇에 6l의 물이 들어 있었습니다. (가)에서 들이가 1.2l인 (나) 그릇으로 물을 가득 채워 3번 덜어 냈다면 (가)에 남은 물은 몇 l인가요?')
-
+# debug_one_question('유정이는 가지고 있던 사탕 중에서 언니에게 7개를 주고 동생에게 6개를 주었더니 15개가 남았습니다. 처음에 유정이가 가지고 있던 사탕은 몇 개입니까?')
+# debug_one_question('흰색 구슬, 검은색 구슬, 보라색 구슬, 초록색 구슬, 빨간색 구슬이 1개씩 있습니다. 이 구슬 중 서로 다른 2개의 구슬을 고르는 방법은 모두 몇 가지입니까?')
+# debug_one_question('한 변의 길이가 6cm인 정사각형이 있습니다. 이 정사각형의 내접원의 지름 길이는 얼마입니까?')
 # %%
