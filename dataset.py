@@ -40,7 +40,7 @@ def build_template(q, is_phrase=False):
     # print(' ')
     if 'question' not in q or q['question'] == '':
         # print('empty question error.')
-        return
+        return False
 
     # q['question_preprocessed'] = utils.preprocess(q['question'])
     # q['question_pruning'] = utils.pruning_vector(q['question_preprocessed'])
@@ -141,7 +141,7 @@ def build_template(q, is_phrase=False):
         q['template_tags'] = tagging.add_paddings(q['template_tags'])
         # q['template_tags'] = [('', 'PADDING', 0, 0), *q['template_tags'], ('', 'PADDING', 0, 0)]
         
-    return
+    return True
 
 def load_dataset_json():
     global dataset_json
@@ -174,7 +174,10 @@ def load_dataset_google_sheets(sheetname, is_phrase=False):
     dataset = dataset_google_sheets.load_dataset(sheetname)
     
     for q in dataset:
-        build_template(q, is_phrase)
+        if q['question'] == '':
+            q['question'] = q['question_original']
+        if not build_template(q, is_phrase):
+            del dataset[q]
 
     return dataset
 
@@ -188,7 +191,8 @@ print('loading dataset...', end=' ')
 
 ############### SAVE DATA #############
 dataset_google_sentences_teacher = load_dataset_google_sheets('선생님문제모음')
-dataset_google_phrases = load_dataset_google_sheets('Phrase매칭', is_phrase=True)
+dataset_google_phrases1 = load_dataset_google_sheets('수찾기3', is_phrase=True)
+dataset_google_phrases2 = load_dataset_google_sheets('크기비교', is_phrase=True)
 # dataset_csv_qanda = load_dataset_csv('dataset_qanda.csv')
 # datasets_all = [dataset_csv] #, dataset.dataset_csv_qanda] # 사용할 데이터셋
 
@@ -208,7 +212,7 @@ dataset_google_phrases = load_dataset_google_sheets('Phrase매칭', is_phrase=Tr
 dataset_sentences = []
 dataset_sentences.extend(dataset_google_sentences_teacher) #, dataset.dataset_csv_qanda] # 사용할 데이터셋
 dataset_phrases = []
-dataset_phrases.extend(dataset_google_phrases)
-
+dataset_phrases.extend(dataset_google_phrases1)
+dataset_phrases.extend(dataset_google_phrases2)
 
 print('done.')

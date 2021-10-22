@@ -68,6 +68,9 @@ def post_process_tagging(tags):
         if len(tag[0]) == 3 and tag[0][2] == '이' and tag[1] == 'NNP':
             tag[0] = tag[0][0:2]
 
+        if tag[0] == '실수':
+            tag[0] = '잘못'
+
     # for i in range(0, len(tags)):
     #     if tags[i][0] == '이' and (tags[i][1] == 'NR' or tags[i][1] == 'XSN' or tags[i][1] == 'JKS'):
     #         tags[i][1] = 'IGNORE'
@@ -78,12 +81,12 @@ def post_process_tagging(tags):
     #             tags[i][1] = 'XSN'
     for idx in range(1, len(tags)):
         if tags[idx-1][0] == '더' and tags[idx-1][1] == 'MAG' and tags[idx][0] == '하' and tags[idx][1] == 'VV':
-            tags[idx-1][0] = '더하!'
+            tags[idx-1][0] = '더하'
             tags[idx-1][1] = 'VV'
             tags[idx][0] = ''
             tags[idx][1] = 'NONE'
         if tags[idx-1][0] == '더' and tags[idx-1][1] == 'MAG' and tags[idx][0] == '했' and tags[idx][1] == 'VV+EP':
-            tags[idx-1][0] = '더하!'
+            tags[idx-1][0] = '더하'
             tags[idx-1][1] = 'VV'
             tags[idx][0] = '었'
             tags[idx][1] = 'EP'
