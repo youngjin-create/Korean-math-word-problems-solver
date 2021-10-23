@@ -214,7 +214,8 @@ lambdas = dict({
     'shiftl': 'shiftl = lambda x, n: x / 10**n',
     'lcm': 'lcm = lambda x,y: int(x*y/math.gcd(x,y))',
     'sumdigits': 'sumdigits = lambda n: sum([int(x) for x in list(str(n))])',
-    'mathcomb': 'mathcomb = lambda x, y: int(math.factorial(x)/(math.factorial(y)*math.factorial(x-y)))'
+    'mathcomb': 'mathcomb = lambda x, y: int(math.factorial(x)/(math.factorial(y)*math.factorial(x-y)))',
+    'mathperm': 'mathperm = lambda x, y: int(math.factorial(x)/ math.factorial(x-y))'
 })
 
 def solution_code_generate(equations, eq_dict, objective, code):
