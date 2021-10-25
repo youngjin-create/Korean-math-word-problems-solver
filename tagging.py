@@ -2,7 +2,7 @@
 import re
 from numba import jit
 import numpy as np
-from konlpy.tag import Okt, Komoran, Hannanum, Kkma, Mecab
+from konlpy.tag import Mecab
 mecab = Mecab()
 
 import utils

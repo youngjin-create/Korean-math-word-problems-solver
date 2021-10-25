@@ -19,11 +19,12 @@ def solve_mwp(problem):
     if distance == None:
         distance, statements = template.match(problem)
 
-    # 변환된 수학적 표현을 풀어서 python code 형태로 답을 구함
-    answer, derivation = math_solver.solve(statements, time_limit_sec=10)
+    if distance != None:
+        # 변환된 수학적 표현을 풀어서 python code 형태로 답을 구함
+        answer, derivation = math_solver.solve(statements, time_limit_sec=10)
+        if answer != None:
+            return answer, derivation
 
-    if answer != None:
-        return answer, derivation
     return '0', ['print(0)'] # if failed, print 0
 
 # %%
@@ -36,14 +37,12 @@ with open('/home/agc2021/dataset/problemsheet_5_00.json', encoding='utf-8-sig') 
     problemsheet = json.load(infile)
 
 answersheet = dict()
-for q_number in problemsheet:
-    print('elapsed time = {0:.0f} seconds.'.format(time.time() - start_time))
 
-    problem = problemsheet[q_number]
-    question = problem['question']
+def one_question(question, q_number=0, right_answer=''):
+    problem = { "question": question, "id": q_number }
     answer, derivation, code = 0, [], ''
     # try:
-    print(f'\033[92mQ{q_number}: {question}\033[0;0m')
+    print(f'\033[92mQuestion {q_number}: {question}\033[0;0m')
     answer, derivation = solve_mwp(problem)
     if type(derivation) == list:
         code = '\n'.join(derivation)
@@ -52,15 +51,21 @@ for q_number in problemsheet:
 
     print(f'\033[33mcode:\n{code}\033[0;0m')
     print(f'\033[33mA: {answer}\033[0;0m')
-    # except Exception as e:
-    #     print(e)
 
-    # 한 문제씩 풀 때마다 파일에 기록
-    if time.time() - start_time < 3600*2-60:
-        # code = code.replace('"', "'")
-        answersheet[q_number] = { "answer": answer, "equation": code }
-        with open('answersheet.json', 'w', encoding='utf-8') as outfile:
-            json.dump(answersheet, outfile, ensure_ascii=False, indent=4)
+    return dict(q_number=q_number, answer=answer, equation=derivation)
+
+with Pool(4) as p:
+    results = p.starmap(one_question, [(problemsheet[q_number]['question'], q_number) for q_number in problemsheet])
+print('elapsed time = {0:.0f} seconds.'.format(time.time() - start_time))
+
+answersheet = {}
+for r in results:
+    answersheet[r['q_number']] = dict(answer=r['answer'], equation=r['equation'])
+
+# answersheet[q_number] = { "answer": answer, "equation": code }
+# with open('answersheet_5_00_everdoubling.json', 'w', encoding='utf-8') as outfile:
+with open('answersheet.json', 'w', encoding='utf-8') as outfile:
+    json.dump(answersheet, outfile, ensure_ascii=False, indent=4)
 
 print('execution time = {0:.0f} seconds.'.format(time.time() - start_time))
 
