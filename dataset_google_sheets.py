@@ -27,5 +27,5 @@ def save_results(sheetname, results):
     global gc
     doc = gc.open_by_url('https://docs.google.com/spreadsheets/d/1vcFgJ2feBJCg8SGuZLdkbaYU8q2XS0dqqB-vUepp1D8')
     worksheet = doc.add_worksheet(sheetname, 1, 1)
-    worksheet.append_row(['ID','문제','preprocessed','predefined patterns','match distance','match template','assignments','statements','비슷한문제ID','풀이과정','풀이답','정답','실행시간'])
+    worksheet.append_row(['ID','문제','tags','predefined patterns','match distance','match template','assignments','statements','비슷한문제ID','풀이과정','풀이답','정답','실행시간'])
     worksheet.append_rows([[str(x) for x in row] for row in results])

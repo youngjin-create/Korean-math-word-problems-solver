@@ -20,6 +20,17 @@ def predefined_replaces(raw):
     raw = re.sub(r'\b아홉 ', '9', raw)
     raw = re.sub(r'\b열 ', '10', raw)
 
+    raw = re.sub(r'\b한자리', '1', raw)
+    raw = re.sub(r'\b두자리', '2', raw)
+    raw = re.sub(r'\b세자리', '3', raw)
+    raw = re.sub(r'\b네자리', '4', raw)
+    raw = re.sub(r'\b다섯자리', '5', raw)
+    raw = re.sub(r'\b여섯자리', '6', raw)
+    raw = re.sub(r'\b일곱자리', '7', raw)
+    raw = re.sub(r'\b여덟자리', '8', raw)
+    raw = re.sub(r'\b아홉자리', '9', raw)
+    raw = re.sub(r'\b열자리', '10', raw)
+
     raw = re.sub(r'\b첫째', '1째', raw)
     raw = re.sub(r'\b둘째', '2째', raw)
     raw = re.sub(r'\b셋째', '3째', raw)
@@ -39,9 +50,7 @@ def predefined_replaces(raw):
     raw = re.sub(r'\b일곱번째', '7번째', raw)
     raw = re.sub(r'\b여덟번째', '8번째', raw)
     raw = re.sub(r'\b아홉번째', '9번째', raw)
-    # raw = re.sub(r'\b몇개', '몇 개', raw)
 
-    # raw = re.sub(r'\b어떤 수', '어떤수', raw)
     raw = re.sub(r'\b몇 개가 있습니까?', '몇 개입니까?', raw)
     raw = re.sub(r'\b무슨 색깔입니까?', '무슨 색입니까?', raw)
 
@@ -49,6 +58,28 @@ def predefined_replaces(raw):
     raw = re.sub(r'인가[요]?[\.\?]$', '입니까?', raw)
     raw = re.sub(r'일까[요]?[\.\?]$', '입니까?', raw)
     raw = re.sub(r'할까[요]?[\.\?]$', '합니까?', raw)
+
+    raw = re.sub(r'\b더해야\b', '더하여야', raw)
+    raw = re.sub(r'\b더할 것을\b', '더하여야 할 것을', raw)
+    raw = re.sub(r'\b더했더니\b', '더하였더니', raw)
+    raw = re.sub(r'\b더한 결과가\b', '더하였더니', raw)
+    raw = re.sub(r'\b뺐더니\b', '빼었더니', raw)
+    raw = re.sub(r'\b뺀 결과가\b', '빼었더니', raw)
+    raw = re.sub(r'\b곱해야\b', '곱하여야', raw)
+    raw = re.sub(r'\b곱할 것을\b', '곱하여야 할 것을', raw)
+    raw = re.sub(r'\b곱했더니\b', '곱하였더니', raw)
+    raw = re.sub(r'\b곱한 결과가\b', '곱하였더니', raw)
+    raw = re.sub(r'\b나눠야\b', '나누어야', raw)
+    raw = re.sub(r'\b나눌 것을\b', '나누어야 할 것을', raw)
+    raw = re.sub(r'\b나눴더니\b', '나누었더니', raw)
+    raw = re.sub(r'\b나눈 결과가\b', '나누었더니', raw)
+    raw = re.sub(r'\b할 것을\b', '하는데', raw)
+    raw = re.sub(r'\b하는 것을\b', '하는데', raw)
+
+    raw = re.sub(r'\b실수로\b', '잘못하여', raw)
+    raw = re.sub(r'\b실수하여\b', '잘못하여', raw)
+
+    raw = re.sub(r'\b나왔습니다', '되었습니다', raw)
 
     return raw
 

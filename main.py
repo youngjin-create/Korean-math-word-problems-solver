@@ -20,7 +20,7 @@ def solve_mwp(problem):
         distance, statements = template.match(problem)
 
     # 변환된 수학적 표현을 풀어서 python code 형태로 답을 구함
-    answer, derivation = math_solver.solve(statements, time_limit_sec=99999)
+    answer, derivation = math_solver.solve(statements, time_limit_sec=10)
 
     if answer != None:
         return answer, derivation
@@ -30,8 +30,9 @@ def solve_mwp(problem):
 
 # with open('/home/agc2021/dataset/problemsheet.json') as infile: # 1차 대회
 # with open('sample.json') as infile: # 샘플 문제
-    # problemsheet = json.load(infile)
-with open('problemsheet.json') as infile: # 테스트 문제
+# with open('problemsheet.json') as infile: # 테스트 문제
+# with open('/home/agc2021/dataset/problemsheet.json', encoding='utf-8-sig') as infile: # 2차 대회
+with open('/home/agc2021/dataset/problemsheet_5_00.json', encoding='utf-8-sig') as infile: # 2차 대회
     problemsheet = json.load(infile)
 
 answersheet = dict()

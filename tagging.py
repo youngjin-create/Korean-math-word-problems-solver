@@ -15,70 +15,70 @@ re_string = re.compile(r'\(\w\)')
 re_equation = re.compile('[0-9A-Z][0-9A-Z\.\+\-\*\/\(\)=<> ]*=[0-9A-Z\.\+\-\*\/\(\)=<> ]*[0-9A-Z]') # 등호(=)를 포함하는 식
 
 def add_paddings(tags):
-    return [('', 'PADDING', 0, 0), *tags, ('', 'PADDING', 0, 0)]
+    return [('', 'PADDING', 0, 0, 0.0, 0.0, 0.0), *tags, ('', 'PADDING', 0, 0, 0.0, 0.0, 0.0)]
+
+# pos tagging된 두 단어를 비교한 score를 계산, w1 = template tag, w2 = question tag
+# w = (str, POS, start, end)의 형식, start, end는 문장에서의 span 시작과 끝 index
+# 이상적으로는 str과 POS값을 모두 고려하여 score를 계산하여야 하지만 일단 POS값을 중요시하여 계산
+# POS값에 따른 score matrix를 생각할 수 있고, 이것을 자동학습 할 수 있으면 좋을듯
+important_words = [
+    '어떤', '몫', '나머지', '자리',
+    '홀수', '짝수', '약수', '배수', '최소공배수', '최대공약수', '큰', '작', '작은'
+    '왼쪽', '오른쪽',
+    '꼭짓점', '꼭지점',
+    '삼각형', '사각형', '오각형', '육각형', '칠각형', '팔각형', '직사각형', '마름모', '평행사변형', '사다리꼴', '원', '지름', '반지름', '길이', '둘레', '가로', '세로', '대각선',
+    '정삼각형', '정사각형', '정오각형', '정육각형', '정칠각형', '정팔각형',
+    '정사면체', '정육면체', '겉넓이', '넓이']
+
+pptags = {
+    ('ml', 'SL'): ('밀리리터', 'NNBC'),
+    ('㎖', 'SY'): ('밀리리터', 'NNBC'),
+    ('l', 'SL'): ('리터', 'NNBC'),
+    ('ℓ', 'SY'): ('리터', 'NNBC'),
+
+    ('cm', 'SL'): ('센티미터', 'NNBC'),
+    ('㎝', 'SY'): ('센티미터', 'NNBC'),
+    ('㎠', 'SY'): ('제곱센티미터', 'NNBC'),
+    ('㎤', 'SY'): ('세제곱센티미터', 'NNBC'),
+    ('m', 'SL'): ('미터', 'NNBC'),
+    ('㎡', 'SY'): ('제곱미터', 'NNBC'),
+    ('㎥', 'SY'): ('세제곱미터', 'NNBC'),
+    ('km', 'SL'): ('킬로미터', 'NNBC'),
+
+    ('g', 'SL'): ('그램', 'NNBC'),
+    ('kg', 'SL'): ('킬로그램', 'NNBC'),
+
+    ('였', 'EP'): ('었', 'EP'),
+    ('를', 'JKO'): ('을', 'JKO'),
+    ('가', 'JKS'): ('이', 'JKS'),
+    ('여야', 'EC'): ('어야', 'EC'),
+    ('야', 'EC'): ('어야', 'EC'),
+
+    ('주', 'VV'): (None, None, None, None, 0.5, 0.1, 1.0),
+    ('받', 'VV'): (None, None, None, None, 0.5, 0.1, 1.0),
+    ('넣', 'VV'): (None, None, None, None, 0.5, 0.1, 1.0),
+
+    ('차', 'NNG'): (None, None, None, None, 1.0, 0.1, 2.0),
+    ('합', 'NNG'): (None, None, None, None, 1.0, 0.1, 2.0),
+    ('더하', 'VV'): (None, None, None, None, 1.0, 0.1, 2.0),
+    ('빼', 'VV'): (None, None, None, None, 1.0, 0.1, 2.0),
+    ('곱하', 'VV'): (None, None, None, None, 1.0, 0.1, 2.0),
+    ('나누', 'VV'): (None, None, None, None, 1.0, 0.1, 2.0),
+
+    ('실수', '*'): ('잘못', None, None, None, 1.0, 0.1, 2.0),
+
+    ('입니까', '*'): (None, None, None, None, 0.02, 0.02, 0.05),
+    ('습니다', '*'): (None, None, None, None, 0.02, 0.02, 0.05)
+}
 
 def post_process_tagging(tags):
-    for tag in tags:
-        if tag[0] == 'ml' and tag[1] == 'SL':
-            tag[0] = '밀리리터'
-            tag[1] = 'NNBC'
-        if tag[0] == '㎖' and tag[1] == 'SY':
-            tag[0] = '밀리리터'
-            tag[1] = 'NNBC'
-        if tag[0] == 'l' and tag[1] == 'SL':
-            tag[0] = '리터'
-            tag[1] = 'NNBC'
-        if tag[0] == 'ℓ' and tag[1] == 'SY':
-            tag[0] = '리터'
-            tag[1] = 'NNBC'
+    global important_words
+    # global important_VV
+    global pptags
+    
+    for i in range(0, len(tags)):
+        tags[i] = [*tags[i], 0.05, 0.05, 0.4] # default weight
 
-        if tag[0] == 'cm' and tag[1] == 'SL':
-            tag[0] = '센티미터'
-            tag[1] = 'NNBC'
-        if tag[0] == 'm' and tag[1] == 'SL':
-            tag[0] = '미터'
-            tag[1] = 'NNBC'
-        if tag[0] == 'km' and tag[1] == 'SL':
-            tag[0] = '킬로미터'
-            tag[1] = 'NNBC'
-
-        if tag[0] == '㎝' and tag[1] == 'SY':
-            tag[0] = '센티미터'
-            tag[1] = 'NNBC'
-        if tag[0] == '㎠' and tag[1] == 'SY':
-            tag[0] = '제곱센티미터'
-            tag[1] = 'NNBC'
-        if tag[0] == '㎤' and tag[1] == 'SY':
-            tag[0] = '세제곱센티미터'
-            tag[1] = 'NNBC'
-        if tag[0] == '㎡' and tag[1] == 'SY':
-            tag[0] = '제곱미터'
-            tag[1] = 'NNBC'
-        if tag[0] == '㎥' and tag[1] == 'SY':
-            tag[0] = '세제곱미터'
-            tag[1] = 'NNBC'
-
-        if tag[0] == 'g' and tag[1] == 'SL':
-            tag[0] = '그램'
-            tag[1] = 'NNBC'
-        if tag[0] == 'kg' and tag[1] == 'SL':
-            tag[0] = '킬로그램'
-            tag[1] = 'NNBC'
-
-        if len(tag[0]) == 3 and tag[0][2] == '이' and tag[1] == 'NNP':
-            tag[0] = tag[0][0:2]
-
-        if tag[0] == '실수':
-            tag[0] = '잘못'
-
-    # for i in range(0, len(tags)):
-    #     if tags[i][0] == '이' and (tags[i][1] == 'NR' or tags[i][1] == 'XSN' or tags[i][1] == 'JKS'):
-    #         tags[i][1] = 'IGNORE'
-
-    # for i in range(1, len(tags)-1):
-    #     if tags[i][0] == '이' and tags[i][1] == 'NR':
-    #         if tags[i-1][1].startswith('WILDCARD') and tags[i+1][1] == 'JX':
-    #             tags[i][1] = 'XSN'
     for idx in range(1, len(tags)):
         if tags[idx-1][0] == '더' and tags[idx-1][1] == 'MAG' and tags[idx][0] == '하' and tags[idx][1] == 'VV':
             tags[idx-1][0] = '더하'
@@ -91,11 +91,36 @@ def post_process_tagging(tags):
             tags[idx][0] = '었'
             tags[idx][1] = 'EP'
 
+    for tag in tags:
+        t = None
+        if ('*', tag[1]) in pptags:
+            t = pptags[('*', tag[1])]
+        if (tag[0], '*') in pptags:
+            t = pptags[(tag[0], '*')]
+        if (tag[0], tag[1]) in pptags:
+            t = pptags[(tag[0], tag[1])]
+        if t:
+            for i in range(0, len(t)):
+                if t[i]:
+                    tag[i] = t[i]
+
+        if tag[0] in important_words:
+            tag[4:7] = [2.0, 0.1, 2.0]
+
+        if len(tag[0]) == 3 and tag[0][2] == '이' and tag[1] == 'NNP':
+            tag[0] = tag[0][0:2]
+            
+        if tag[1] == 'SF' or tag[1] == 'XSN' or tag[1] == 'JKB':
+            tag[4:7] = [0.02, 0.02, 0.05]
+
     return
 
 # 템플릿 매칭을 위한 사용자 정의 태그 : WILDCARD, WILDCARD_NUM, WILDCARD_STR, NUMBER, STRING, EQUATION, NUMBERS, STRINGS, MAPPING
 def pos_tagging(text, join=None):
     global re_number
+
+    text = utils.preprocess(text)
+    print(text)
 
     tags = mecab.pos(text, join=join)
     new_tags = []
@@ -168,30 +193,8 @@ def pos_tagging(text, join=None):
     return tags
 
 
-# pos tagging된 두 단어를 비교한 score를 계산, w1 = template tag, w2 = question tag
-# w = (str, POS, start, end)의 형식, start, end는 문장에서의 span 시작과 끝 index
-# 이상적으로는 str과 POS값을 모두 고려하여 score를 계산하여야 하지만 일단 POS값을 중요시하여 계산
-# POS값에 따른 score matrix를 생각할 수 있고, 이것을 자동학습 할 수 있으면 좋을듯
-important_words = [
-    '홀수', '짝수', '약수', '배수', '최소공배수', '최대공약수', '큰', '작', '작은'
-    '왼쪽', '오른쪽',
-    '꼭짓점', '꼭지점',
-    '삼각형', '사각형', '오각형', '육각형', '칠각형', '팔각형', '직사각형', '마름모', '평행사변형', '사다리꼴', '원', '지름', '반지름', '길이', '둘레', '가로', '세로', '대각선',
-    '정삼각형', '정사각형', '정오각형', '정육각형', '정칠각형', '정팔각형',
-    '정사면체', '정육면체', '겉넓이', '넓이']
-important_VV = ['주', '받', '넣']
-important_NNG = ['차', '합']
-unimportant_words = ['입니까', '습니다']
 def match_word_tags(t_tag, q_tag):
-    global important_words
-    global important_VV
-
-    q_important = False
-    if (q_tag[1] == 'VV' and q_tag[0] in important_VV) or (q_tag[1] == 'NNG' and q_tag[0] in important_NNG):
-        q_important = True
-    elif q_tag[0] in important_words:
-        q_important = True
-    q_unimportant = q_tag[1] == 'JX' or q_tag[0] in unimportant_words
+    wildcard_no_match_penalty = 1000.0
 
     s = 1.0
     if t_tag[1] == 'PADDING':
@@ -199,47 +202,42 @@ def match_word_tags(t_tag, q_tag):
     elif t_tag[1] == q_tag[1]: # POS가 같으면 페널티 없음
         if t_tag[0] == q_tag[0]:
             s = 0.0
-        elif q_important:
-            s = 2
         else:
-            s = 0.1
+            s = t_tag[4] + q_tag[4] # POS가 같고 글자가 다를 때
     elif t_tag[0] == q_tag[0]:
-        s = 0.1
-    elif t_tag[1] == 'NONE' or q_tag[1] == 'NONE': # 매칭되는 단어가 없어서 스킵할 경우
-        if q_important:
-            s = 2
-        elif q_unimportant:
-            s = 0.3
+        s = t_tag[5] + q_tag[5] # 글자가 같고 POS가 다를 때
+        # s = 0.1
+    elif t_tag[1] == 'NONE':
+        s = q_tag[6]
+    elif q_tag[1] == 'NONE':
+        if t_tag[1].startswith('WILDCARD'):
+            s = wildcard_no_match_penalty
         else:
-            s = 0.6
-    elif (t_tag[0] == '뺀' and q_tag[0] == '차') or (q_tag[0] == '뺀' and t_tag[0] == '차'):
-        s = 0.1
+            s = t_tag[6]
     elif t_tag[1] == 'WILDCARD':
         if q_tag[1][0] == 'N' or q_tag[1] == 'SL' or q_tag[1] == 'VA+ETM': # WILDCARD는 단어 또는 숫자에 매칭 가능
             s = 0.0
         else:
-            s = 1000000.0
+            s = wildcard_no_match_penalty
     elif t_tag[1] == 'WILDCARD_NUM':
         if q_tag[1] == 'NUMBER':
             s = 0.0
         else:
-            s = 1000000.0
+            s = wildcard_no_match_penalty
     elif t_tag[1] == 'WILDCARD_STR':
         if q_tag[1] != 'NUMBER' and (q_tag[1][0] == 'N' or q_tag[1] == 'SL' or q_tag[1] == 'VA+ETM'):
             s = 0.0
         else:
-            s = 1000000.0
+            s = wildcard_no_match_penalty
     elif t_tag[1].startswith('WILDCARD_OBJECT'):
         sp = t_tag[1].split('_')
         if q_tag[0].startswith(sp[2]) and q_tag[0].endswith(sp[4]):
             s = 0.0
         else:
-            s = 1000000.0
-    elif t_tag[1] == 'SF' or q_tag[1] == 'SF' or t_tag[1] == 'XSN' or q_tag[1] == 'XSN': # 마침표
-        s = 0.1
-    # POS가 다른 단어끼리 매칭
+            s = wildcard_no_match_penalty
+    # 글자도 다르고 POS도 다를 떄
     else:
-        s = 1.0
+        s = 0.9 * (q_tag[6] + t_tag[6])
     return s
 
 # 문장 비교, 비슷할 수록 낮은 값 리턴
@@ -357,8 +355,9 @@ if __name__== "__main__": # 모듈 단독 테스트
         # pos_tagging('비행기에 351명이 타고 있습니다. 그 중 158명이 내렸습니다. 비행기에 타고 있는 인원은 얼마입니까?'),
         # add_paddings(pos_tagging('4명 중 가장 가벼운 사람은 누구입니까?')),
         # pos_tagging('학생들이 몸무게를 비교하고 있습니다. 석진이는 호석이보다 무겁고 지민이보다 가볍습니다. 남준이는 지민이보다 무겁습니다. 4명 중 가장 가벼운 사람은 누구입니까?'),
-        pos_tagging('$1구슬과 $2구슬, $3구슬을 모두 합하면 #1개입니다. $4구슬은 $5구슬보다 #2개가 많고, $6구슬은 #3개일 때 $7구슬은 몇 개입니까?'),
-        pos_tagging('4명의 학생이 있습니다.'),
+        # pos_tagging('$1구슬과 $2구슬, $3구슬을 모두 합하면 #1개입니다. $4구슬은 $5구슬보다 #2개가 많고, $6구슬은 #3개일 때 $7구슬은 몇 개입니까?'),
+        pos_tagging('어떤 수에 3을 곱해야 하는데 잘못하여 뺐더니 8이 나왔습니다.'),
+        pos_tagging('어떤 수에 3을 곱해야 할 것을 잘못하여 빼었더니 369가 되었습니다.'),
         visualize=True)
     print(score)
     print(assignments)

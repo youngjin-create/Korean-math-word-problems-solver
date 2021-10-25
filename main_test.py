@@ -25,7 +25,7 @@ def solve_mwp(problem):
 
     if distance != None:
         # 변환된 수학적 표현을 풀어서 python code 형태로 답을 구함
-        answer, derivation = math_solver.solve(statements, time_limit_sec=999999)
+        answer, derivation = math_solver.solve(statements, time_limit_sec=99999)
         if answer != None:
             return answer, derivation
 
@@ -58,7 +58,9 @@ def debug_one_question(question, q_number=0, right_answer=''):
     if 'closest_k' in problem:
         for k in problem['closest_k']:
             closest_k += k[1]['id'] + ' ({:.4f}) '.format(k[0]) + k[1]['template'] + '\n'
-    result_row = [problem['id'], problem['question'], problem['question_preprocessed'], problem['question_predefined_patterns'],
+    tags = [(x[0], x[1], x[4], x[5], x[6]) for x in problem['question_tags']]
+    result_row = [problem['id'], problem['question'], tags, #problem['question_preprocessed'],
+        problem['question_predefined_patterns'],
         problem['best_template_distance'], problem['best_template'], problem['best_template_assignment'], problem['statements'], closest_k,
         code, answer, right_answer, '{0:.2f}'.format(time.time() - problem_time)]
 
@@ -94,5 +96,6 @@ results = debug_all_questions()
 # debug_one_question('(가) 그릇에 6l의 물이 들어 있었습니다. (가)에서 들이가 1.2l인 (나) 그릇으로 물을 가득 채워 3번 덜어 냈다면 (가)에 남은 물은 몇 l인가요?')
 # debug_one_question('유정이는 가지고 있던 사탕 중에서 언니에게 7개를 주고 동생에게 6개를 주었더니 15개가 남았습니다. 처음에 유정이가 가지고 있던 사탕은 몇 개입니까?')
 # debug_one_question('흰색 구슬, 검은색 구슬, 보라색 구슬, 초록색 구슬, 빨간색 구슬이 1개씩 있습니다. 이 구슬 중 서로 다른 2개의 구슬을 고르는 방법은 모두 몇 가지입니까?')
-# debug_one_question('한 변의 길이가 6cm인 정사각형이 있습니다. 이 정사각형의 내접원의 지름 길이는 얼마입니까?')
+# debug_one_question('6에 어떤 수를 더해야 하는데 잘못하여 어떤 수를 6로 나누었더니 9이 되었습니다. 바르게 계산한 결과를 구하시오.')
+# debug_one_question('6에 어떤 수를 곱해야 하는데 잘못하여 어떤 수에 6을 더했더니 9가 되었습니다. 바르게 계산한 결과를 구하시오.')
 # %%

@@ -407,11 +407,16 @@ def solve(statements, time_limit_sec):
             answer, derivation = do_math(statements)
     except TimeoutException as e:
         print("do_math() timed out!")
+        print(f'\033[91mTimed out statements {statements}\033[0;0m')
     except Exception as e:
         print("do_math() exception!")
+        print(f'\033[91mSolver exception statements {statements}\033[0;0m')
+
     return answer, derivation
 
 # %%
 if __name__=="__main__": # 모듈 단독 테스트
-    do_math({'equation': [], 'code': ["strings=['흰색', '검은색', '보라색', '초록색', '빨간색']"], 'objective': ['math.comb(len(strings), (2))']})
+    # do_math({'equation': [], 'code': ["strings=['흰색', '검은색', '보라색', '초록색', '빨간색']"], 'objective': ['math.comb(len(strings), (2))']})
     # do_math({'equation': ['정현이 = 15','영진 = 180 / 15', '경주 = 7 / 2\n'], 'code': [], 'objective': ["vars['정현이']"]})
+    # do_math({'equation': ['r=x/(5)\nx*(5)=(100)'], 'code': [], 'objective': ["vars['x']/(5)"]})
+    do_math({'equation': ['지민 = (5)\n자신 = (5)\n지민 = (지민+자신)/(27) - (@n3)'], 'code': [], 'objective': ["vars['지민']"]})

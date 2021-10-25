@@ -17,6 +17,8 @@ def find_closest(problem):
             continue
         if template['question_predefined_patterns']['lists'].keys() != problem['question_predefined_patterns']['lists'].keys():
             continue
+        if (template['question_predefined_patterns']['mapping'] == {}) != (problem['question_predefined_patterns']['mapping'] == {}):
+            continue
         if (len(template['question_predefined_patterns']['equations']) > 0) != (len(problem['question_predefined_patterns']['equations']) > 0):
             continue
         # distance, assignments = match_to_template(problem['question_preprocessed'], template)
@@ -35,6 +37,8 @@ def find_phrases(problem):
     matches = [[(float('inf'), None, None) for i in range(0, len_q+1)] for j in range(0, len_q+1)]
     for template in dataset.dataset_phrases:
         distance, assignments, _, span = tagging.match_to_template_tags(template['template_tags'], problem['question_tags'])
+        distance *= (len(template['template_tags']) + len(problem['question_tags']))
+        # distance *= 2 * (span[1]-span[0]) / len(problem['question_tags'])
         if distance < matches[span[0]][span[1]][0]:
             matches[span[0]][span[1]] = (distance, template, assignments)
 
@@ -63,7 +67,7 @@ def find_phrases(problem):
             template_assignment_list.append((matches[tracks[pos]][pos][1], matches[tracks[pos]][pos][2]))
         pos = tracks[pos]
 
-    return scores[-1], template_assignment_list
+    return scores[-1] / (2*len_q), template_assignment_list
     # return closest_distance, best_pattern, best_assignments
 
 # 매칭된 템플릿을 이용하여 statements(lists, equation, code, objective) 구성
