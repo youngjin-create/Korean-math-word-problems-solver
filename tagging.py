@@ -126,7 +126,7 @@ def pos_tagging(text, join=None):
     global re_number
 
     text = utils.preprocess(text)
-    print(text)
+    # print(text)
 
     tags = mecab.pos(text, join=join)
     new_tags = []
@@ -365,8 +365,8 @@ if __name__== "__main__": # 모듈 단독 테스트
         # add_paddings(pos_tagging('4명 중 가장 가벼운 사람은 누구입니까?')),
         # pos_tagging('학생들이 몸무게를 비교하고 있습니다. 석진이는 호석이보다 무겁고 지민이보다 가볍습니다. 남준이는 지민이보다 무겁습니다. 4명 중 가장 가벼운 사람은 누구입니까?'),
         # pos_tagging('$1구슬과 $2구슬, $3구슬을 모두 합하면 #1개입니다. $4구슬은 $5구슬보다 #2개가 많고, $6구슬은 #3개일 때 $7구슬은 몇 개입니까?'),
-        pos_tagging('어떤 수에 3을 곱해야 하는데 잘못하여 뺐더니 8이 나왔습니다.'),
-        pos_tagging('어떤 수에 3을 곱해야 할 것을 잘못하여 빼었더니 369가 되었습니다.'),
+        pos_tagging('다음 식 @equation을 만족하는 수 @n0를 구하시오.'),
+        pos_tagging('덧셈식 AB+55=78에서 A에 해당하는 숫자를 쓰시오.'),
         visualize=True)
     print(score)
     print(assignments)

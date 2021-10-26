@@ -194,6 +194,7 @@ print('loading dataset...', end=' ')
 
 ############### LOADING DATA from GOOGLE SHEETS #############
 dataset_google_sentences_teacher = load_dataset_google_sheets('선생님문제모음')
+dataset_google_sentences_teacher = load_dataset_google_sheets('콴다초등문제모음')
 dataset_google_sentences_augmented = load_dataset_google_sheets('augmented')
 dataset_google_phrases1 = load_dataset_google_sheets('수찾기3', is_phrase=True)
 dataset_google_phrases2 = load_dataset_google_sheets('크기비교', is_phrase=True)

@@ -8,7 +8,7 @@ re_number = re.compile(r'[0-9]+([.][0-9]+)?(/[0-9]+([.][0-9]+)?)?')
 re_string = re.compile(r'\(\w\)')
 re_equation = re.compile('[0-9A-Z][0-9A-Z\.\+\-\*\/\(\)=<> ]*=[0-9A-Z\.\+\-\*\/\(\)=<> ]*[0-9A-Z]') # 등호(=)를 포함하는 식
 
-re_noun_ending = re.compile(r'^(높이|넓이|겉넓이|하와이|떡볶이|올챙이|\w+?)(은|는|이가|이는|이|가|에게|을|를|의|으로|에|에는|중에서|마다|이고|입니다|이다)?([,.]?)$')
+re_noun_ending = re.compile(r'^(높이|넓이|겉넓이|하와이|떡볶이|올챙이|\w+?)(은|는|이가|이는|이의|이|가|에게|을|를|의|으로|에|에는|중에서|마다|이고|입니다|이다)?([,.]?)$')
 def remove_ending(word):
     # if word in ['높이', '하와이', '떡볶이', '올챙이']:
         # return word
@@ -36,8 +36,9 @@ def extract_lists(q):
     strings = re_strings.findall(q)
     if strings:
         items = re.findall(r'\w+', strings[0][0])
-        results['strings'] = [x for x in items]
-        results['strings'][-1] = remove_ending(results['strings'][-1])
+        # results['strings'] = [x for x in items]
+        results['strings'] = [remove_ending(x) for x in items]
+        # results['strings'][-1] = remove_ending(results['strings'][-1])
         q = q.replace(strings[0][0], '@strings').strip()
 
     strings = re_word_word_list.findall(q)
@@ -119,7 +120,8 @@ q = '각 학생들이 게임에서 얻은 점수는 다음과 같습니다. 승�
 q = '유정이는 국어, 수학, 사회, 과학 시험 점수를 95점, 80점, 70점, 100점을 받았습니다. 유정이의 시험 평균 점수는 몇 점입니까?'
 q = '100이 2개, 10이 5개, 1이 7개인 수는 무엇입니까?'
 q = '어느 농부는 200㎡의 밭에 감자, 고구마, 무, 배추, 콩을 각각 25%, 30%, 20%, 15%, 10%로 나누어 심었습니다. 고구마를 심은 면적은 무를 심은 면적보다 몇㎡ 더 넓습니까?'
-q = '다세 수 25, 34, 42 중 짝수는 어떤 수 입니까?'
+q = '호석이는 고등학교 때 수정이를 사겼고, 대학교 때 승연이, 윤정이, 문희를 사겼습니다. 그리고 직장 생활을 하면서 민선이를 사겼습니다. 호석이가 세 번째로 사귄 여자친구는 누구입니까?'
+q = '키가 130cm이하인 사람은 탈 수 없는 놀이기구가 있습니다. 남준이의 키는 130.8cm,  석진이의 키는 132cm, 윤기의 키는 129cm 일때 놀이기구를 탈 수 있는 사람은 누구인가요?'
 
 if __name__=="__main__": # 모듈 단독 테스트
     predefined_patters, q = extract_predefined_patterns(q)

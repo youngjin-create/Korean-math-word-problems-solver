@@ -64,16 +64,11 @@ def debug_one_question(question, q_number=0, right_answer=''):
         problem['best_template_distance'], problem['best_template'], problem['best_template_assignment'], problem['statements'], closest_k,
         code, answer, right_answer, '{0:.2f}'.format(time.time() - problem_time)]
 
-    with open('test_results.csv', 'a', newline='') as csvfile:
-        writer = csv.writer(csvfile, delimiter=',', quotechar='"')
-        writer.writerow(result_row)
+    # with open('test_results.csv', 'a', newline='') as csvfile:
+    #     writer = csv.writer(csvfile, delimiter=',', quotechar='"')
+    #     writer.writerow(result_row)
 
     return result_row
-
-def f(arg1, arg2):
-    print(arg1)
-    print(arg2)
-    return arg1 + arg2
 
 def debug_all_questions():
     test = dataset.dataset_google_sentences_teacher#[:40]
@@ -85,7 +80,7 @@ def debug_all_questions():
 
     return results
 
-results = debug_all_questions()
+# results = debug_all_questions()
 
 # debug_one_question('한 변이 12/5cm인 정삼각형의 둘레는 몇 cm입니까? ')
 # debug_one_question('학생들이 몸무게를 비교하고 있습니다. 석진이는 호석이보다 무겁고 지민이보다 가볍습니다. 남준이는 지민이보다 무겁습니다. 4명 중 가장 가벼운 사람은 누구입니까?')
@@ -97,5 +92,8 @@ results = debug_all_questions()
 # debug_one_question('유정이는 가지고 있던 사탕 중에서 언니에게 7개를 주고 동생에게 6개를 주었더니 15개가 남았습니다. 처음에 유정이가 가지고 있던 사탕은 몇 개입니까?')
 # debug_one_question('흰색 구슬, 검은색 구슬, 보라색 구슬, 초록색 구슬, 빨간색 구슬이 1개씩 있습니다. 이 구슬 중 서로 다른 2개의 구슬을 고르는 방법은 모두 몇 가지입니까?')
 # debug_one_question('6에 어떤 수를 더해야 하는데 잘못하여 어떤 수를 6로 나누었더니 9이 되었습니다. 바르게 계산한 결과를 구하시오.')
-# debug_one_question('6에 어떤 수를 곱해야 하는데 잘못하여 어떤 수에 6을 더했더니 9가 되었습니다. 바르게 계산한 결과를 구하시오.')
+# debug_one_question('덧셈식 AB+55=78에서 A에 해당하는 숫자를 쓰시오.')
+# debug_one_question('지민이는 주스를 0.7l 마셨습니다. 은지는 지민이보다 1/10l 더 적게 마셨습니다. 윤기는 4/5l 마셨고, 유나는 지민이보다 0.2l 더 많이 마셨습니다. 주스를 가장 많이 마신 사람은 누구입니까?')
+# debug_one_question('두 자리 수의 덧셈식 A4+2B=69에서 A+B에 해당하는 숫자를 쓰시오.')
+debug_one_question('A, B는 한 자리 수입니다. A는 2보다 4 큰 수이고, B보다 3 작은 수는 1입니다. A와 B의 합을 구하시오.')
 # %%

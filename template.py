@@ -63,7 +63,7 @@ def find_phrases(problem):
         # print(scores[pos])
         # print(matches[tracks[pos]][pos])
         if matches[tracks[pos]][pos][0] != float('inf'):
-            print(matches[tracks[pos]][pos][1]['template'], matches[tracks[pos]][pos][2])
+            # print(matches[tracks[pos]][pos][1]['template'], matches[tracks[pos]][pos][2])
             template_assignment_list.append((matches[tracks[pos]][pos][1], matches[tracks[pos]][pos][2]))
         pos = tracks[pos]
 
@@ -105,16 +105,15 @@ def match(problem):
 
     problem['question_tags'] = tagging.pos_tagging(problem['question_preprocessed'])
 
+    print('extracted predefined patterns = ' + str(problem['question_predefined_patterns']))
+
+    print(f'\033[33mbest match sentence\033[0;0m')
     distance, matches = find_closest(problem)
-    # distance, matches = find_phrases(problem)
+    print(f'{distance} {matches}')
+
     if len(problem['question']) > 30:
-        distance_phrases, matches_phrases = find_phrases(problem)
-
-        print('extracted predefined patterns = ' + str(problem['question_predefined_patterns']))
-
-        print(f'\033[33mbest match sentence\033[0;0m')
-        print(f'{distance} {matches}')
         print(f'\033[33mbest match phrases\033[0;0m')
+        distance_phrases, matches_phrases = find_phrases(problem)
         print(f'{distance_phrases} {matches_phrases}')
 
         if distance_phrases < distance:
@@ -130,7 +129,7 @@ def match(problem):
 
     statements = compile_statements(problem, matches)
 
-    print(f'statements = {statements}')
+    print(f'\033[33mstatements = {statements}\033[0;0m')
     problem['statements'] = statements
 
     return distance, statements

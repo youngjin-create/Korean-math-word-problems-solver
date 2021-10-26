@@ -218,26 +218,13 @@ def expand_term(matchobj):
             nonzero_vars.append(term[0])
         return "({})".format('+'.join(retval))
 
-def solver_digit_var(in_formula):
+def solver_digit_var(equations):
     global nonzero_vars
     nonzero_vars = []
 
-    if isinstance(in_formula, list):
-        eq = ' and '.join(in_formula)
-    elif isinstance(in_formula, str):
-        eq = in_formula
-    else:
-        return None
-
-    formula = re.sub('[0-9A-Z]*[A-Z][0-9A-Z]*', expand_term, eq)
-    formula = formula.replace('!=', '<>')
-    formula = formula.replace('=', '==')
-    formula = formula.replace('<>', '!=')
+    eq = ' and '.join(equations)
     for nonzero in nonzero_vars:
-        formula = formula + " and {}!=0".format(nonzero)
-
-    # code = parser.expr(formula).compile()
-    code = formula
+        eq = eq + " and {}!=0".format(nonzero)
 
     variables = []
     for i in string.ascii_uppercase:
@@ -248,14 +235,16 @@ def solver_digit_var(in_formula):
     envs = dict()
     for i in range(0, 10**len(variables)):
         for v in range(0, len(variables)):
-            envs[variables[v]] = (i % 10**(v+1)) // 10**v
-        if eval(code, envs):
-            r = dict()
-            for v in variables:
-                r[v] = envs[v]
-            retval.append(r)
-
-    return retval
+            envs[variables[v]] = i // (10**v) % 10
+        if eval(eq, envs):
+            return envs
+            # r = dict()
+            # for v in variables:
+            #     r[v] = envs[v]
+            # retval.append(r)
+            
+    return dict()
+    # return retval
 
 
 lambdas = dict({
@@ -366,6 +355,8 @@ def do_math(statements):
             substitued_equations = equation_substitution(equations)
             # sympy를 이용해서 정답을 찾음
             eq_dict = find_answer_using_sympy(substitued_equations)
+            for key, value in eq_dict.items():
+                v = eval(str(value)) # raise exception if solved partially
             # 정답을 기반으로 solution 코드를 생성
             answer_str = solution_code_generate(equations, eq_dict, code)
         except Exception as e1:
@@ -374,7 +365,10 @@ def do_math(statements):
         if answer_str == '':
             try:
                 field = solver_digit_var(equations)
-                eq_dict = field[0]
+                if '__builtins__' in field:
+                    del field['__builtins__']
+                eq_dict = field
+                # eq_dict = field[0]
                 answer_str = solution_code_generate(equations, eq_dict, code)
             except Exception as e2:
                 print('digit var solver exception')
@@ -432,8 +426,9 @@ def solve(statements, time_limit_sec):
 if __name__=="__main__": # 모듈 단독 테스트
     # print(do_math({'equation': [], 'code': ["strings=['흰색', '검은색', '보라색', '초록색', '빨간색']"], 'objective': ['mathcomb(len(strings), (2))']}))
     # do_math({'equation': ['정현이 = 15','영진 = 180 / 15', '경주 = 7 / 2\n'], 'code': [], 'objective': ["vars['정현이']"]})
-    # do_math({'equation': ['1A + B2 = 33'], 'code': [], 'objective': ["vars['A']"]})
+    print(do_math({'equation': ['1A + B2 = 33'], 'code': [], 'objective': ["vars['A']"]}))
     # do_math({'equation': ['r=x/(5)\nx*(5)=(100)'], 'code': [], 'objective': ["vars['x']/(5)"]})
-    # print(do_math({'equation': ['A=B+B+B+B\nA=30', '가=3','나=5', 'C>3'], 'code': [], 'objective': ["vars['A']"]}))
+    # print(do_math({'equation': ['A=B+B+B+B\nA=30'], 'code': [], 'objective': ["vars['A']"]}))
     # print(do_math({'equation': ['정국>지민', '지민>진호','정국<인수'], 'code': [], 'objective': ["vars['인수']"]}))
-    print(do_math({'equation': ['지민=(0.7)\n은지=지민-(1/10)\n윤기=(4/5)\n유나=지민+(0.2)'], 'code': ['x = sorted(vars.keys(), key=(lambda k: vars[k]))'], 'objective': ['x[-1]']}))
+    # print(do_math({'equation': ['정국+a=지민', '지민+b=진호','정국=c+인수'], 'code': [], 'objective': ["vars['인수']"]}))
+    # print(do_math({'equation': ['지민=(0.7)\n은지=지민-(1/10)\n윤기=(4/5)\n유나=지민+(0.2)'], 'code': ['x = sorted(vars.keys(), key=(lambda k: vars[k]))'], 'objective': ['x[-1]']}))
