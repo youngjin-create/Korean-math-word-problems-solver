@@ -77,7 +77,7 @@ def build_template(q, is_phrase=False):
             wcs[s] = s
             wcs_rev[s] = s
         else:
-            prefix = '@n' if utils.literal_type(s) == 'number' else '@s'
+            prefix = '@n' if utils.literal_type(s) in ['number', 'variable'] else '@s'
             idx = 0
             while prefix+f'{idx}' in wcs.keys():
                 idx += 1
@@ -194,6 +194,7 @@ print('loading dataset...', end=' ')
 
 ############### LOADING DATA from GOOGLE SHEETS #############
 dataset_google_sentences_teacher = load_dataset_google_sheets('선생님문제모음')
+dataset_google_sentences_augmented = load_dataset_google_sheets('augmented')
 dataset_google_phrases1 = load_dataset_google_sheets('수찾기3', is_phrase=True)
 dataset_google_phrases2 = load_dataset_google_sheets('크기비교', is_phrase=True)
 # load_dataset_json()
@@ -202,7 +203,8 @@ dataset_google_phrases2 = load_dataset_google_sheets('크기비교', is_phrase=T
 # datasets_all = [dataset_csv] #, dataset.dataset_csv_qanda] # 사용할 데이터셋
 
 dataset_sentences = []
-dataset_sentences.extend(dataset_google_sentences_teacher) #, dataset.dataset_csv_qanda] # 사용할 데이터셋
+dataset_sentences.extend(dataset_google_sentences_teacher)
+dataset_sentences.extend(dataset_google_sentences_augmented)
 dataset_phrases = []
 dataset_phrases.extend(dataset_google_phrases1)
 dataset_phrases.extend(dataset_google_phrases2)

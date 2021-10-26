@@ -340,7 +340,7 @@ def do_math(statements):
 
     # import, lambda function 추가
     ld = lambda_definitions(equations, code, objective)
-    answer_header = ['import math', 'import itertools', *ld, *code]
+    answer_header = ['import math', 'import itertools', *ld]#, *code]
 
     # equations가 있으면 풀이 시도
     answer_str = ''
@@ -435,4 +435,5 @@ if __name__=="__main__": # 모듈 단독 테스트
     # do_math({'equation': ['1A + B2 = 33'], 'code': [], 'objective': ["vars['A']"]})
     # do_math({'equation': ['r=x/(5)\nx*(5)=(100)'], 'code': [], 'objective': ["vars['x']/(5)"]})
     # print(do_math({'equation': ['A=B+B+B+B\nA=30', '가=3','나=5', 'C>3'], 'code': [], 'objective': ["vars['A']"]}))
-    print(do_math({'equation': ['정국>지민', '지민>진호','정국<인수'], 'code': [], 'objective': ["vars['인수']"]}))
+    # print(do_math({'equation': ['정국>지민', '지민>진호','정국<인수'], 'code': [], 'objective': ["vars['인수']"]}))
+    print(do_math({'equation': ['지민=(0.7)\n은지=지민-(1/10)\n윤기=(4/5)\n유나=지민+(0.2)'], 'code': ['x = sorted(vars.keys(), key=(lambda k: vars[k]))'], 'objective': ['x[-1]']}))

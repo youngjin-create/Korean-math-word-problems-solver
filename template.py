@@ -107,7 +107,7 @@ def match(problem):
 
     distance, matches = find_closest(problem)
     # distance, matches = find_phrases(problem)
-    if len(problem['question']) > 40:
+    if len(problem['question']) > 30:
         distance_phrases, matches_phrases = find_phrases(problem)
 
         print('extracted predefined patterns = ' + str(problem['question_predefined_patterns']))
