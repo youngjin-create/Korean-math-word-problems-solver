@@ -31,6 +31,11 @@ important_words = [
     '정사면체', '정육면체', '겉넓이', '넓이']
 
 pptags = {
+    ('*', 'NUMBERS'): (None, None, None, None, 0.0, 0.0, 0.0),
+    ('*', 'STRINGS'): (None, None, None, None, 0.0, 0.0, 0.0),
+    ('*', 'MAPPING'): (None, None, None, None, 0.0, 0.0, 0.0),
+    ('*', 'EQUATION'): (None, None, None, None, 0.0, 0.0, 0.0),
+
     ('ml', 'SL'): ('밀리리터', 'NNBC'),
     ('㎖', 'SY'): ('밀리리터', 'NNBC'),
     ('l', 'SL'): ('리터', 'NNBC'),
@@ -51,6 +56,7 @@ pptags = {
     ('였', 'EP'): ('었', 'EP'),
     ('를', 'JKO'): ('을', 'JKO'),
     ('가', 'JKS'): ('이', 'JKS'),
+    ('는', 'JX'): ('은', 'JX'),
     ('여야', 'EC'): ('어야', 'EC'),
     ('야', 'EC'): ('어야', 'EC'),
 
@@ -101,7 +107,7 @@ def post_process_tagging(tags):
             t = pptags[(tag[0], tag[1])]
         if t:
             for i in range(0, len(t)):
-                if t[i]:
+                if t[i] != None:
                     tag[i] = t[i]
 
         if tag[0] in important_words:
@@ -166,10 +172,13 @@ def pos_tagging(text, join=None):
         tags = [tag for tag in tags if not(match.span()[0] <= tag[2] and tag[3] <= match.span()[1])]
         tags.append((match.group(), 'EQUATION', match.span()[0], match.span()[1]))
 
-    for match in re.finditer('@numbers[0-9]', text):
+    for match in re.finditer('@equation[0-9]?', text):
+        tags.append((match.group(), 'EQUATION', match.span()[0], match.span()[1]))
+
+    for match in re.finditer('@numbers[0-9]?', text):
         tags.append((match.group(), 'NUMBERS', match.span()[0], match.span()[1]))
 
-    for match in re.finditer('@strings[0-9]', text):
+    for match in re.finditer('@strings[0-9]?', text):
         tags.append((match.group(), 'STRINGS', match.span()[0], match.span()[1]))
 
     for match in re.finditer('@mapping', text):

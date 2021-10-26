@@ -8,9 +8,7 @@ import sympy
 import re
 import string
 import parser
-
-# 전역 변수
-additional_conditions = []
+import itertools
 
 class TimeoutException(Exception): pass
 
@@ -34,7 +32,7 @@ def equation_substitution(equations):
     for equation in equations:
         if equation == '':
             continue
-        left_eq, right_eq = equation.split('=')
+        left_eq, right_eq = equation.split('==')
         substitued_eq = left_eq + '-(' + right_eq + ')'
         substitued_equations.append(substitued_eq)
 
@@ -151,15 +149,12 @@ def find_answer_in_inequality(equations, order_symbol):
 
     return field
 
-
-
-import itertools
 # import time
 def find_answer_in_inequality2(equations):
     # start = time.time()
     field = {}
     equations = list(map(lambda x: x.replace(' ', ''), equations))
-    whole_variable_list = set(itertools.chain.from_iterable( map(lambda x: re.split('>|<|=', x), equations))) 
+    whole_variable_list = set(itertools.chain.from_iterable( map(lambda x: re.split('>|<|==', x), equations))) 
 
     # 부등호 refinement
     expressions = ['(' + x.replace('=','==') +')' for x in equations]
@@ -205,58 +200,9 @@ def find_answer_in_inequality2(equations):
     # print("Worst Time:", stop - start)
     return field
 
-lambdas = dict({
-    'divisors': 'divisors = lambda n: [x for x in range(1, n+1) if n % x == 0]',
-    'digits': 'digits = lambda ns, n: [int(\'\'.join(str(i) for i in x)) for x in itertools.permutations(ns, n) if x[0] != 0]',
-    'digitsz': 'digitsz = lambda ns, n: [int(\'\'.join(str(i) for i in x)) for x in itertools.permutations(ns, n)]',
-    'alldigits': 'alldigits = lambda n: range(10**(n-1), 10**n)',
-    'shiftr': 'shiftr = lambda x, n: x * 10**n',
-    'shiftl': 'shiftl = lambda x, n: x / 10**n',
-    'lcm': 'lcm = lambda x,y: int(x*y/math.gcd(x,y))',
-    'sumdigits': 'sumdigits = lambda n: sum([int(x) for x in list(str(n))])',
-    'mathcomb': 'mathcomb = lambda x, y: int(math.factorial(x)/(math.factorial(y)*math.factorial(x-y)))',
-    'mathperm': 'mathperm = lambda x, y: int(math.factorial(x)/ math.factorial(x-y))'
-})
-
-def solution_code_generate(equations, eq_dict, objective, code):
-    global lambdas
-    answer_str = "vars = dict()\n"
-    for key, value in eq_dict.items():
-        answer_str += "vars['" + str(key) + "']" + "=" + str(value) + "\n"
-
-    # math와 itertools 라이브러리는 기본으로 추가
-    answer_str += "import math\n"
-    answer_str += "import itertools\n"
-
-    temp = ''
-    for c in code:
-        temp += ' ' + c + ' '
-    temp += objective
-    for key in lambdas:
-        if key in temp:
-            answer_str += lambdas[key] + '\n'
-
-    answer_str += "if True"
-    for index, equation in enumerate(equations):
-        replaced_str = equation.replace("=","==")
-        answer_str += " and "
-        for key in eq_dict:
-            # replaced_str = re.sub(r'([^\[])(' + re.escape(str(key)) + r')([^\[])', f"\\g<1>vars['{key}']\\g<3>", replaced_str)
-            replaced_str = re.sub(r'\b' + re.escape(str(key)) + r'\b', f"vars['{key}']", replaced_str)
-        # vars = re.compile('(([가-힣]+)|(\([가|나|다|라|마|바|사|아|자|차|카|타|파|하]\))|([A-Za-z]))').findall(replaced_str)
-        # for var in vars:
-        #     replaced_str = re.sub(r'\b' + re.escape(var[0]) + r'\b', "vars['" + var[0] + "']", replaced_str)
-        #     # replaced_str = replaced_str.replace(var[0], "vars['" + var[0] + "']")
-        answer_str += replaced_str
-    answer_str += ":\n"
-    for c in code:
-        answer_str += '    ' + c + '\n'
-    objective_str = "    print(" + objective + ")"
-
-    return answer_str, objective_str
-
+nonzero_vars = []
 def expand_term(matchobj):
-    global additional_conditions
+    global nonzero_vars
 
     retval = []
     term = matchobj.group(0)
@@ -266,13 +212,15 @@ def expand_term(matchobj):
     else:
         for i in range(l):
             e = l-i-1
-        retval.append("{}*{}".format(10**e, term[i]))
+            retval.append("{}*{}".format(term[i], 10**e))
+        # print("({})".format('+'.join(retval)))
         if term[0] in string.ascii_uppercase:
-            additional_conditions.append(term[0])
+            nonzero_vars.append(term[0])
         return "({})".format('+'.join(retval))
 
 def solver_digit_var(in_formula):
-    global additional_conditions
+    global nonzero_vars
+    nonzero_vars = []
 
     if isinstance(in_formula, list):
         eq = ' and '.join(in_formula)
@@ -281,14 +229,15 @@ def solver_digit_var(in_formula):
     else:
         return None
 
-    formula = re.sub('[0-9A-Z]+', expand_term, eq)
+    formula = re.sub('[0-9A-Z]*[A-Z][0-9A-Z]*', expand_term, eq)
     formula = formula.replace('!=', '<>')
     formula = formula.replace('=', '==')
     formula = formula.replace('<>', '!=')
-    for nonzero in additional_conditions:
+    for nonzero in nonzero_vars:
         formula = formula + " and {}!=0".format(nonzero)
 
-    code = parser.expr(formula).compile()
+    # code = parser.expr(formula).compile()
+    code = formula
 
     variables = []
     for i in string.ascii_uppercase:
@@ -302,43 +251,114 @@ def solver_digit_var(in_formula):
             envs[variables[v]] = (i % 10**(v+1)) // 10**v
         if eval(code, envs):
             r = dict()
-        for v in variables:
-            r[v] = envs[v]
-        retval.append(r)
+            for v in variables:
+                r[v] = envs[v]
+            retval.append(r)
 
     return retval
+
+
+lambdas = dict({
+    'divisors': 'divisors = lambda n: [x for x in range(1, n+1) if n % x == 0]',
+    'digits': 'digits = lambda ns, n: [int(\'\'.join(str(i) for i in x)) for x in itertools.permutations(ns, n) if x[0] != 0]',
+    'digitsz': 'digitsz = lambda ns, n: [int(\'\'.join(str(i) for i in x)) for x in itertools.permutations(ns, n)]',
+    'alldigits': 'alldigits = lambda n: range(10**(n-1), 10**n)',
+    'shiftr': 'shiftr = lambda x, n: x * 10**n',
+    'shiftl': 'shiftl = lambda x, n: x / 10**n',
+    'lcm': 'lcm = lambda x,y: int(x*y/math.gcd(x,y))',
+    'sumdigits': 'sumdigits = lambda n: sum([int(x) for x in list(str(n))])',
+    'mathcomb': 'mathcomb = lambda x, y: int(math.factorial(x)/(math.factorial(y)*math.factorial(x-y)))',
+    'mathperm': 'mathperm = lambda x, y: int(math.factorial(x)/ math.factorial(x-y))'
+})
+
+def lambda_definitions(equations, code, objective):
+    global lambdas
+    defs = []
+    all = [*equations, *code, objective]
+    for s in all:
+        for key in lambdas:
+            if key in s:
+                defs.insert(0, lambdas[key])
+    return defs
+
+def expand_var_term(matchobj):
+    term = matchobj.group(0)
+
+    retval = []
+    l = len(term)
+    for i in range(l):
+        e = l-i-1
+        retval.append("{}*{}".format("vars['" + term[i] + "']" if term[i] in string.ascii_uppercase else term[i], 10**e))
+    # print("({})".format('+'.join(retval)))
+    return "({})".format('+'.join(retval))
+
+def solution_code_generate(equations, eq_dict, code):
+    global lambdas
+    answer_str = "vars=dict()\n"
+    for key, value in eq_dict.items():
+        answer_str += "vars['" + str(key) + "']" + "=" + str(value) + "\n"
+
+    answer_str += "if True"
+    for eq in equations:
+        # replaced_str = '(' + eq.replace("=","==") + ')'
+        # replaced_str = re.sub('[0-9A-Z]*[A-Z][0-9A-Z]*', expand_term, eq)
+        # replaced_str = replaced_str.replace('!=', '<>')
+        # replaced_str = replaced_str.replace('=', '==')
+        # replaced_str = replaced_str.replace('<>', '!=')
+
+        answer_str += " and "
+        for key in eq_dict:
+            # replaced_str = re.sub(r'([^\[])(' + re.escape(str(key)) + r')([^\[])', f"\\g<1>vars['{key}']\\g<3>", replaced_str)
+            eq = re.sub(r'\b' + re.escape(str(key)) + r'\b', f"vars['{key}']", eq)
+        # vars = re.compile('(([가-힣]+)|(\([가|나|다|라|마|바|사|아|자|차|카|타|파|하]\))|([A-Za-z]))').findall(replaced_str)
+        # for var in vars:
+        #     replaced_str = re.sub(r'\b' + re.escape(var[0]) + r'\b', "vars['" + var[0] + "']", replaced_str)
+        #     # replaced_str = replaced_str.replace(var[0], "vars['" + var[0] + "']")
+        if '==' in eq:
+            left, right = eq.split('==')
+            eq = 'round(' + left + ', 12)==round(' + right + ', 12)'
+        answer_str += eq
+    answer_str += ":\n"
+    for c in code:
+        answer_str += '    ' + c + '\n'
+
+    return answer_str
 
 # 주어진 statements(equation, code 등)에서 실행가능한 python 코드를 생성하고, 실행해서 얻어진 답을 반환한다.
 # statements: equation, code, objective
 def do_math(statements):
-    # if len(statements['equation']) > 0 and len(statements['objective']) > 0:
-    #equations = re.split(r'[\r\n]' , statements['equation'][0])
-    # equations = statements['equation'][0].split('\r\n')
     equations = []
     for item in statements['equation']:
         equations.extend(re.split(r'[\r\n]', item))
-        # splitted_item = re.split(r'[\r\n]' , item)
-        # for eq_token in splitted_item:
-        #     if eq_token != '':
-        #         equations.append(eq_token)
-
     # 중복값 제거
-    equations = [x for x in list(set(equations)) if x.strip() != '']
+    equations = [x.strip() for x in list(set(equations)) if x.strip() != '']
     code = []
     for item in statements['code']:
         code.extend(re.split(r'[\r\n]', item))
-    # statements['code'][0] if statements['code'] != [] else ''
 
     objective = statements['objective'][0] if statements['objective'] != [] else ''
 
-    # equation과 code가 없는 경우 바로 정답을 print
-    if len(equations) == 0 and len(code) == '':
-        answer_str = ""
-        # math와 itertools 라이브러리는 기본으로 추가
-        answer_str += "import math\n"
-        answer_str += "import itertools\n"
-        answer_str += "print(" + objective + ")"
-    else:
+    # import, lambda function 추가
+    ld = lambda_definitions(equations, code, objective)
+    answer_header = ['import math', 'import itertools', *ld, *code]
+
+    # equations가 있으면 풀이 시도
+    answer_str = ''
+    if len(equations) > 0:
+        variables = set()
+        for idx, eq in enumerate(equations):
+            vars = re.compile('[가-힣]+|[A-Za-z]+').findall(eq)
+            variables.update(vars)
+
+            eq = re.sub('[0-9A-Z]*[A-Z][0-9A-Z]*', expand_term, eq)
+            eq = eq.replace('!=', '<>')
+            eq = eq.replace('=', '==')
+            eq = eq.replace('<>', '!=')
+            equations[idx] = eq
+
+        # for nonzero in nonzero_vars:
+            # formula = formula + " and {}!=0".format(nonzero)
+
         # 1. sympy solver로 풀이 시도
         answer_str=''
         try:
@@ -347,17 +367,15 @@ def do_math(statements):
             # sympy를 이용해서 정답을 찾음
             eq_dict = find_answer_using_sympy(substitued_equations)
             # 정답을 기반으로 solution 코드를 생성
-            answer_str, objective_str = solution_code_generate(equations, eq_dict, objective, code)
+            answer_str = solution_code_generate(equations, eq_dict, code)
         except Exception as e1:
             print('sympy solver exception')
         # 2. digit var solver로 풀이 시도
         if answer_str == '':
-            global additional_conditions
-            additional_conditions = []
             try:
                 field = solver_digit_var(equations)
                 eq_dict = field[0]
-                answer_str, objective_str = solution_code_generate(equations, eq_dict, objective, code)
+                answer_str = solution_code_generate(equations, eq_dict, code)
             except Exception as e2:
                 print('digit var solver exception')
         # 3. 부등식 solver로 풀이 시도
@@ -365,19 +383,20 @@ def do_math(statements):
             try:
                 field = find_answer_in_inequality2(equations)
                 eq_dict = field
-                answer_str, objective_str = solution_code_generate(equations, eq_dict, objective, code)
+                answer_str = solution_code_generate(equations, eq_dict, code)
             except Exception as e3:
                 print('inequality solver exception')
+    else:
+        answer_str = 'if True:\n'
 
-    # if 'objective' in statements:
-    # if len(statements['objective']) > 0:
-        # objective = statements['objective'][0]
+    answer_str = '\n'.join(answer_header) + '\n' + answer_str
 
     env = dict()
     try:
-        exec(answer_str + objective_str, env, env)
+        exec(answer_str + '    pass', env, env)
         answer = eval(objective, env, env) if objective != '' else ''
 
+        # objective의 타입에 맞춰서 print문 추가
         if answer != None:
             if type(answer) == str:
                 objective_in_string = objective
@@ -388,13 +407,7 @@ def do_math(statements):
             answer_str += '    print(' + objective_in_string + ')'
             answer = eval(objective_in_string, env, env)
 
-        #print(answer_str)
         return answer, answer_str
-
-        # exec('\n'.join(derivation), env, env)
-        # answer = eval(objective, env, env)
-                
-        #     return answer, derivation
     except Exception as e:
         print(e)
 
@@ -417,7 +430,9 @@ def solve(statements, time_limit_sec):
 
 # %%
 if __name__=="__main__": # 모듈 단독 테스트
-    # do_math({'equation': [], 'code': ["strings=['흰색', '검은색', '보라색', '초록색', '빨간색']"], 'objective': ['math.comb(len(strings), (2))']})
+    # print(do_math({'equation': [], 'code': ["strings=['흰색', '검은색', '보라색', '초록색', '빨간색']"], 'objective': ['mathcomb(len(strings), (2))']}))
     # do_math({'equation': ['정현이 = 15','영진 = 180 / 15', '경주 = 7 / 2\n'], 'code': [], 'objective': ["vars['정현이']"]})
+    # do_math({'equation': ['1A + B2 = 33'], 'code': [], 'objective': ["vars['A']"]})
     # do_math({'equation': ['r=x/(5)\nx*(5)=(100)'], 'code': [], 'objective': ["vars['x']/(5)"]})
-    do_math({'equation': ['지민 = (5)\n자신 = (5)\n지민 = (지민+자신)/(27) - (@n3)'], 'code': [], 'objective': ["vars['지민']"]})
+    # print(do_math({'equation': ['A=B+B+B+B\nA=30', '가=3','나=5', 'C>3'], 'code': [], 'objective': ["vars['A']"]}))
+    print(do_math({'equation': ['정국>지민', '지민>진호','정국<인수'], 'code': [], 'objective': ["vars['인수']"]}))

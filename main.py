@@ -63,8 +63,8 @@ for r in results:
     answersheet[r['q_number']] = dict(answer=r['answer'], equation=r['equation'])
 
 # answersheet[q_number] = { "answer": answer, "equation": code }
-# with open('answersheet_5_00_everdoubling.json', 'w', encoding='utf-8') as outfile:
-with open('answersheet.json', 'w', encoding='utf-8') as outfile:
+with open('answersheet_5_00_everdoubling.json', 'w', encoding='utf-8') as outfile:
+# with open('answersheet.json', 'w', encoding='utf-8') as outfile:
     json.dump(answersheet, outfile, ensure_ascii=False, indent=4)
 
 print('execution time = {0:.0f} seconds.'.format(time.time() - start_time))

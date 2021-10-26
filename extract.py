@@ -85,7 +85,7 @@ def extract_equations(q):
     re_equation = '[0-9A-Z][0-9A-Z\.\+\-\*\/\(\)=<> ]*=[0-9A-Z\.\+\-\*\/\(\)=<> ]*[0-9A-Z]' # 등호(=)를 포함하는 식
     equations = re.findall(re_equation, q)
     for eq in equations:
-        q = q.replace(eq, '').strip(' ,')
+        q = q.replace(eq, '@equation') #.strip(' ,')
     return equations, q
 
 def extract_predefined_patterns(q):
