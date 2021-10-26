@@ -308,8 +308,8 @@ def solution_code_generate(equations, eq_dict, code):
             eq = 'round(' + left + ', 12)==round(' + right + ', 12)'
         answer_str += eq
     answer_str += ":\n"
-    for c in code:
-        answer_str += '    ' + c + '\n'
+    # for c in code:
+    #     answer_str += '    ' + c + '\n'
 
     return answer_str
 
@@ -383,6 +383,9 @@ def do_math(statements):
     else:
         answer_str = 'if True:\n'
 
+    for c in code:
+        answer_str += '    ' + c + '\n'
+        
     answer_str = '\n'.join(answer_header) + '\n' + answer_str
 
     env = dict()
@@ -426,9 +429,10 @@ def solve(statements, time_limit_sec):
 if __name__=="__main__": # 모듈 단독 테스트
     # print(do_math({'equation': [], 'code': ["strings=['흰색', '검은색', '보라색', '초록색', '빨간색']"], 'objective': ['mathcomb(len(strings), (2))']}))
     # do_math({'equation': ['정현이 = 15','영진 = 180 / 15', '경주 = 7 / 2\n'], 'code': [], 'objective': ["vars['정현이']"]})
-    print(do_math({'equation': ['1A + B2 = 33'], 'code': [], 'objective': ["vars['A']"]}))
+    # print(do_math({'equation': ['1A + B2 = 33'], 'code': [], 'objective': ["vars['A']"]}))
     # do_math({'equation': ['r=x/(5)\nx*(5)=(100)'], 'code': [], 'objective': ["vars['x']/(5)"]})
     # print(do_math({'equation': ['A=B+B+B+B\nA=30'], 'code': [], 'objective': ["vars['A']"]}))
     # print(do_math({'equation': ['정국>지민', '지민>진호','정국<인수'], 'code': [], 'objective': ["vars['인수']"]}))
     # print(do_math({'equation': ['정국+a=지민', '지민+b=진호','정국=c+인수'], 'code': [], 'objective': ["vars['인수']"]}))
     # print(do_math({'equation': ['지민=(0.7)\n은지=지민-(1/10)\n윤기=(4/5)\n유나=지민+(0.2)'], 'code': ['x = sorted(vars.keys(), key=(lambda k: vars[k]))'], 'objective': ['x[-1]']}))
+    print(do_math({'equation': [], 'code': ["strings=['국어', '수학', '영어', '과학', '음악', '미술']"], 'objective': ['strings[(5)-1]']}))
