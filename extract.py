@@ -25,21 +25,21 @@ def extract_lists(q):
     global re_numbers
     numbers = re_numbers.findall(q)
     if numbers:
-        items = re.findall(regexp_num, numbers[0][0])
-        # results['numbers'] = [float(x[1])/(1 if x[5] == '' else float(x[5])) for x in items]
-        results['numbers'] = [eval(x[0]) for x in items]
-        q = q.replace(numbers[0][0], '@numbers').strip()
-
+        for idx, nums in enumerate(numbers):
+            id = 'numbers' + ('' if len(numbers)==0 else str(idx+1))
+            items = re.findall(regexp_num, nums[0])
+            results[id] = [eval(x[0]) for x in items]
+            q = q.replace(nums[0], '@' + id).strip()
         q = re.sub(r'^(\w+\s+){1,3}@numbers', '@numbers', q)
 
     global re_strings
     strings = re_strings.findall(q)
     if strings:
-        items = re.findall(r'\w+', strings[0][0])
-        # results['strings'] = [x for x in items]
-        results['strings'] = [remove_ending(x) for x in items]
-        # results['strings'][-1] = remove_ending(results['strings'][-1])
-        q = q.replace(strings[0][0], '@strings').strip()
+        for idx, strs in enumerate(strings):
+            id = 'strings' + ('' if len(strings)==0 else str(idx+1))
+            items = re.findall(r'\w+', strs[0])
+            results[id] = [remove_ending(x) for x in items]
+            q = q.replace(strs[0], '@' + id).strip()
 
     strings = re_word_word_list.findall(q)
     if strings:
@@ -122,6 +122,8 @@ q = '100이 2개, 10이 5개, 1이 7개인 수는 무엇입니까?'
 q = '어느 농부는 200㎡의 밭에 감자, 고구마, 무, 배추, 콩을 각각 25%, 30%, 20%, 15%, 10%로 나누어 심었습니다. 고구마를 심은 면적은 무를 심은 면적보다 몇㎡ 더 넓습니까?'
 q = '호석이는 고등학교 때 수정이를 사겼고, 대학교 때 승연이, 윤정이, 문희를 사겼습니다. 그리고 직장 생활을 하면서 민선이를 사겼습니다. 호석이가 세 번째로 사귄 여자친구는 누구입니까?'
 q = '키가 130cm이하인 사람은 탈 수 없는 놀이기구가 있습니다. 남준이의 키는 130.8cm,  석진이의 키는 132cm, 윤기의 키는 129cm 일때 놀이기구를 탈 수 있는 사람은 누구인가요?'
+q = '어느 농부는 200㎡의 밭에 감자, 고구마, 무, 배추, 콩을 각각 파란색, 노란색, 검은색으로 나누어 심었습니다. 고구마를 심은 면적은 무를 심은 면적보다 몇㎡ 더 넓습니까?'
+q = '우리학교 운동회에서 6학년, 5학년, 4학년, 1학년, 2학년, 3학년 순서로 경기를 진행합니다. 1, 2, 3, 4 네번째로 경기를 하는 학년은 몇 학년입니까?'
 
 if __name__=="__main__": # 모듈 단독 테스트
     predefined_patters, q = extract_predefined_patterns(q)

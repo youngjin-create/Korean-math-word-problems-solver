@@ -186,38 +186,38 @@ def load_dataset_google_sheets(sheetname, is_phrase=False):
 print('loading dataset...', end=' ')
 
 
-############# LOADING DATA from PICKLE ###############
-with open('data.pickle', 'rb') as f:
-    loaded_data = pickle.load(f)
-dataset_sentences = loaded_data['dataset_sentences']
-dataset_phrases = loaded_data['dataset_phrases']
+# ############# LOADING DATA from PICKLE ###############
+# with open('data.pickle', 'rb') as f:
+#     loaded_data = pickle.load(f)
+# dataset_sentences = loaded_data['dataset_sentences']
+# dataset_phrases = loaded_data['dataset_phrases']
 
-# ############### LOADING DATA from GOOGLE SHEETS #############
-# dataset_google_sentences_teacher = load_dataset_google_sheets('선생님문제모음')
-# dataset_google_sentences_elementary = load_dataset_google_sheets('콴다초등문제모음')
-# dataset_google_sentences_augmented = load_dataset_google_sheets('augmented')
-# dataset_google_phrases1 = load_dataset_google_sheets('수찾기3', is_phrase=True)
-# dataset_google_phrases2 = load_dataset_google_sheets('크기비교', is_phrase=True)
-# # load_dataset_json()
-# # dataset_csv = load_dataset_csv('dataset.csv')
-# # dataset_csv_qanda = load_dataset_csv('dataset_qanda.csv')
-# # datasets_all = [dataset_csv] #, dataset.dataset_csv_qanda] # 사용할 데이터셋
+############### LOADING DATA from GOOGLE SHEETS #############
+dataset_google_sentences_teacher = load_dataset_google_sheets('선생님문제모음')
+dataset_google_sentences_elementary = load_dataset_google_sheets('콴다초등문제모음')
+dataset_google_sentences_augmented = load_dataset_google_sheets('augmented')
+dataset_google_phrases1 = load_dataset_google_sheets('수찾기3', is_phrase=True)
+dataset_google_phrases2 = load_dataset_google_sheets('크기비교', is_phrase=True)
+# load_dataset_json()
+# dataset_csv = load_dataset_csv('dataset.csv')
+# dataset_csv_qanda = load_dataset_csv('dataset_qanda.csv')
+# datasets_all = [dataset_csv] #, dataset.dataset_csv_qanda] # 사용할 데이터셋
 
-# dataset_sentences = []
-# dataset_sentences.extend(dataset_google_sentences_teacher)
-# dataset_sentences.extend(dataset_google_sentences_elementary)
-# dataset_sentences.extend(dataset_google_sentences_augmented)
-# dataset_phrases = []
-# dataset_phrases.extend(dataset_google_phrases1)
-# dataset_phrases.extend(dataset_google_phrases2)
+dataset_sentences = []
+dataset_sentences.extend(dataset_google_sentences_teacher)
+dataset_sentences.extend(dataset_google_sentences_elementary)
+dataset_sentences.extend(dataset_google_sentences_augmented)
+dataset_phrases = []
+dataset_phrases.extend(dataset_google_phrases1)
+dataset_phrases.extend(dataset_google_phrases2)
 
-# ############### SAVE DATA #############
-# loaded_data = { 
-#     'dataset_sentences' : dataset_sentences,
-#     'dataset_phrases' : dataset_phrases
-# }
-# with open('data.pickle', 'wb') as f:
-#     pickle.dump(loaded_data, f, pickle.HIGHEST_PROTOCOL)
+############### SAVE DATA #############
+loaded_data = { 
+    'dataset_sentences' : dataset_sentences,
+    'dataset_phrases' : dataset_phrases
+}
+with open('data.pickle', 'wb') as f:
+    pickle.dump(loaded_data, f, pickle.HIGHEST_PROTOCOL)
 
 
 print('done.')

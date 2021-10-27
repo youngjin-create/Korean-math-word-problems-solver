@@ -218,7 +218,7 @@ def expand_term(matchobj):
             nonzero_vars.append(term[0])
         return "({})".format('+'.join(retval))
 
-def solver_digit_var(equations):
+def solver_digit_var(equations, variables):
     global nonzero_vars
     nonzero_vars = []
 
@@ -226,16 +226,13 @@ def solver_digit_var(equations):
     for nonzero in nonzero_vars:
         eq = eq + " and {}!=0".format(nonzero)
 
-    variables = []
-    for i in string.ascii_uppercase:
-        if eq.find(i) > -1:
-            variables.append(i)
+    varslist = list(variables)
 
     retval = []
     envs = dict()
-    for i in range(0, 10**len(variables)):
-        for v in range(0, len(variables)):
-            envs[variables[v]] = i // (10**v) % 10
+    for i in range(0, 10**len(varslist)):
+        for v in range(0, len(varslist)):
+            envs[varslist[v]] = i // (10**v) % 10
         if eval(eq, envs):
             return envs
             # r = dict()
@@ -364,7 +361,7 @@ def do_math(statements):
         # 2. digit var solver로 풀이 시도
         if answer_str == '':
             try:
-                field = solver_digit_var(equations)
+                field = solver_digit_var(equations, variables)
                 if '__builtins__' in field:
                     del field['__builtins__']
                 eq_dict = field
@@ -435,4 +432,5 @@ if __name__=="__main__": # 모듈 단독 테스트
     # print(do_math({'equation': ['정국>지민', '지민>진호','정국<인수'], 'code': [], 'objective': ["vars['인수']"]}))
     # print(do_math({'equation': ['정국+a=지민', '지민+b=진호','정국=c+인수'], 'code': [], 'objective': ["vars['인수']"]}))
     # print(do_math({'equation': ['지민=(0.7)\n은지=지민-(1/10)\n윤기=(4/5)\n유나=지민+(0.2)'], 'code': ['x = sorted(vars.keys(), key=(lambda k: vars[k]))'], 'objective': ['x[-1]']}))
-    print(do_math({'equation': [], 'code': ["strings=['국어', '수학', '영어', '과학', '음악', '미술']"], 'objective': ['strings[(5)-1]']}))
+    # print(do_math({'equation': [], 'code': ["strings=['국어', '수학', '영어', '과학', '음악', '미술']"], 'objective': ['strings[(5)-1]']}))
+    print(do_math({'equation': ['(나) > (라)', '(가) < (라)', '(나) < (다)'], 'code': [], 'objective': ['min(vars, key=vars.get)']}))
