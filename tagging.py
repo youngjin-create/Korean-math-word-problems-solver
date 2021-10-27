@@ -64,6 +64,10 @@ pptags = {
     ('받', 'VV'): (None, None, None, None, 0.5, 0.1, 1.0),
     ('넣', 'VV'): (None, None, None, None, 0.5, 0.1, 1.0),
 
+    ('잘하', 'VV'): (None, None, None, None, 1.0, 0.1, 2.0),
+    ('못하', 'VV'): (None, None, None, None, 1.0, 0.1, 2.0),
+    ('못했', 'VX+EP'): (None, None, None, None, 1.0, 0.1, 2.0),
+
     ('차', 'NNG'): (None, None, None, None, 1.0, 0.1, 2.0),
     ('합', 'NNG'): (None, None, None, None, 1.0, 0.1, 2.0),
     ('더하', 'VV'): (None, None, None, None, 1.0, 0.1, 2.0),
@@ -93,6 +97,17 @@ def post_process_tagging(tags):
             tags[idx][1] = 'NONE'
         if tags[idx-1][0] == '더' and tags[idx-1][1] == 'MAG' and tags[idx][0] == '했' and tags[idx][1] == 'VV+EP':
             tags[idx-1][0] = '더하'
+            tags[idx-1][1] = 'VV'
+            tags[idx][0] = '었'
+            tags[idx][1] = 'EP'
+            
+        if tags[idx-1][0] == '잘' and tags[idx-1][1] == 'MAG' and tags[idx][0] == '하' and tags[idx][1] == 'VV':
+            tags[idx-1][0] = '잘하'
+            tags[idx-1][1] = 'VV'
+            tags[idx][0] = ''
+            tags[idx][1] = 'NONE'
+        if tags[idx-1][0] == '잘' and tags[idx-1][1] == 'MAG' and tags[idx][0] == '했' and tags[idx][1] == 'VV+EP':
+            tags[idx-1][0] = '잘하'
             tags[idx-1][1] = 'VV'
             tags[idx][0] = '었'
             tags[idx][1] = 'EP'

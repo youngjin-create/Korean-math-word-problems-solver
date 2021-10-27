@@ -200,7 +200,7 @@ def find_answer_in_inequality2(equations):
     # print("Worst Time:", stop - start)
     return field
 
-nonzero_vars = []
+nonzero_vars = set()
 def expand_term(matchobj):
     global nonzero_vars
 
@@ -215,18 +215,20 @@ def expand_term(matchobj):
             retval.append("{}*{}".format(term[i], 10**e))
         # print("({})".format('+'.join(retval)))
         if term[0] in string.ascii_uppercase:
-            nonzero_vars.append(term[0])
+            nonzero_vars.add(term[0])
         return "({})".format('+'.join(retval))
 
 def solver_digit_var(equations, variables):
     global nonzero_vars
-    nonzero_vars = []
+    # nonzero_vars = []
 
     eq = ' and '.join(equations)
-    for nonzero in nonzero_vars:
+    for nonzero in list(nonzero_vars):
         eq = eq + " and {}!=0".format(nonzero)
 
     varslist = list(variables)
+    if len(varslist) >= 7:
+        return dict()
 
     retval = []
     envs = dict()
@@ -313,6 +315,8 @@ def solution_code_generate(equations, eq_dict, code):
 # 주어진 statements(equation, code 등)에서 실행가능한 python 코드를 생성하고, 실행해서 얻어진 답을 반환한다.
 # statements: equation, code, objective
 def do_math(statements):
+    global nonzero_vars
+    nonzero_vars = set()
     equations = []
     for item in statements['equation']:
         equations.extend(re.split(r'[\r\n]', item))
@@ -381,7 +385,8 @@ def do_math(statements):
         answer_str = 'if True:\n'
 
     for c in code:
-        answer_str += '    ' + c + '\n'
+        if c != '':
+            answer_str += '    ' + c + '\n'
         
     answer_str = '\n'.join(answer_header) + '\n' + answer_str
 
@@ -434,4 +439,5 @@ if __name__=="__main__": # 모듈 단독 테스트
     # print(do_math({'equation': ['지민=(0.7)\n은지=지민-(1/10)\n윤기=(4/5)\n유나=지민+(0.2)'], 'code': ['x = sorted(vars.keys(), key=(lambda k: vars[k]))'], 'objective': ['x[-1]']}))
     # print(do_math({'equation': [], 'code': ["strings=['국어', '수학', '영어', '과학', '음악', '미술']"], 'objective': ['strings[(5)-1]']}))
     # print(do_math({'equation': ['정국=2', '지민>정국', '인수>지민', '인수=4'], 'code': [], 'objective': ['vars["지민"]']}))
-    print(do_math({'equation': ['A//(6)=B\nA%(6)=C\nB=C'], 'code': ["strings=['A', 'B', 'C']"], 'objective': ["max(vars['A'])"]}))
+    # print(do_math({'equation': ['A//(6)=B\nA%(6)=C\nB=C'], 'code': ["strings=['A', 'B', 'C']"], 'objective': ["max(vars['A'])"]}))
+    do_math({'equation': ['정국 = (7) \n민영 = (5)\n태형<민영\n태형>정국'], 'code': [], 'objective': ["vars['태형']"]})
