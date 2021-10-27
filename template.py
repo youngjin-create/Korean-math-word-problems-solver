@@ -77,9 +77,13 @@ def compile_statements(problem, template_assignment_list):
     field_names = ['equation', 'code', 'objective']
     for fn in field_names:
         statements[fn] = []
+    mapping = dict()
     if problem['question_predefined_patterns']:
         for key in problem['question_predefined_patterns']['lists']:
             statements['code'].append(key + '=' + str(problem['question_predefined_patterns']['lists'][key]))
+        if 'mapping' in problem['question_predefined_patterns'] and problem['question_predefined_patterns']['mapping'] != {}:
+            statements['code'].append('mapping=' + str(problem['question_predefined_patterns']['mapping']))
+            mapping = problem['question_predefined_patterns']['mapping']
         for eq in problem['question_predefined_patterns']['equations']:
             statements['equation'].append(eq)
     for item in reversed(template_assignment_list):
@@ -88,6 +92,10 @@ def compile_statements(problem, template_assignment_list):
             if 'template_'+fn not in matched:
                 continue
             for line in matched['template_'+fn]:
+                if 'mapping' in line:
+                    for key in mapping:
+                        statements[fn].append('{}={}'.format(key, mapping[key]))
+                    continue
                 for key in assignments:
                     st = list(assignments[key])[0][0] if type(assignments[key]) == set else assignments[key]
                     if key.startswith('@n'):# and not(st[0].isnumeric()):

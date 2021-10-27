@@ -25,7 +25,7 @@ def solve_mwp(problem):
         if answer != None:
             return answer, derivation
 
-    return '0', ['print(0)'] # if failed, print 0
+    return '0', 'print(0)' # if failed, print 0
 
 # %%
 
@@ -52,7 +52,7 @@ def one_question(question, q_number=0, right_answer=''):
     print(f'\033[33mcode:\n{code}\033[0;0m')
     print(f'\033[33mA: {answer}\033[0;0m')
 
-    return dict(q_number=q_number, answer=answer, equation=derivation)
+    return dict(q_number=q_number, answer=answer, equation=code)
 
 with Pool(4) as p:
     results = p.starmap(one_question, [(problemsheet[q_number]['question'], q_number) for q_number in problemsheet])
