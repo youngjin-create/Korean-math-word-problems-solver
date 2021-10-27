@@ -95,7 +95,9 @@ def compile_statements(problem, template_assignment_list):
                 if 'mapping' in line and fn=='equation':
                     for key in mapping:
                         statements[fn].append('{}={}'.format(key, mapping[key]))
-                    continue
+                    line = line.replace('mapping\n', '')
+                    line = line.replace('mapping', '')
+                    # continue
                 for key in assignments:
                     st = list(assignments[key])[0][0] if type(assignments[key]) == set else assignments[key]
                     if key.startswith('@n'):# and not(st[0].isnumeric()):
