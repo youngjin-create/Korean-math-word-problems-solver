@@ -92,7 +92,7 @@ def compile_statements(problem, template_assignment_list):
             if 'template_'+fn not in matched:
                 continue
             for line in matched['template_'+fn]:
-                if 'mapping' in line:
+                if 'mapping' in line and fn=='equation':
                     for key in mapping:
                         statements[fn].append('{}={}'.format(key, mapping[key]))
                     continue
