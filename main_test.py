@@ -25,7 +25,7 @@ def solve_mwp(problem):
 
     if distance != None:
         # 변환된 수학적 표현을 풀어서 python code 형태로 답을 구함
-        answer, derivation = math_solver.solve(statements, time_limit_sec=99999)
+        answer, derivation = math_solver.solve(statements, time_limit_sec=10)
         if answer != None:
             return answer, derivation
 
@@ -71,7 +71,8 @@ def debug_one_question(question, q_number=0, right_answer=''):
     return result_row
 
 def debug_all_questions():
-    test = dataset.dataset_google_sentences_teacher#[:40]
+    # test = dataset.dataset_google_sentences_teacher#[:40]
+    test = dataset.dataset_sentences
     with Pool(32) as p:
         results = p.starmap(debug_one_question, [(q['question_original'], q['id'], q['answer']) for q in test])
     print('elapsed time = {0:.0f} seconds.'.format(time.time() - start_time))
@@ -80,7 +81,7 @@ def debug_all_questions():
 
     return results
 
-# results = debug_all_questions()
+results = debug_all_questions()
 
 # debug_one_question('한 변이 12/5cm인 정삼각형의 둘레는 몇 cm입니까? ')
 # debug_one_question('학생들이 몸무게를 비교하고 있습니다. 석진이는 호석이보다 무겁고 지민이보다 가볍습니다. 남준이는 지민이보다 무겁습니다. 4명 중 가장 가벼운 사람은 누구입니까?')
@@ -95,5 +96,6 @@ def debug_all_questions():
 # debug_one_question('덧셈식 AB+55=78에서 A에 해당하는 숫자를 쓰시오.')
 # debug_one_question('지민이는 주스를 0.7l 마셨습니다. 은지는 지민이보다 1/10l 더 적게 마셨습니다. 윤기는 4/5l 마셨고, 유나는 지민이보다 0.2l 더 많이 마셨습니다. 주스를 가장 많이 마신 사람은 누구입니까?')
 # debug_one_question('두 자리 수의 덧셈식 A4+2B=69에서 A+B에 해당하는 숫자를 쓰시오.')
-debug_one_question('A, B는 한 자리 수입니다. A는 2보다 4 큰 수이고, B보다 3 작은 수는 1입니다. A와 B의 합을 구하시오.')
+# debug_one_question('A, B는 한 자리 수입니다. A는 2보다 4 큰 수이고, B보다 3 작은 수는 1입니다. A와 B의 합을 구하시오.')
+# debug_one_question('서로 다른 세 수 A, B, C가 있습니다. 세 자리 수끼리의 덧셈식 5A7+A1B=118C에서 A+B를 구하시오.')
 # %%

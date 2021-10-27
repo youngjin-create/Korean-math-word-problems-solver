@@ -28,7 +28,7 @@ def extract_lists(q):
         for idx, nums in enumerate(numbers):
             id = 'numbers' + ('' if len(numbers)==1 else str(idx+1))
             items = re.findall(regexp_num, nums[0])
-            results[id] = [eval(x[0]) for x in items]
+            results[id] = [eval(x[0].lstrip('0') if len(x[0].lstrip('0'))!=0 else x[0]) for x in items]
             q = q.replace(nums[0], '@' + id).strip()
         q = re.sub(r'^(\w+\s+){1,3}@numbers', '@numbers', q)
 

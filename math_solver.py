@@ -333,7 +333,7 @@ def do_math(statements):
     if len(equations) > 0:
         variables = set()
         for idx, eq in enumerate(equations):
-            vars = re.compile('[가-힣]+|[A-Za-z]+').findall(eq)
+            vars = re.compile('[가-힣]+|[a-z]+|[A-Z]').findall(eq)
             variables.update(vars)
 
             eq = re.sub('[0-9A-Z]*[A-Z][0-9A-Z]*', expand_term, eq)
@@ -433,4 +433,5 @@ if __name__=="__main__": # 모듈 단독 테스트
     # print(do_math({'equation': ['정국+a=지민', '지민+b=진호','정국=c+인수'], 'code': [], 'objective': ["vars['인수']"]}))
     # print(do_math({'equation': ['지민=(0.7)\n은지=지민-(1/10)\n윤기=(4/5)\n유나=지민+(0.2)'], 'code': ['x = sorted(vars.keys(), key=(lambda k: vars[k]))'], 'objective': ['x[-1]']}))
     # print(do_math({'equation': [], 'code': ["strings=['국어', '수학', '영어', '과학', '음악', '미술']"], 'objective': ['strings[(5)-1]']}))
-    print(do_math({'equation': ['(나) > (라)', '(가) < (라)', '(나) < (다)'], 'code': [], 'objective': ['min(vars, key=vars.get)']}))
+    # print(do_math({'equation': ['정국=2', '지민>정국', '인수>지민', '인수=4'], 'code': [], 'objective': ['vars["지민"]']}))
+    print(do_math({'equation': ['A//(6)=B\nA%(6)=C\nB=C'], 'code': ["strings=['A', 'B', 'C']"], 'objective': ["max(vars['A'])"]}))

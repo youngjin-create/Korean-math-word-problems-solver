@@ -111,7 +111,8 @@ def build_template(q, is_phrase=False):
             continue
         for eq in q[fn]:
             for key in q['template_wildcards']:
-                eq = re.sub(r'(^|[^@])(\b' + re.escape(q['template_wildcards'][key]) + r'\b)', f'\\g<1>{key}', eq)
+                # eq = re.sub(r'(?!([@#$]|@n|@s))(\b' + re.escape(q['template_wildcards'][key]) + r'\b)', f'\\g<1>{key}', eq)
+                eq = re.sub(r'(^|[^@#$])(\b' + re.escape(q['template_wildcards'][key]) + r'\b)', f'\\g<1>{key}', eq)
             q['template_'+fn].append(eq)
 
     # wildcard 치환으로 인해서 tag 정보가 잘못 추출되는 경우가 발생, 원래 문장을 이용해서 추출한 tag으로 수정해준다.
