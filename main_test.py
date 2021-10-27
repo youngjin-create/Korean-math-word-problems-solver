@@ -24,7 +24,7 @@ def solve_mwp(problem):
     distance, statements = template.match(problem)
     if distance != None:
         # 변환된 수학적 표현을 풀어서 python code 형태로 답을 구함
-        answer, derivation = math_solver.solve(statements, time_limit_sec=1000)
+        answer, derivation = math_solver.solve(statements, time_limit_sec=15)
         # if answer != None:
             # return answer, derivation
 
@@ -39,7 +39,7 @@ def solve_mwp(problem):
 
     if fallback:
         distance, statements = rulebased.match(problem)
-        rb_answer, rb_derivation = math_solver.solve(statements, time_limit_sec=1000)
+        rb_answer, rb_derivation = math_solver.solve(statements, time_limit_sec=15)
         if rb_answer != None:
             return rb_answer, rb_derivation
 
@@ -124,5 +124,5 @@ def debug_all_questions():
 # debug_one_question('어떤 수 (가)는 235962A794, (나)는 235B705012, (다)는 23598C7860입니다. A, B, C 안에는 0부터 9까지 어느 숫자를 넣어도 될 때, (가)~(다) 중에서 가장 큰 수는 무엇인지 기호를 쓰세요.')
 # debug_one_question('지은이는 포도 원액 24 mL를 넣어 포도주스 60 mL를 만들었고 은성이는 포도 원액 27 mL를 넣어 포도주스 90 mL를 만들었습니다. 누가 만든 포도주스가 더 진할까요?')
 # debug_one_question('수학여행을 갈 때 기차를 타는 것에 찬성하는 학생 수를 조사하였습니다. A반은 25명 학생중 13명이 찬성, B반은 24명 학생 중 12명이 찬성했습니다. 두 반 중 찬성률이 더 높은 반은 어느 반인가요?')
-debug_one_question('달리기 시합에서 남준이는 2등을 했고, 윤기는 4등을 했습니다. 호석이는 윤기보다 잘했지만 남준이보다는 못했습니다. 호석이의 등수는 몇 등입니까?')
+debug_one_question('구슬을 6명에게 똑같이 나누어 주어야 할 것을 잘못하여 4명에게 똑같이 나누어 주었더니 한 사람당 19개씩이고 3개가 남았습니다. 이 구슬을 6명에게 될 수 있는 대로 많이 똑같이 나누어 주면 한 사람당 A개씩 가지고 B개가 남습니다. A와 B의 합을 구하세요.')
 # %%

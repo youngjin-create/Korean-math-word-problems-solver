@@ -201,8 +201,10 @@ def find_answer_in_inequality2(equations):
     return field
 
 nonzero_vars = set()
+singledigit_vars = set()
 def expand_term(matchobj):
     global nonzero_vars
+    global singledigit_vars
 
     retval = []
     term = matchobj.group(0)
@@ -213,6 +215,8 @@ def expand_term(matchobj):
         for i in range(l):
             e = l-i-1
             retval.append("{}*{}".format(term[i], 10**e))
+            if term[i] in string.ascii_uppercase:
+                singledigit_vars.add(term[i])
         # print("({})".format('+'.join(retval)))
         if term[0] in string.ascii_uppercase:
             nonzero_vars.add(term[0])
@@ -220,18 +224,22 @@ def expand_term(matchobj):
 
 def solver_digit_var(equations, variables):
     global nonzero_vars
+    global singledigit_vars
     # nonzero_vars = []
 
     eq = ' and '.join(equations)
     for nonzero in list(nonzero_vars):
         eq = eq + " and {}!=0".format(nonzero)
+    for sd in list(singledigit_vars):
+        eq = eq + " and {}<=9".format(sd)
+
+    envs = dict()
+    retval = []
 
     varslist = list(variables)
+
     if len(varslist) >= 7:
         return dict()
-
-    retval = []
-    envs = dict()
     for i in range(0, 10**len(varslist)):
         for v in range(0, len(varslist)):
             envs[varslist[v]] = i // (10**v) % 10
@@ -242,6 +250,22 @@ def solver_digit_var(equations, variables):
             #     r[v] = envs[v]
             # retval.append(r)
             
+    if len(varslist) >= 4:
+        return dict()
+    for i in range(0, 100**len(varslist)):
+        for v in range(0, len(varslist)):
+            envs[varslist[v]] = i // (100**v) % 100
+        if eval(eq, envs):
+            return envs
+
+    if len(varslist) >= 3:
+        return dict()
+    for i in range(0, 1000**len(varslist)):
+        for v in range(0, len(varslist)):
+            envs[varslist[v]] = i // (1000**v) % 1000
+        if eval(eq, envs):
+            return envs
+
     return dict()
     # return retval
 
@@ -316,7 +340,9 @@ def solution_code_generate(equations, eq_dict, code):
 # statements: equation, code, objective
 def do_math(statements):
     global nonzero_vars
+    global singledigit_vars
     nonzero_vars = set()
+    singledigit_vars = set()
     equations = []
     for item in statements['equation']:
         equations.extend(re.split(r'[\r\n]', item))
@@ -431,7 +457,7 @@ def solve(statements, time_limit_sec):
 if __name__=="__main__": # 모듈 단독 테스트
     # print(do_math({'equation': [], 'code': ["strings=['흰색', '검은색', '보라색', '초록색', '빨간색']"], 'objective': ['mathcomb(len(strings), (2))']}))
     # do_math({'equation': ['정현이 = 15','영진 = 180 / 15', '경주 = 7 / 2\n'], 'code': [], 'objective': ["vars['정현이']"]})
-    # print(do_math({'equation': ['1A + B2 = 33'], 'code': [], 'objective': ["vars['A']"]}))
+    print(do_math({'equation': ['1A + B2 = 33'], 'code': [], 'objective': ["vars['A']"]}))
     # do_math({'equation': ['r=x/(5)\nx*(5)=(100)'], 'code': [], 'objective': ["vars['x']/(5)"]})
     # print(do_math({'equation': ['A=B+B+B+B\nA=30'], 'code': [], 'objective': ["vars['A']"]}))
     # print(do_math({'equation': ['정국>지민', '지민>진호','정국<인수'], 'code': [], 'objective': ["vars['인수']"]}))
@@ -440,4 +466,4 @@ if __name__=="__main__": # 모듈 단독 테스트
     # print(do_math({'equation': [], 'code': ["strings=['국어', '수학', '영어', '과학', '음악', '미술']"], 'objective': ['strings[(5)-1]']}))
     # print(do_math({'equation': ['정국=2', '지민>정국', '인수>지민', '인수=4'], 'code': [], 'objective': ['vars["지민"]']}))
     # print(do_math({'equation': ['A//(6)=B\nA%(6)=C\nB=C'], 'code': ["strings=['A', 'B', 'C']"], 'objective': ["max(vars['A'])"]}))
-    do_math({'equation': ['정국 = (7) \n민영 = (5)\n태형<민영\n태형>정국'], 'code': [], 'objective': ["vars['태형']"]})
+    # do_math({'equation': ['정국 = (7) \n민영 = (5)\n태형<민영\n태형>정국'], 'code': [], 'objective': ["vars['태형']"]})
