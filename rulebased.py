@@ -17,11 +17,11 @@ def classify_question_type(problem):
 
     for word in ['어디', '무엇', '어느']:
         if word in q:
-            return 'string', 'which'
+            return None, 'which'
 
     for word in ['몇 번째', '몇번째', '몇째로']:
         if word in q:
-            return 'string', 'rank'
+            return 'number', 'rank'
         
     # for word in ['중 가장', '중에서 가장', '가운데 가장']:
     #     if word in q:

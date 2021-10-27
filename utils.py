@@ -6,8 +6,11 @@ import extract
 def predefined_replaces(raw):
     raw = raw.strip()
 
+    raw = re.sub(r'－', '-', raw)
+    raw = re.sub(r'＋', '+', raw)
     raw = re.sub(r'×', '*', raw)
     raw = re.sub(r'÷', '/', raw)
+    raw = re.sub(r'＝', '=', raw)
 
     raw = re.sub(r'\b한 ', '1', raw)
     raw = re.sub(r'\b두 ', '2', raw)
@@ -95,7 +98,7 @@ def preprocess(question):
 # 템플릿 매칭에서 pruning에 사용될 값 계싼
 def pruning_vector(q):
     vector = [False] * 6
-    vector[0] = re.search('[A-Z]', q) != None
+    vector[0] = False#re.search('[A-Z]', q) != None
     vector[1] = re.search('바르게', q) != None
     vector[2] = re.search('어떤 수|어떤수', q) != None
     vector[3] = re.search('누구|누가', q) != None
