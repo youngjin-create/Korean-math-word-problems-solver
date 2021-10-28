@@ -19,13 +19,13 @@ def solve_mwp(problem):
     problem['question_preprocessed'] = utils.preprocess(problem['question'])
 
     # 여러가지 방법을 이용하여 자연어로 된 문제를 수학적 표현으로 변환
-    # distance_rb, statements_rb = rulebased.match(problem)
-    # if distance == None:
-    distance, statements = template.match(problem, no_predefined=True)
-    distance_pd, statements_pd = template.match(problem)
-    if distance == None or distance_pd < distance:
-        distance, statements = distance_pd, statements_pd
+    
+    # distance, statements = template.match(problem, no_predefined=True)
+    # distance_pd, statements_pd = template.match(problem)
+    # if distance == None or distance_pd < distance:
+    #     distance, statements = distance_pd, statements_pd
 
+    distance, statements = template.match(problem)
     if distance != None:
         # 변환된 수학적 표현을 풀어서 python code 형태로 답을 구함
         answer, derivation = math_solver.solve(statements, time_limit_sec=20)

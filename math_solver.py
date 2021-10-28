@@ -493,4 +493,4 @@ if __name__=="__main__": # 모듈 단독 테스트
     # print(do_math({'equation': ['정국=2', '지민>정국', '인수>지민', '인수=4'], 'code': [], 'objective': ['vars["지민"]']}))
     # print(do_math({'equation': ['A//(6)=B\nA%(6)=C\nB=C'], 'code': ["strings=['A', 'B', 'C']"], 'objective': ["max(vars['A'])"]}))
     # do_math({'equation': ['정국 = (7) \n민영 = (5)\n태형<민영\n태형>정국'], 'code': [], 'objective': ["vars['태형']"]})
-    print(do_math({'equation': ['allsolutions\nA // (8) = B\nA % (8) = C\nB=C'], 'code': ['print(A)'], 'objective': ["max(sols['A'])"]}))
+    print(do_math({'equation': ['D=(9)\nFE=(75)\nABC0+(6)-FE=(1821)'], 'code': [], 'objective': ["eval('ABCD-EF', vars, vars)"]}))

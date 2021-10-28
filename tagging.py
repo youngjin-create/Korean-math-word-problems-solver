@@ -12,7 +12,7 @@ re_number = re.compile(r'[0-9]+([.][0-9]+)?(/[0-9]+([.][0-9]+)?)?')
 re_numvar = re.compile(r'[A-Z]')
 re_numexpr = re.compile(r'[0-9A-Z\(][0-9A-Z\(\)\.\+\-\*\/ ]*[0-9A-Z\)]')
 re_string = re.compile(r'\(\w\)')
-re_equation = re.compile('[0-9A-Z][0-9A-Z\.\+\-\*\/\(\)=<> ]*=[0-9A-Z\.\+\-\*\/\(\)=<> ]*[0-9A-Z]') # 등호(=)를 포함하는 식
+re_equation = re.compile('[0-9A-Z][0-9A-Z\.\+\-\*\/\(\)=<> ]*[=<>][0-9A-Z\.\+\-\*\/\(\)=<> ]*[0-9A-Z]') # 등호(=)를 포함하는 식
 
 def add_paddings(tags):
     return [('', 'PADDING', 0, 0, 0.0, 0.0, 0.0), *tags, ('', 'PADDING', 0, 0, 0.0, 0.0, 0.0)]

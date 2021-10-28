@@ -7,7 +7,7 @@ import tagging
 re_var = re.compile(r'((@[ns]?|#|\$)[0-9]+)(\D|$)')
 re_number = re.compile(r'[0-9]+([.][0-9]+)?(/[0-9]+([.][0-9]+)?)?')
 re_string = re.compile(r'\(\w\)')
-re_equation = re.compile('[0-9A-Z][0-9A-Z\.\+\-\*\/\(\)=<> ]*=[0-9A-Z\.\+\-\*\/\(\)=<> ]*[0-9A-Z]') # 등호(=)를 포함하는 식
+re_equation = re.compile('[0-9A-Z][0-9A-Z\.\+\-\*\/\(\)=<> ]*[=<>][0-9A-Z\.\+\-\*\/\(\)=<> ]*[0-9A-Z]') # 등호(=)를 포함하는 식
 
 re_noun_ending = re.compile(r'^(높이|넓이|겉넓이|하와이|떡볶이|올챙이|\w+?)(은|는|이가|이는|이의|이|가|에게|을|를|의|으로|에|에는|중에서|마다|이고|입니다|이다)?([,.]?)$')
 def remove_ending(word):
@@ -87,7 +87,7 @@ def extract_mapping(q):
     return results, q
 
 def extract_equations(q):
-    re_equation = '[0-9A-Z][0-9A-Z\.\+\-\*\/\(\)=<> ]*=[0-9A-Z\.\+\-\*\/\(\)=<> ]*[0-9A-Z]' # 등호(=)를 포함하는 식
+    re_equation = '[0-9A-Z][0-9A-Z\.\+\-\*\/\(\)=<> ]*[=<>][0-9A-Z\.\+\-\*\/\(\)=<> ]*[0-9A-Z]' # 등호(=)를 포함하는 식
     equations = re.findall(re_equation, q)
     for eq in equations:
         q = q.replace(eq, '@equation') #.strip(' ,')
