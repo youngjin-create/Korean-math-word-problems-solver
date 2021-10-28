@@ -94,6 +94,8 @@ def choice_type(problem):
     context = problem['context'] if 'context' in problem else 0
 
     choices = get_choices(problem)
+    if len(choices) == 0:
+        return None, {'equation': [], 'code': [], 'objective': []}
     vars = dict()
     for idx, c in enumerate(choices):
         vars[c] = ''#idx
@@ -198,7 +200,9 @@ def match(problem):
     problem['question_rule_type'] = (answer_type, question_type)
 
     if question_type == 'who' or question_type == 'which':
-        return choice_type(problem)
+        score, statements = choice_type(problem)
+        if score != None:
+            return score, statements
 
     if question_type == 'comb':
         return comb_type(problem)
