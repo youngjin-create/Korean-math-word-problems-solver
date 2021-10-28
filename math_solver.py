@@ -222,10 +222,9 @@ def expand_term(matchobj):
             nonzero_vars.add(term[0])
         return "({})".format('+'.join(retval))
 
-def solver_digit_var(equations, variables):
+def solver_digit_var(equations, variables, allsolutions=False):
     global nonzero_vars
     global singledigit_vars
-    # nonzero_vars = []
 
     eq = ' and '.join(equations)
     for nonzero in list(nonzero_vars):
@@ -234,41 +233,56 @@ def solver_digit_var(equations, variables):
         eq = eq + " and {}<=9".format(sd)
 
     envs = dict()
-    retval = []
+    solsets = dict()
+    for v in variables:
+        solsets[v] = set()
 
     varslist = list(variables)
 
-    if len(varslist) >= 7:
-        return dict()
-    for i in range(0, 10**len(varslist)):
-        for v in range(0, len(varslist)):
-            envs[varslist[v]] = i // (10**v) % 10
-        if eval(eq, envs):
-            return envs
-            # r = dict()
-            # for v in variables:
-            #     r[v] = envs[v]
-            # retval.append(r)
-            
-    if len(varslist) >= 4:
-        return dict()
-    for i in range(0, 100**len(varslist)):
-        for v in range(0, len(varslist)):
-            envs[varslist[v]] = i // (100**v) % 100
-        if eval(eq, envs):
-            return envs
+    try:
+        if len(varslist) >= 7:
+            return dict() if allsolutions==False else solsets
+        for i in range(0, 10**len(varslist)):
+            for v in range(0, len(varslist)):
+                envs[varslist[v]] = i // (10**v) % 10
+            if eval(eq, envs):
+                if allsolutions==False:
+                    return envs
+                else:
+                    for v in variables:
+                        solsets[v].add(envs[v])
+                    
+        if len(varslist) >= 4:
+            return dict() if allsolutions==False else solsets
+        for i in range(0, 100**len(varslist)):
+            for v in range(0, len(varslist)):
+                envs[varslist[v]] = i // (100**v) % 100
+            if eval(eq, envs):
+                if allsolutions==False:
+                    return envs
+                else:
+                    for v in variables:
+                        solsets[v].add(envs[v])
 
-    if len(varslist) >= 3:
-        return dict()
-    for i in range(0, 1000**len(varslist)):
-        for v in range(0, len(varslist)):
-            envs[varslist[v]] = i // (1000**v) % 1000
-        if eval(eq, envs):
-            return envs
+        if len(varslist) >= 3:
+            return dict() if allsolutions==False else solsets
+        for i in range(0, 1000**len(varslist)):
+            for v in range(0, len(varslist)):
+                envs[varslist[v]] = i // (1000**v) % 1000
+            if eval(eq, envs):
+                if allsolutions==False:
+                    return envs
+                else:
+                    for v in variables:
+                        solsets[v].add(envs[v])
+    except Exception as e:
+        if 'object is not callable' in str(e):
+            return dict()
+
+    if allsolutions:
+        return solsets
 
     return dict()
-    # return retval
-
 
 lambdas = dict({
     'divisors': 'divisors = lambda n: [x for x in range(1, n+1) if n % x == 0]',
@@ -306,9 +320,13 @@ def expand_var_term(matchobj):
 
 def solution_code_generate(equations, eq_dict, code):
     global lambdas
-    answer_str = "vars=dict()\n"
+    answer_str = "vars,sols=dict(),dict()\n"
     for key, value in eq_dict.items():
-        answer_str += "vars['" + str(key) + "']" + "=" + str(value) + "\n"
+        if type(value) == set:
+            answer_str += "vars['" + str(key) + "']" + "=list(" + str(value) + ")[0]\n"
+            answer_str += "sols['" + str(key) + "']" + "=list(" + str(value) + ")\n"
+        else:
+            answer_str += "vars['" + str(key) + "']" + "=" + str(value) + "\n"
 
     answer_str += "if True"
     for eq in equations:
@@ -354,6 +372,9 @@ def do_math(statements):
 
     objective = statements['objective'][0] if statements['objective'] != [] else ''
 
+    allsolutions = 'allsolutions' in equations
+    equations = [eq for eq in equations if eq != 'allsolutions']
+
     # import, lambda function 추가
     ld = lambda_definitions(equations, code, objective)
     answer_header = ['import math', 'import itertools', *ld]#, *code]
@@ -392,7 +413,7 @@ def do_math(statements):
         # 2. digit var solver로 풀이 시도
         if answer_str == '':
             try:
-                field = solver_digit_var(equations, variables)
+                field = solver_digit_var(equations, variables, allsolutions=allsolutions)
                 if '__builtins__' in field:
                     del field['__builtins__']
                 eq_dict = field
@@ -443,6 +464,8 @@ def do_math(statements):
 
 # %%
 def solve(statements, time_limit_sec):
+    print(f'solving... \033[33mstatements = {statements}\033[0;0m')
+
     answer, derivation = None, []
     try:
         with time_limit(time_limit_sec):
@@ -470,4 +493,4 @@ if __name__=="__main__": # 모듈 단독 테스트
     # print(do_math({'equation': ['정국=2', '지민>정국', '인수>지민', '인수=4'], 'code': [], 'objective': ['vars["지민"]']}))
     # print(do_math({'equation': ['A//(6)=B\nA%(6)=C\nB=C'], 'code': ["strings=['A', 'B', 'C']"], 'objective': ["max(vars['A'])"]}))
     # do_math({'equation': ['정국 = (7) \n민영 = (5)\n태형<민영\n태형>정국'], 'code': [], 'objective': ["vars['태형']"]})
-    print(do_math({'equation': ['(가)*(2)=(나)*(4/5)\nabs((가)-(나))=21'], 'code': [], 'objective': ["eval('(가)+(나)', vars, vars)"]}))
+    print(do_math({'equation': ['allsolutions\nA // (8) = B\nA % (8) = C\nB=C'], 'code': ['print(A)'], 'objective': ["max(sols['A'])"]}))

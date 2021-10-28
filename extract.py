@@ -1,5 +1,6 @@
 # %%
 import re
+import string
 
 import tagging
 
@@ -38,6 +39,9 @@ def extract_lists(q):
         for idx, strs in enumerate(strings):
             id = 'strings' + ('' if len(strings)==1 else str(idx+1))
             items = re.findall(r'\w+', strs[0])
+            alphabets = [remove_ending(x) for x in items if remove_ending(x) in string.ascii_uppercase] # A,B,C 와 같이 영문자로 된 문자열을 strings에 넣지 않는다.
+            if len(alphabets) == len(items):
+                break
             results[id] = [remove_ending(x) for x in items]
             q = q.replace(strs[0], '@' + id).strip()
 

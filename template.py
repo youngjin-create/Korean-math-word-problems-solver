@@ -108,21 +108,25 @@ def compile_statements(problem, template_assignment_list):
                     statements[fn].append(line)
     return statements
 
-def match(problem):
+def match(problem, no_predefined=False):
     problem['pruning_vector'] = utils.pruning_vector(problem['question_preprocessed'])
 
-    problem['question_predefined_patterns'], problem['question_preprocessed'] = utils.extract_predefined_patterns(problem['question_preprocessed'])
+    if no_predefined:
+        problem['question_predefined_patterns'] = {'lists': {}, 'mapping': {}, 'equations': []}
+        problem['question_preprocessed'] = utils.preprocess(problem['question'])
+    else:
+        problem['question_predefined_patterns'], problem['question_preprocessed'] = utils.extract_predefined_patterns(problem['question_preprocessed'])
 
     problem['question_tags'] = tagging.pos_tagging(problem['question_preprocessed'])
 
     print('extracted predefined patterns = ' + str(problem['question_predefined_patterns']))
 
-    print(f'\033[33mbest match sentence\033[0;0m')
+    print(f'\033[33mbest match sentence\033[0;0m' + (' with predefined patterns' if no_predefined==False else ' no predefined'))
     distance, matches = find_closest(problem)
     print(f'{distance} {matches}')
 
     if len(problem['question']) > 30:
-        print(f'\033[33mbest match phrases\033[0;0m')
+        print(f'\033[33mbest match phrases\033[0;0m' + (' with predefined patterns' if no_predefined==False else ' no predefined'))
         distance_phrases, matches_phrases = find_phrases(problem)
         print(f'{distance_phrases} {matches_phrases}')
 

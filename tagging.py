@@ -64,6 +64,10 @@ pptags = {
     ('받', 'VV'): (None, None, None, None, 0.5, 0.1, 1.0),
     ('넣', 'VV'): (None, None, None, None, 0.5, 0.1, 1.0),
 
+    ('크', 'VV'): (None, None, None, None, 0.8, 0.1, 1.0),
+    ('큽니다', 'VA+EF'): (None, None, None, None, 0.8, 0.1, 1.0),
+    ('작', 'VV'): (None, None, None, None, 0.8, 0.1, 1.0),
+
     ('잘하', 'VV'): (None, None, None, None, 1.0, 0.1, 2.0),
     ('못하', 'VV'): (None, None, None, None, 1.0, 0.1, 2.0),
     ('못했', 'VX+EP'): (None, None, None, None, 1.0, 0.1, 2.0),
@@ -112,9 +116,12 @@ def post_process_tagging(tags):
             tags[idx][0] = '었'
             tags[idx][1] = 'EP'
 
+        if tags[idx-1][1] == 'NUMBER' and tags[idx][0] == '자리':
+            tags[idx-1][4:7] = [2.0, 2.0, 2.0]
+
     for idx in range(2, len(tags)):
         if tags[idx-2][0] in ['일', '십', '백', '천', '만', '십만'] and tags[idx-1][0] == '의' and tags[idx][0] == '자리':
-            tags[idx-2][4:7] = [1.0, 0.1, 2.0]
+            tags[idx-2][4:7] = [2.0, 2.0, 2.0]
 
     for tag in tags:
         t = None
@@ -174,12 +181,12 @@ def pos_tagging(text, join=None):
     for match in re_numvar.finditer(text):
         # print(match)
         tags = [tag for tag in tags if not(match.span()[0] <= tag[2] and tag[3] <= match.span()[1])]
-        tags.append((match.group(), 'NUMBER', match.span()[0], match.span()[1]))
+        tags.append((match.group(), 'NUMBER_EXPR', match.span()[0], match.span()[1]))
 
     for match in re_numexpr.finditer(text):
         # print(match)
         tags = [tag for tag in tags if not(match.span()[0] <= tag[2] and tag[3] <= match.span()[1])]
-        tags.append((match.group(), 'NUMBER', match.span()[0], match.span()[1]))
+        tags.append((match.group(), 'NUMBER_EXPR', match.span()[0], match.span()[1]))
 
     for match in re_string.finditer(text):
         # print(match)
@@ -248,12 +255,12 @@ def match_word_tags(t_tag, q_tag):
         else:
             s = wildcard_no_match_penalty
     elif t_tag[1] == 'WILDCARD_NUM':
-        if q_tag[1] == 'NUMBER':
+        if q_tag[1] == 'NUMBER' or q_tag[1] == 'NUMBER_EXPR':
             s = 0.0
         else:
             s = wildcard_no_match_penalty
     elif t_tag[1] == 'WILDCARD_STR':
-        if q_tag[1] != 'NUMBER' and (q_tag[1][0] == 'N' or q_tag[1] == 'SL' or q_tag[1] == 'VA+ETM' or q_tag[1] == 'STRING'):
+        if q_tag[1] != 'NUMBER' and (q_tag[1][0] == 'N' or q_tag[1] == 'SL' or q_tag[1] == 'VA+ETM' or q_tag[1] == 'STRING' or q_tag[1] == 'NUMBER_EXPR'):
             s = 0.0
         else:
             s = wildcard_no_match_penalty
@@ -384,8 +391,8 @@ if __name__== "__main__": # 모듈 단독 테스트
         # add_paddings(pos_tagging('4명 중 가장 가벼운 사람은 누구입니까?')),
         # pos_tagging('학생들이 몸무게를 비교하고 있습니다. 석진이는 호석이보다 무겁고 지민이보다 가볍습니다. 남준이는 지민이보다 무겁습니다. 4명 중 가장 가벼운 사람은 누구입니까?'),
         # pos_tagging('$1구슬과 $2구슬, $3구슬을 모두 합하면 #1개입니다. $4구슬은 $5구슬보다 #2개가 많고, $6구슬은 #3개일 때 $7구슬은 몇 개입니까?'),
-        pos_tagging('서로 다른 두 수 (가), (나)가 있습니다. $1의 2배는 $2의 4/5배와 같고 $3와 $4의 차는 21일 때, $5와 $6의 합을 구하시오.'),
-        pos_tagging('서로 다른 두 수 (가), (나)가 있습니다. (가)의 2배는 (나)의 4/5배와 같고 (가)와 (나)의 차는 21일 때, (가)와 (나)의 합을 구하시오.'),
+        pos_tagging('$1는 $2보다 기가 큽니다.'),
+        pos_tagging('다람쥐는 생쥐보다 키가 큽니다. 두더지는 다람쥐보다는 키가 크고 악어보다는 작습니다.'),
         visualize=True)
     print(score)
     print(assignments)
