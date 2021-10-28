@@ -117,7 +117,7 @@ def post_process_tagging(tags):
             tags[idx][1] = 'EP'
 
         if tags[idx-1][1] == 'NUMBER' and tags[idx][0] == '자리':
-            tags[idx-1][4:7] = [2.0, 2.0, 2.0]
+            tags[idx-1][4:7] = [0.5, 0.2, 1.0]
 
     for idx in range(2, len(tags)):
         if tags[idx-2][0] in ['일', '십', '백', '천', '만', '십만'] and tags[idx-1][0] == '의' and tags[idx][0] == '자리':

@@ -91,6 +91,7 @@ def get_choices(problem):
 
 def choice_type(problem):
     q = problem['question_preprocessed']
+    context = problem['context'] if 'context' in problem else 0
 
     choices = get_choices(problem)
     vars = dict()
@@ -108,18 +109,17 @@ def choice_type(problem):
         if vars[c] == '':
             vars[c] = idx*2+3
 
-    code = ''
-    objective = 'max(vars, key=vars.get)'
+    code = 'x = sorted(vars.keys(), key=(lambda k: vars[k]))'
+    objidx = 0#max(vars, key=vars.get)'
     if '가장' in q:
         if '작은' in q:
-            objective = 'min(vars, key=vars.get)'
+            objidx = 0
         else:
-            objective = 'max(vars, key=vars.get)'
+            objidx = len(vars)-1
     else:
-        code = 'x = sorted(vars.keys(), key=(lambda k: vars[k]))'
-        objective = 'x[len(x)//2]'
+        objidx = len(vars)//2
 
-    statements = {'equation': [], 'code': [code], 'objective': [objective]}
+    statements = {'equation': [], 'code': [code], 'objective': ['x[{}]'.format((objidx+context)%len(vars))]}
     for key in vars:
         statements['equation'].append('{}={}'.format(key, vars[key]))
 
