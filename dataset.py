@@ -69,7 +69,7 @@ def build_template(q, is_phrase=False):
     strlist = list(strset)
     strlist.sort(key=len)
     strlist.reverse()
-    strlist[:] = [x for x in strlist if (len(re.findall(r'(^|\s)(' + re.escape(x) + r')($|\D)', q['question_preprocessed'])) > 0 and x not in ['가', '나', '다', '라', '마', '바', '사']) or
+    strlist[:] = [x for x in strlist if (len(re.findall(r'(^|\s)(' + re.escape(x) + r')($|\D)', q['question_preprocessed'])) > 0) or
         len(re.findall(r'(\()(' + re.escape(x) + r')(\))', q['question_preprocessed'])) > 0]
     # wildcard dictionary
     wcs, wcs_rev = dict(), dict()
@@ -88,8 +88,9 @@ def build_template(q, is_phrase=False):
 
     template = q['question_preprocessed']
     for key in q['template_wildcards']:
-        template = re.sub(r'(^|\s)(' + re.escape(q['template_wildcards'][key]) + r')($|\D)', f'\\g<1>{key}\\g<3>', template)
-        template = re.sub(r'(\()(' + re.escape(q['template_wildcards'][key]) + r')(\))', f'{key}', template)
+        if q['template_wildcards'][key] not in ['가', '나', '다', '라', '마', '바', '사']:
+            template = re.sub(r'(^|\s)(' + re.escape(q['template_wildcards'][key]) + r')($|\D)', f'\\g<1>{key}\\g<3>', template)
+        template = re.sub(r'([\( ])(' + re.escape(q['template_wildcards'][key]) + r')([\) ])', f'{key}', template)
     q['template'] = template
 
     Kornumset = set()
