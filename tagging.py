@@ -23,7 +23,7 @@ def add_paddings(tags):
 # POS값에 따른 score matrix를 생각할 수 있고, 이것을 자동학습 할 수 있으면 좋을듯
 important_words = [
     '어떤', '몫', '나머지', '자리',
-    '홀수', '짝수', '약수', '배수', '최소공배수', '최대공약수', '큰', '작', '작은'
+    '홀수', '짝수', '약수', '배수', '최소공배수', '최대공약수', '큰', '작', '작은', '최대', '최소', '공약수', '공배수',
     '왼쪽', '오른쪽',
     '꼭짓점', '꼭지점',
     '삼각형', '사각형', '오각형', '육각형', '칠각형', '팔각형', '직사각형', '마름모', '평행사변형', '사다리꼴', '원', '지름', '반지름', '길이', '둘레', '가로', '세로', '대각선',
@@ -111,6 +111,10 @@ def post_process_tagging(tags):
             tags[idx-1][1] = 'VV'
             tags[idx][0] = '었'
             tags[idx][1] = 'EP'
+
+    for idx in range(2, len(tags)):
+        if tags[idx-2][0] in ['일', '십', '백', '천', '만', '십만'] and tags[idx-1][0] == '의' and tags[idx][0] == '자리':
+            tags[idx-2][4:7] = [1.0, 0.1, 2.0]
 
     for tag in tags:
         t = None
@@ -249,7 +253,7 @@ def match_word_tags(t_tag, q_tag):
         else:
             s = wildcard_no_match_penalty
     elif t_tag[1] == 'WILDCARD_STR':
-        if q_tag[1] != 'NUMBER' and (q_tag[1][0] == 'N' or q_tag[1] == 'SL' or q_tag[1] == 'VA+ETM'):
+        if q_tag[1] != 'NUMBER' and (q_tag[1][0] == 'N' or q_tag[1] == 'SL' or q_tag[1] == 'VA+ETM' or q_tag[1] == 'STRING'):
             s = 0.0
         else:
             s = wildcard_no_match_penalty
@@ -380,8 +384,8 @@ if __name__== "__main__": # 모듈 단독 테스트
         # add_paddings(pos_tagging('4명 중 가장 가벼운 사람은 누구입니까?')),
         # pos_tagging('학생들이 몸무게를 비교하고 있습니다. 석진이는 호석이보다 무겁고 지민이보다 가볍습니다. 남준이는 지민이보다 무겁습니다. 4명 중 가장 가벼운 사람은 누구입니까?'),
         # pos_tagging('$1구슬과 $2구슬, $3구슬을 모두 합하면 #1개입니다. $4구슬은 $5구슬보다 #2개가 많고, $6구슬은 #3개일 때 $7구슬은 몇 개입니까?'),
-        pos_tagging('다음 식 @equation을 만족하는 수 @n0를 구하시오.'),
-        pos_tagging('덧셈식 AB+55=78에서 A에 해당하는 숫자를 쓰시오.'),
+        pos_tagging('서로 다른 두 수 (가), (나)가 있습니다. $1의 2배는 $2의 4/5배와 같고 $3와 $4의 차는 21일 때, $5와 $6의 합을 구하시오.'),
+        pos_tagging('서로 다른 두 수 (가), (나)가 있습니다. (가)의 2배는 (나)의 4/5배와 같고 (가)와 (나)의 차는 21일 때, (가)와 (나)의 합을 구하시오.'),
         visualize=True)
     print(score)
     print(assignments)

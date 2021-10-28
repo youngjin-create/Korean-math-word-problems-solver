@@ -15,17 +15,47 @@ def solve_mwp(problem):
     problem['question_preprocessed'] = utils.preprocess(problem['question'])
 
     # 여러가지 방법을 이용하여 자연어로 된 문제를 수학적 표현으로 변환
-    distance, statements = rulebased.match(problem)
-    if distance == None:
-        distance, statements = template.match(problem)
-
+    # distance_rb, statements_rb = rulebased.match(problem)
+    # if distance == None:
+    distance, statements = template.match(problem)
     if distance != None:
         # 변환된 수학적 표현을 풀어서 python code 형태로 답을 구함
-        answer, derivation = math_solver.solve(statements, time_limit_sec=10)
-        if answer != None:
-            return answer, derivation
+        answer, derivation = math_solver.solve(statements, time_limit_sec=15)
+        # if answer != None:
+            # return answer, derivation
+
+    fallback = False
+    if answer == None or distance > 0.15:
+        fallback = True
+    else:
+        expected_type, _ = rulebased.classify_question_type(problem)
+        answer_type = 'number' if answer[0].isnumeric() else 'string'
+        if expected_type != None and expected_type != answer_type:
+            fallback = True
+
+    if fallback:
+        distance, statements = rulebased.match(problem)
+        rb_answer, rb_derivation = math_solver.solve(statements, time_limit_sec=15)
+        if rb_answer != None:
+            return rb_answer, rb_derivation
+
+    if answer != None:
+        return answer, derivation
 
     return '0', 'print(0)' # if failed, print 0
+
+    # # 여러가지 방법을 이용하여 자연어로 된 문제를 수학적 표현으로 변환
+    # distance, statements = rulebased.match(problem)
+    # if distance == None:
+    #     distance, statements = template.match(problem)
+
+    # if distance != None:
+    #     # 변환된 수학적 표현을 풀어서 python code 형태로 답을 구함
+    #     answer, derivation = math_solver.solve(statements, time_limit_sec=10)
+    #     if answer != None:
+    #         return answer, derivation
+
+    # return '0', 'print(0)' # if failed, print 0
 
 # %%
 

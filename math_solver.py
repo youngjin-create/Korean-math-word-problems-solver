@@ -365,6 +365,7 @@ def do_math(statements):
         for idx, eq in enumerate(equations):
             vars = re.compile('[가-힣]+|[a-z]+|[A-Z]').findall(eq)
             variables.update(vars)
+            variables.discard('abs')
 
             eq = re.sub('[0-9A-Z]*[A-Z][0-9A-Z]*', expand_term, eq)
             eq = eq.replace('!=', '<>')
@@ -416,6 +417,8 @@ def do_math(statements):
         
     answer_str = '\n'.join(answer_header) + '\n' + answer_str
 
+    objective = re.sub('[0-9A-Z]*[A-Z][0-9A-Z]*', expand_term, objective)
+
     env = dict()
     try:
         exec(answer_str + '    pass', env, env)
@@ -457,7 +460,7 @@ def solve(statements, time_limit_sec):
 if __name__=="__main__": # 모듈 단독 테스트
     # print(do_math({'equation': [], 'code': ["strings=['흰색', '검은색', '보라색', '초록색', '빨간색']"], 'objective': ['mathcomb(len(strings), (2))']}))
     # do_math({'equation': ['정현이 = 15','영진 = 180 / 15', '경주 = 7 / 2\n'], 'code': [], 'objective': ["vars['정현이']"]})
-    print(do_math({'equation': ['1A + B2 = 33'], 'code': [], 'objective': ["vars['A']"]}))
+    # print(do_math({'equation': ['호석=2.0', '윤기=1.0', '석진=1.5', '남준 < 석진\n남준 > 윤기\n'], 'code': ["mapping={'호석': 2.0, '윤기': 1.0, '석진': 1.5}", 'x = sorted(vars.keys(), key=(lambda k: vars[k]), reverse=True)'], 'objective': ['x[(2)-1]']}))
     # do_math({'equation': ['r=x/(5)\nx*(5)=(100)'], 'code': [], 'objective': ["vars['x']/(5)"]})
     # print(do_math({'equation': ['A=B+B+B+B\nA=30'], 'code': [], 'objective': ["vars['A']"]}))
     # print(do_math({'equation': ['정국>지민', '지민>진호','정국<인수'], 'code': [], 'objective': ["vars['인수']"]}))
@@ -467,3 +470,4 @@ if __name__=="__main__": # 모듈 단독 테스트
     # print(do_math({'equation': ['정국=2', '지민>정국', '인수>지민', '인수=4'], 'code': [], 'objective': ['vars["지민"]']}))
     # print(do_math({'equation': ['A//(6)=B\nA%(6)=C\nB=C'], 'code': ["strings=['A', 'B', 'C']"], 'objective': ["max(vars['A'])"]}))
     # do_math({'equation': ['정국 = (7) \n민영 = (5)\n태형<민영\n태형>정국'], 'code': [], 'objective': ["vars['태형']"]})
+    print(do_math({'equation': ['(가)*(2)=(나)*(4/5)\nabs((가)-(나))=21'], 'code': [], 'objective': ["eval('(가)+(나)', vars, vars)"]}))
