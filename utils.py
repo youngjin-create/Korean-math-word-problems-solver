@@ -95,6 +95,18 @@ def preprocess(question):
 
     return question
 
+def preprocess_sheet(sheet):
+    indexing = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    if type(sheet) == dict:
+        k = sorted(sheet.keys())
+        for i in range(0, len(k)):
+            sheet[k[i]]['context'] = indexing[i%10]
+    else:
+        for i in range(0, len(sheet)):
+            sheet[i]['context'] = indexing[i%10]
+
+    return
+
 # 템플릿 매칭에서 pruning에 사용될 값 계싼
 def pruning_vector(q):
     vector = [False] * 6

@@ -19,7 +19,7 @@ def solve_mwp(problem):
     problem['question_preprocessed'] = utils.preprocess(problem['question'])
 
     # 여러가지 방법을 이용하여 자연어로 된 문제를 수학적 표현으로 변환
-    
+
     # distance, statements = template.match(problem, no_predefined=True)
     # distance_pd, statements_pd = template.match(problem)
     # if distance == None or distance_pd < distance:
@@ -28,7 +28,7 @@ def solve_mwp(problem):
     distance, statements = template.match(problem)
     if distance != None:
         # 변환된 수학적 표현을 풀어서 python code 형태로 답을 구함
-        answer, derivation = math_solver.solve(statements, time_limit_sec=20)
+        answer, derivation = math_solver.solve(statements, time_limit_sec=60)
         # if answer != None:
             # return answer, derivation
 
@@ -40,10 +40,11 @@ def solve_mwp(problem):
         answer_type = 'number' if answer[0].isnumeric() else 'string'
         if expected_type != None and expected_type != answer_type:
             fallback = True
-
+            
+    # fallback = True
     if fallback:
         distance, statements = rulebased.match(problem)
-        rb_answer, rb_derivation = math_solver.solve(statements, time_limit_sec=20)
+        rb_answer, rb_derivation = math_solver.solve(statements, time_limit_sec=60)
         if rb_answer != None:
             return rb_answer, rb_derivation
 
@@ -94,6 +95,8 @@ def debug_one_question(question, q_number=0, right_answer=''):
 def debug_all_questions():
     # test = dataset.dataset_google_sentences_teacher#[:40]
     test = dataset.dataset_sentences
+    utils.preprocess_sheet(test)
+
     with Pool(32) as p:
         results = p.starmap(debug_one_question, [(q['question_original'], q['id'], q['answer']) for q in test])
     print('elapsed time = {0:.0f} seconds.'.format(time.time() - start_time))
@@ -102,7 +105,7 @@ def debug_all_questions():
 
     return results
 
-# results = debug_all_questions()
+results = debug_all_questions()
 
-debug_one_question('295 * A < 1000 일 때, A에 들어갈 수 있는 자연수 중에서 가장 큰 수는 얼마일까요?')
-# debug_one_question('윤기는 네 자리 수와 두 자리 수의 뺄셈을 하려 합니다. 윤기는 네 자리 수의 일의 자리 숫자 9를 6으로 잘못 보았고, 두 자리 수의 십의 자리 숫자와 일의 자리 숫자를 바꾸어 75라고 잘못 보았습니다. 윤기가 구한 차는 1821 일 때, 바르게 계산한 결과를 구하시오.')
+# debug_one_question('295 * A < 1000 일 때, A에 들어갈 수 있는 자연수 중에서 가장 큰 수는 얼마일까요?')
+# debug_one_question('흰색 펜, 붉은 색 펜, 검정색 펜, 푸른 색 펜이 1개씩 있습니다. 이 펜 중 서로 다른 2개를 골라 그림을 그리려고 합니다. 고르는 방법은 모두 몇 가지입니까?')

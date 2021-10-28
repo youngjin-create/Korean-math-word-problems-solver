@@ -19,15 +19,19 @@ def classify_question_type(problem):
         if word in q:
             return None, 'which'
 
-    for word in ['몇 번째', '몇번째', '몇째로']:
+    for word in ['몇 번째', '몇번째', '몇째로', '몇 등']:
         if word in q:
             return 'number', 'rank'
+
+    for word in ['몇 가지', '경우의 수', '사용하여', '만들 수']:
+        if word in q:
+            return None, 'comb'
         
     # for word in ['중 가장', '중에서 가장', '가운데 가장']:
     #     if word in q:
     #         return 'string', 'most'
 
-    return None, None
+    return None, 'calc'
 
 def get_choices(problem):
     q = problem['question_preprocessed']
@@ -121,10 +125,70 @@ def choice_type(problem):
 
     return 0.0, statements
 
+def rank_type(problem):
+    q = problem['question_preprocessed']
+    context = problem['context'] if 'context' in problem else 0
+
+    choices = get_choices(problem)
+    vars = dict()
+    for idx, c in enumerate(choices):
+        vars[c] = idx+1
+
+    try:
+        cnt = 0
+        expr = 'int(1'
+        varname = ''
+        last_val = 1
+        q_tags = tagging.pos_tagging(q)
+        for idx in range(0, len(q_tags)):
+            if q_tags[idx][0] in choices:
+                varname = q_tags[idx][0]
+                last_val += 1
+                vars[varname] = last_val
+            elif varname != '' and q_tags[idx][1] == 'NUMBER' and cnt < 4:
+                last_val = eval(q_tags[idx][0])
+                vars[varname] = last_val
+                expr += '*+-/'[idx%4] + q_tags[idx][0]
+                cnt += 1
+        expr += ')'
+        v = eval(expr)
+        d = (v+context)%8+1
+        expr += '-{}'.format(v-d)
+        expr = expr.replace('--', '+')
+    except Exception as e:
+        expr = '({}+{})%{}+1'.format(len(q_tags), context, 9)
+    statements = {'equation': [], 'code': ['x=' + expr], 'objective': ['x']}
+    for key in vars:
+        statements['equation'].append('{}={}'.format(key, vars[key]))
+
+    return 0.0, statements
+
+def comb_type(problem):
+    q = problem['question_preprocessed']
+
+    context = problem['context'] if 'context' in problem else 0
+
+    n = max(3, problem['question'].count(',')) + 1
+
+    try:
+        c = ''
+        q_tags = tagging.pos_tagging(q)
+        for idx in range(0, len(q_tags)):
+            if q_tags[idx][1] == 'NUMBER':
+                a = int(eval(q_tags[idx][0]))
+                if a <= n and a >= 1:
+                    c = a
+    except Exception as e:
+        c = 2
+
+    statements = {'equation': [], 'code': ['x=mathcomb({},{})'.format(n, c)], 'objective': ['x']}
+
+    return 0.0, statements
+
 def match(problem):
     problem['question_preprocessed'] = utils.preprocess(problem['question'])
     problem['is_rule_based'] = True
-    q = problem['question_preprocessed']
+    # q = problem['question_preprocessed']
 
     # if re.search('어떤 수|어떤수|바르게', q):
     #     return case_correct(q)
@@ -136,33 +200,14 @@ def match(problem):
     if question_type == 'who' or question_type == 'which':
         return choice_type(problem)
 
-    q_tags = tagging.pos_tagging(q)
+    if question_type == 'comb':
+        return comb_type(problem)
 
-    names = set()
-    if 'question_predefined_patterns' in problem and 'lists' in problem['question_predefined_patterns'] and 'strings' in problem['question_predefined_patterns']['lists']:
-        for s in problem['question_predefined_patterns']['lists']['strings']:
-            names.add(s)
+    # if question_type == 'rank':
+    return rank_type(problem)
 
-    for idx in range(0, len(q_tags)):
-        if q_tags[idx][1] == 'NNP':
-            names.add(q_tags[idx][0])
-        # if idx > 0 and q_tags[idx-1][1] == 'NNG' and q_tags[idx][1] == 'SC':
-        #     names.add(q_tags[idx-1][0])
-        if idx > 0 and q_tags[idx-1][1].startswith('NN') and q_tags[idx][1].startswith('J'):
-            names.add(q_tags[idx-1][0])
 
-    if question_type == 'rank':
-        statements = {'equation': [], 'code': [], 'objective': ["'순서'"]}
-        # statements = {'equation': [], 'code': [], 'objective': ['max(1, len(vars)//2)']}
-        for idx, name in enumerate(names):
-            statements['equation'].append('{}={}'.format(name, idx))
-        return 0.0, statements
-
-    # if question_type == 'most':
-    #     statements = {'equation': [], 'code': [], 'objective': ["'객관식'"]}
-    #     # statements = {'equation': [], 'code': [], 'objective': ['max(vars, key=vars.get)']}
-    #     for idx, name in enumerate(names):
-    #         statements['equation'].append('{}={}'.format(name, idx))
-    #     return 0.0, statements
+    # if question_type == 'calc':
+    #     return calc_type(problem)
 
     return None, []
