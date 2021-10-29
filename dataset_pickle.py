@@ -88,7 +88,7 @@ def build_template(q, is_phrase=False):
 
     template = q['question_preprocessed']
     for key in q['template_wildcards']:
-        if q['template_wildcards'][key] not in ['가', '나', '다', '라', '마', '바', '사']:
+        if q['template_wildcards'][key] not in ['가', '다', '라', '마', '바', '사']:
             template = re.sub(r'(^|\s)(' + re.escape(q['template_wildcards'][key]) + r')($|\D)', f'\\g<1>{key}\\g<3>', template)
         template = re.sub(r'([\( ])(' + re.escape(q['template_wildcards'][key]) + r')([\) ])', f'{key}', template)
     q['template'] = template
@@ -224,8 +224,8 @@ dataset_test.extend(dataset_google_test_samples)
 ############### SAVE DATA #############
 loaded_data = { 
     'dataset_sentences' : dataset_sentences,
-    'dataset_phrases' : dataset_phrases,
-    'dataset_test' : dataset_test
+    'dataset_phrases' : dataset_phrases
+    # 'dataset_test' : dataset_test
 }
 with open('data.pickle', 'wb') as f:
     pickle.dump(loaded_data, f, pickle.HIGHEST_PROTOCOL)

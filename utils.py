@@ -12,27 +12,28 @@ def predefined_replaces(raw):
     raw = re.sub(r'÷', '/', raw)
     raw = re.sub(r'＝', '=', raw)
 
-    raw = re.sub(r'\b한 ', '1', raw)
-    raw = re.sub(r'\b두 ', '2', raw)
-    raw = re.sub(r'\b세 ', '3', raw)
-    raw = re.sub(r'\b네 ', '4', raw)
-    raw = re.sub(r'\b다섯 ', '5', raw)
-    raw = re.sub(r'\b여섯 ', '6', raw)
-    raw = re.sub(r'\b일곱 ', '7', raw)
-    raw = re.sub(r'\b여덟 ', '8', raw)
-    raw = re.sub(r'\b아홉 ', '9', raw)
-    raw = re.sub(r'\b열 ', '10', raw)
+    raw = re.sub(r'\b한 ', '1 ', raw)
+    raw = re.sub(r'\b첫 ', '1 ', raw)
+    raw = re.sub(r'\b두 ', '2 ', raw)
+    raw = re.sub(r'\b세 ', '3 ', raw)
+    raw = re.sub(r'\b네 ', '4 ', raw)
+    raw = re.sub(r'\b다섯 ', '5 ', raw)
+    raw = re.sub(r'\b여섯 ', '6 ', raw)
+    raw = re.sub(r'\b일곱 ', '7 ', raw)
+    raw = re.sub(r'\b여덟 ', '8 ', raw)
+    raw = re.sub(r'\b아홉 ', '9 ', raw)
+    raw = re.sub(r'\b열 ', '10 ', raw)
 
-    raw = re.sub(r'\b한자리', '1', raw)
-    raw = re.sub(r'\b두자리', '2', raw)
-    raw = re.sub(r'\b세자리', '3', raw)
-    raw = re.sub(r'\b네자리', '4', raw)
-    raw = re.sub(r'\b다섯자리', '5', raw)
-    raw = re.sub(r'\b여섯자리', '6', raw)
-    raw = re.sub(r'\b일곱자리', '7', raw)
-    raw = re.sub(r'\b여덟자리', '8', raw)
-    raw = re.sub(r'\b아홉자리', '9', raw)
-    raw = re.sub(r'\b열자리', '10', raw)
+    raw = re.sub(r'\b한자리', '1자리', raw)
+    raw = re.sub(r'\b두자리', '2자리', raw)
+    raw = re.sub(r'\b세자리', '3자리', raw)
+    raw = re.sub(r'\b네자리', '4자리', raw)
+    raw = re.sub(r'\b다섯자리', '5자리', raw)
+    raw = re.sub(r'\b여섯자리', '6자리', raw)
+    raw = re.sub(r'\b일곱자리', '7자리', raw)
+    raw = re.sub(r'\b여덟자리', '8자리', raw)
+    raw = re.sub(r'\b아홉자리', '9자리', raw)
+    raw = re.sub(r'\b열자리', '10자리', raw)
 
     raw = re.sub(r'\b첫째', '1째', raw)
     raw = re.sub(r'\b둘째', '2째', raw)
@@ -96,7 +97,7 @@ def preprocess(question):
     return question
 
 def preprocess_sheet(sheet):
-    indexing = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    indexing = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     if type(sheet) == dict:
         k = sorted(sheet.keys())
         for i in range(0, len(k)):
