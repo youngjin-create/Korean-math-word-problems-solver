@@ -22,7 +22,7 @@ def add_paddings(tags):
 # 이상적으로는 str과 POS값을 모두 고려하여 score를 계산하여야 하지만 일단 POS값을 중요시하여 계산
 # POS값에 따른 score matrix를 생각할 수 있고, 이것을 자동학습 할 수 있으면 좋을듯
 important_words = [
-    '어떤', '몫', '나머지', '자리',
+    '어떤', '몫', '나머지', '자리', '반올림',
     '홀수', '짝수', '약수', '배수', '최소공배수', '최대공약수', '큰', '작', '작은', '최대', '최소', '공약수', '공배수',
     '왼쪽', '오른쪽',
     '꼭짓점', '꼭지점',
@@ -67,6 +67,11 @@ pptags = {
     ('크', 'VV'): (None, None, None, None, 0.8, 0.1, 1.0),
     ('큽니다', 'VA+EF'): (None, None, None, None, 0.8, 0.1, 1.0),
     ('작', 'VV'): (None, None, None, None, 0.8, 0.1, 1.0),
+
+    ('가볍', '*'): (None, None, None, None, 0.8, 0.1, 1.0),
+    ('무겁', '*'): (None, None, None, None, 0.8, 0.1, 1.0),
+    ('가벼운', '*'): (None, None, None, None, 0.8, 0.1, 1.0),
+    ('무거운', '*'): (None, None, None, None, 0.8, 0.1, 1.0),
 
     ('잘하', 'VV'): (None, None, None, None, 1.0, 0.1, 2.0),
     ('못하', 'VV'): (None, None, None, None, 1.0, 0.1, 2.0),
@@ -302,7 +307,7 @@ def match_to_template_tags_jit(len_t, len_q, score_table, scores, tracks1, track
     return
 
 # 문장 비교, 비슷할 수록 낮은 값 리턴
-def match_to_template_tags(template_tags, question_tags, visualize=False):
+def match_to_template_tags(template_tags, question_tags, visualize=False, exclusions=None):
     len_t, len_q = len(template_tags), len(question_tags)
     score_table = 1000000.0 * np.ones([len_t+1, len_q+1])
 
@@ -311,6 +316,12 @@ def match_to_template_tags(template_tags, question_tags, visualize=False):
             t_tag = template_tags[i1-1] if i1>0 else ('', 'NONE', -1, -1)
             q_tag = question_tags[i2-1] if i2>0 else ('', 'NONE', -1, -1)
             score_table[i1][i2] = match_word_tags(t_tag, q_tag)
+
+    if exclusions:
+        for i2 in exclusions:
+            score_table[0][i2+1] = 1000000.0 # skip 불가능
+            for i1 in range(1, len(template_tags)+1):
+                score_table[i1][i2+1] = 1000000.0 if template_tags[i1-1][1] != 'PADDING' else score_table[i1][i2+1]
     
     scores = np.zeros([len_t+1, len_q+1])
     tracks1 = np.zeros([len_t+1, len_q+1], dtype=int)
@@ -384,16 +395,10 @@ if __name__== "__main__": # 모듈 단독 테스트
 # %%
 if __name__== "__main__": # 모듈 단독 테스트
     score, assignments, correspondence, span = match_to_template_tags(
-        # add_paddings(pos_tagging('비행기에 #1명이 타고 있습니다.')),
-        # add_paddings(pos_tagging('그 중 #1명이 내렸습니다.')),
-        # add_paddings(pos_tagging('비행기에 타고 있는 인원은 얼마입니까?')),
-        # pos_tagging('비행기에 351명이 타고 있습니다. 그 중 158명이 내렸습니다. 비행기에 타고 있는 인원은 얼마입니까?'),
-        # add_paddings(pos_tagging('4명 중 가장 가벼운 사람은 누구입니까?')),
-        # pos_tagging('학생들이 몸무게를 비교하고 있습니다. 석진이는 호석이보다 무겁고 지민이보다 가볍습니다. 남준이는 지민이보다 무겁습니다. 4명 중 가장 가벼운 사람은 누구입니까?'),
-        # pos_tagging('$1구슬과 $2구슬, $3구슬을 모두 합하면 #1개입니다. $4구슬은 $5구슬보다 #2개가 많고, $6구슬은 #3개일 때 $7구슬은 몇 개입니까?'),
-        pos_tagging('$1는 $2보다 기가 큽니다.'),
-        pos_tagging('다람쥐는 생쥐보다 키가 큽니다. 두더지는 다람쥐보다는 키가 크고 악어보다는 작습니다.'),
-        visualize=True)
+        add_paddings(pos_tagging('@s0 상자보다 @s1 상자가 큽니다.')),
+        pos_tagging('(가), (나), (다), (라), (마) 5개의 상자가 있습니다. (가) 상자보다 (나) 상자가 큽니다. (나) 상자보다 (다) 상자가 큽니다. (다) 상자보다 (라) 상자가 큽니다. (라) 상자보다 (마) 상자가 큽니다. 크기가 가장 작은 상자는 무엇입니까?'),
+        visualize=True,
+        exclusions=set(range(40, 48)))
     print(score)
     print(assignments)
     print(span)

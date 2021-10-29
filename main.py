@@ -30,7 +30,7 @@ def solve_mwp(problem):
             # return answer, derivation
 
     fallback = False
-    if answer == None or distance > 0.15:
+    if answer == None or distance > 0.25:
         fallback = True
     else:
         expected_type, _ = rulebased.classify_question_type(problem)

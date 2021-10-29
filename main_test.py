@@ -33,7 +33,7 @@ def solve_mwp(problem):
             # return answer, derivation
 
     fallback = False
-    if answer == None or distance > 0.15:
+    if answer == None or distance > 0.25:
         fallback = True
     else:
         expected_type, _ = rulebased.classify_question_type(problem)
@@ -95,6 +95,7 @@ def debug_one_question(question, q_number=0, right_answer=''):
 def debug_all_questions():
     # test = dataset.dataset_google_sentences_teacher#[:40]
     test = dataset.dataset_sentences
+    # test = dataset.dataset_test
     utils.preprocess_sheet(test)
 
     with Pool(32) as p:
@@ -107,5 +108,5 @@ def debug_all_questions():
 
 results = debug_all_questions()
 
-# debug_one_question('295 * A < 1000 일 때, A에 들어갈 수 있는 자연수 중에서 가장 큰 수는 얼마일까요?')
-# debug_one_question('흰색 펜, 붉은 색 펜, 검정색 펜, 푸른 색 펜이 1개씩 있습니다. 이 펜 중 서로 다른 2개를 골라 그림을 그리려고 합니다. 고르는 방법은 모두 몇 가지입니까?')
+# debug_one_question('네 자리 수 6A42를 십의 자리에서 반올림하면 6000이 됩니다. 0부터 9까지의 숫자 중 A에 쓸 수 있는 숫자는 모두 몇 개입니까?')
+# debug_one_question('서로 다른 두 수 A, B가 있습니다. 두 자리 수끼리의 뺄셈식 A8-2B=45에서 A와 B의 차을 구하시오.')

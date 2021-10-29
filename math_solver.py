@@ -483,16 +483,4 @@ def solve(statements, time_limit_sec):
 
 # %%
 if __name__=="__main__": # 모듈 단독 테스트
-    # print(do_math({'equation': [], 'code': ["strings=['흰색', '검은색', '보라색', '초록색', '빨간색']"], 'objective': ['mathcomb(len(strings), (2))']}))
-    # do_math({'equation': ['정현이 = 15','영진 = 180 / 15', '경주 = 7 / 2\n'], 'code': [], 'objective': ["vars['정현이']"]})
-    # print(do_math({'equation': ['호석=2.0', '윤기=1.0', '석진=1.5', '남준 < 석진\n남준 > 윤기\n'], 'code': ["mapping={'호석': 2.0, '윤기': 1.0, '석진': 1.5}", 'x = sorted(vars.keys(), key=(lambda k: vars[k]), reverse=True)'], 'objective': ['x[(2)-1]']}))
-    # do_math({'equation': ['r=x/(5)\nx*(5)=(100)'], 'code': [], 'objective': ["vars['x']/(5)"]})
-    # print(do_math({'equation': ['A=B+B+B+B\nA=30'], 'code': [], 'objective': ["vars['A']"]}))
-    # print(do_math({'equation': ['정국>지민', '지민>진호','정국<인수'], 'code': [], 'objective': ["vars['인수']"]}))
-    # print(do_math({'equation': ['정국+a=지민', '지민+b=진호','정국=c+인수'], 'code': [], 'objective': ["vars['인수']"]}))
-    # print(do_math({'equation': ['지민=(0.7)\n은지=지민-(1/10)\n윤기=(4/5)\n유나=지민+(0.2)'], 'code': ['x = sorted(vars.keys(), key=(lambda k: vars[k]))'], 'objective': ['x[-1]']}))
-    # print(do_math({'equation': [], 'code': ["strings=['국어', '수학', '영어', '과학', '음악', '미술']"], 'objective': ['strings[(5)-1]']}))
-    # print(do_math({'equation': ['정국=2', '지민>정국', '인수>지민', '인수=4'], 'code': [], 'objective': ['vars["지민"]']}))
-    # print(do_math({'equation': ['A//(6)=B\nA%(6)=C\nB=C'], 'code': ["strings=['A', 'B', 'C']"], 'objective': ["max(vars['A'])"]}))
-    # do_math({'equation': ['정국 = (7) \n민영 = (5)\n태형<민영\n태형>정국'], 'code': [], 'objective': ["vars['태형']"]})
-    print(do_math({'equation': ['A89*2=1578', 'A<=9'], 'code': [], 'objective': ["eval('A', vars, vars)"]}))
+    print(do_math({'equation': ['석진>호석\n석진<지민', '호석>지민', '지민>남준'], 'code': [], 'objective': ['min(vars, key=vars.get)']}))

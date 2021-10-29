@@ -36,11 +36,16 @@ def find_phrases(problem):
     len_q = len(problem['question_tags'])
     matches = [[(float('inf'), None, None) for i in range(0, len_q+1)] for j in range(0, len_q+1)]
     for template in dataset.dataset_phrases:
-        distance, assignments, _, span = tagging.match_to_template_tags(template['template_tags'], problem['question_tags'])
-        distance *= (len(template['template_tags']) + len(problem['question_tags']))
-        # distance *= 2 * (span[1]-span[0]) / len(problem['question_tags'])
-        if distance < matches[span[0]][span[1]][0]:
-            matches[span[0]][span[1]] = (distance, template, assignments)
+        exclusions = set()
+        distance = 0
+        while distance < 0.5:
+            distance, assignments, _, span = tagging.match_to_template_tags(template['template_tags'], problem['question_tags'], exclusions=exclusions)
+            distance *= (len(template['template_tags']) + len(problem['question_tags']))
+            # distance *= 2 * (span[1]-span[0]) / len(problem['question_tags'])
+            distance += 0.05
+            if distance < matches[span[0]][span[1]][0]:
+                matches[span[0]][span[1]] = (distance, template, assignments)
+            exclusions |= set(range(span[0], span[1]))
 
     scores = np.zeros([len_q+1])
     tracks = np.zeros([len_q+1], dtype=int)
@@ -65,6 +70,7 @@ def find_phrases(problem):
         if matches[tracks[pos]][pos][0] != float('inf'):
             # print(matches[tracks[pos]][pos][1]['template'], matches[tracks[pos]][pos][2])
             template_assignment_list.append((matches[tracks[pos]][pos][1], matches[tracks[pos]][pos][2]))
+            print('{:.2f} {}: {} <= {}'.format(matches[tracks[pos]][pos][0], matches[tracks[pos]][pos][1]['id'], matches[tracks[pos]][pos][1]['template'], matches[tracks[pos]][pos][2]))
         pos = tracks[pos]
 
     return scores[-1] / (2*len_q), template_assignment_list
@@ -128,7 +134,8 @@ def match(problem, no_predefined=False):
     if len(problem['question']) > 30:
         print(f'\033[33mbest match phrases\033[0;0m' + (' with predefined patterns' if no_predefined==False else ' no predefined'))
         distance_phrases, matches_phrases = find_phrases(problem)
-        print(f'{distance_phrases} {matches_phrases}')
+        print(f'{distance_phrases}')
+        # print(f'{distance_phrases} {matches_phrases}')
 
         if distance_phrases < distance:
             distance = distance_phrases

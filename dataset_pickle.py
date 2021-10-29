@@ -200,8 +200,11 @@ print('loading dataset...', end=' ')
 dataset_google_sentences_teacher = load_dataset_google_sheets('선생님문제모음')
 dataset_google_sentences_elementary = load_dataset_google_sheets('콴다초등문제모음')
 dataset_google_sentences_augmented = load_dataset_google_sheets('augmented')
+
 dataset_google_phrases1 = load_dataset_google_sheets('수찾기3', is_phrase=True)
 dataset_google_phrases2 = load_dataset_google_sheets('크기비교', is_phrase=True)
+
+dataset_google_test_samples = load_dataset_google_sheets('대회샘플테스트', is_phrase=True)
 # load_dataset_json()
 # dataset_csv = load_dataset_csv('dataset.csv')
 # dataset_csv_qanda = load_dataset_csv('dataset_qanda.csv')
@@ -215,10 +218,14 @@ dataset_phrases = []
 dataset_phrases.extend(dataset_google_phrases1)
 dataset_phrases.extend(dataset_google_phrases2)
 
+dataset_test = []
+dataset_test.extend(dataset_google_test_samples)
+
 ############### SAVE DATA #############
 loaded_data = { 
     'dataset_sentences' : dataset_sentences,
-    'dataset_phrases' : dataset_phrases
+    'dataset_phrases' : dataset_phrases,
+    'dataset_test' : dataset_test
 }
 with open('data.pickle', 'wb') as f:
     pickle.dump(loaded_data, f, pickle.HIGHEST_PROTOCOL)
